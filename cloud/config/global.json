@@ -7,8 +7,5 @@
         "_default": {
             "link": "Codedu"
         }
-    }, 
-    "global": {
-        "parseVersion": "1.2.19"
     }
 }
