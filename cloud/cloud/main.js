@@ -281,9 +281,30 @@ Parse.Cloud.afterSave("User_status",function(request){
 
 });    */
 //-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋
+function qurEventInfo (){
+	 
+}
+
+Parse.Cloud.define("setEventRecord_EventInfo",function(rq,rp){
+qurClass('Event_Info').then(function(){
+		return qurClass('Event_Record') ; 
+})
+})
+
 
 Parse.Cloud.beforeSave("Event_Record",function(request,response){
-
+	var obj = request.object ;
+	var eidNum = obj.get('eid');
+	var eid = eidNum.toString();
+	var EventInfo = Parse.Object.extend("Event_Info");
+	var qri = new Parse.Query(EventInfo);
+		qri.equalTo("eid",eid);
+		qri.first().then(function (ei){
+			obj.set('Event_Info',ei);
+			response.success();
+		},function(e){
+			response.error(e.message);
+		});
 });
 
 Parse.Cloud.afterSave("Event_Record",function(request){
@@ -549,7 +570,6 @@ function sendEvent (user,eidNum){
 	var e = new EventRecord ();
 	e.set("target",user); // Target
 	e.set("eid",eidNum);
-	e.set("")
 	return e.save();
 }
 function sucMes(s){
