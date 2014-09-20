@@ -14,7 +14,7 @@ body{
 	color:rgb(61,94,109);
 	background-color:rgb(129,170,188) !important;
 	background-color:rgb(129,170,188) !important;
-	font-family: 'Oswald', sans-serif;
+	font-family: 'Oswald', "微軟正黑體", sans-serif;
 }
 
 .title{
@@ -235,4 +235,16 @@ body{
 #login-status img{
 	height: 20px;
 
+}
+
+footer{
+	background-color: #41626F;
+	padding-bottom: 50px;
+}
+
+footer p{
+	margin-bottom: 0;
+	color: #80ABBC;
+	text-align: center;
+	font-size: 1em;
 }
