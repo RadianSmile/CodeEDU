@@ -24,6 +24,12 @@
 <link rel="stylesheet" href="css/bug.css">
 <link rel="stylesheet" href="css/review.css">
 
+<!--HeadRoom-->
+<script src="http://cdnjs.cloudflare.com/ajax/libs/headroom/0.6.0/jQuery.headroom.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/headroom/0.6.0/headroom.min.js"></script>
+<!--/HeadRoom-->
+
+
 </head>
 <body>
 <div class="container-fluid">
@@ -46,18 +52,34 @@
 </div><!-- /.modal -->
 </div>
 
-
 <style>
-nav {
-	
+.pin  {
+	top:0px !important;
 }
+nav{
+	top:-45px !important;
+}
+
+
+
 </style>
 <script src="js/include/nav.js"></script>
+<script type="text/javascript" src="js/include/schedule.js"></script>
 <script>
 
-</script>
-<script type="text/javascript" src="js/include/schedule.js"></script>
+var t = setTimeout(r,5000);;
+$('nav').addClass('pin').mouseover(function(){
+	clearTimeout(t);
+	$('nav').addClass('pin');
+}).mouseout(function(){
+	clearTimeout(t);
+	t = setTimeout(r,500);
+});
+function r (){
+	$('nav').removeClass('pin');
+}
 
+</script>
 <div class=" container-fluid">
 <!-- Nav tabs -->
 <div class="nav-row row" style="position:relative;">

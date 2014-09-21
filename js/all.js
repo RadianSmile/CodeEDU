@@ -167,7 +167,17 @@ function qurClass (name) {
 	q.limit (20000);
 	return q.find ();
 }
-
+function newObject(className){
+	var C = Parse.Object.extend(className);
+	var c = new C();
+	return c ; 
+}
+function newQur (className){
+	var C = Parse.Object.extend(className);
+	var q = new Parse.Query(C);
+	return q ;
+}
+ 
 function Log(o){
 	console.log (o) ;
 }
@@ -229,6 +239,11 @@ function paraCheck (para,msg){
 		return true;
 	}
 }
+	function padLeft(str, len) {
+		str = '' + str;
+		return str.length >= len ? str : new Array(len - str.length + 1).join("0") + str;
+	}
+
 
 
 function renameClass (oldClass , newClass) {
@@ -325,4 +340,31 @@ function loadPic(userImageLink,dom,userName){
 //			$("#login-status a").append(userName);
 		}
 		},100);
+}
+
+function gradeRef(){
+	
+	var gradeToStrRef = [];
+	gradeToStrRef[0] = "X";
+	gradeToStrRef[1] = "C";
+	gradeToStrRef[2] = "B";
+	gradeToStrRef[3] = "A";
+	
+	var gradeToNumRef = [];
+	gradeToNumRef["O"] =0 ;
+	gradeToNumRef["C"] =1 ;
+	gradeToNumRef["B"] =2 ;
+	gradeToNumRef["A"] =3 ;
+
+	return {
+		numToStr : function (num){
+			return  gradeToStrRef[num];
+		},
+		strToNum : function  (str){
+			return gradeToNumRef[str];
+		}
+	}
+}
+function randBtw (Min,Max){
+	return Math.floor(Math.random() * (Max - Min + 1))+ Min ;
 }

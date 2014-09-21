@@ -4,12 +4,16 @@
 <meta charset="UTF-8">
 
 <!-- Common links -->
+<!----><script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.19.min.js"></script>
+<script>
+		Parse.initialize("9eo5r1mHWoIPSTCzmrpdKa3lcHPjySx4y5D6q8Nq", "R8SWwYxpJcy73ogQKuSD43y7FigrlDGjBLcy1lzC");	
+
+</script>
 <!----><link rel="icon" type="image/png" href="/include/icon.png" />
 <!----><link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
 <!----><script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 <!----><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-<!----><script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.19.min.js"></script>
-<!----><link href="../css/all.css" rel="stylesheet" />
+<script type="text/javascript" src="../js/all.js"></script>
 <!----><!--script src="../js/all.js"></script-->
 <!---------------------->
 <style>
@@ -24,31 +28,127 @@
 <script>
 		Parse.initialize("9eo5r1mHWoIPSTCzmrpdKa3lcHPjySx4y5D6q8Nq", "R8SWwYxpJcy73ogQKuSD43y7FigrlDGjBLcy1lzC");	
 
+//generateUser(67);
+//generateAssigns()
+//generateReview();
 
-function qurUsers (){
-	var User = Parse.Object.extend("Test_User");
-	var q = new Parse.Query(User);
-	return q.find();
-}
-
-function padLeft(str, len) {
-    str = '' + str;
-    return str.length >= len ? str : new Array(len - str.length + 1).join("0") + str;
-}
-
-(function start(){
-	qurUsers().then(function(users){
-		console.log ("!!");
-		for (var i = 0 ; i < users.length ; i++){
-			users[i].set("uid","1031020" + padLeft(i,2) );
-			users[i].set("photo","https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xfa1/v/t1.0-1/p50x50/1910007_813877938630807_6837016541930176142_n.jpg?oh=6d48016ada074412b0e88361496d5c4d&oe=5490D5A2&__gda__=1419276272_c1b32f697007f757e8d1aa37c8fb5ec1");
-		}
-		return Parse.Object.saveAll(users);
-	}).then(function (users){
-		console.log (users);
-	},function (e){console.log (e)});
+////////////////////////////////////////////////////////////////////////
+// generate User
+////////////////////////////////////////////////////////////////////////
+function generateUser(length){
 	
-})();
+	makeUsers(length)
+		
+	function  makeUsers (length){
+		console.log ("!!");
+		users = [] ;
+		for (var i = 0 ; i < length ; i++){
+			var u = new Parse.User();
+			console.log (i);
+			users.push(u);
+			users[i].set("role","student");
+			users[i].set("uid","9999999" + padLeft(i,2) );
+			users[i].set("username", "依依"+i);
+			users[i].set("password", "111");
+			//users[i].set("email", "a@a.a.a");
+			users[i].set("photo","https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xfa1/v/t1.0-1/p50x50/1910007_813877938630807_6837016541930176142_n.jpg?oh=6d48016ada074412b0e88361496d5c4d&oe=5490D5A2&__gda__=1419276272_c1b32f697007f757e8d1aa37c8fb5ec1");
+			users[i].signUp().then(Log,Log);
+		}
+		//return Parse.Object.saveAll(users);
+	}
+};
+
+//////////////////////////////////
+// Generate Assign 
+//////////////////////////////////
+function generateAssigns (){
+
+	qurUsers()
+	.then(generateAssign)
+	.then(Log,Log);
+
+
+	function qurUsers (){
+		var User = Parse.User;
+		var q = new Parse.Query(User);
+		return q.find();
+	}
+	
+	function generateAssign (UserArr) {
+		var saveArr = [];
+		for (var i = 0 ; i < UserArr.length ; i++){
+			var u = UserArr[i];
+			var url = 'http://radiansmile.github.io/CodeEDU/final_11/play.html';
+			var maker = u;
+			var nth = '1';
+			var uid = u.get('uid');
+			
+			var a = newObject ('Assign');
+			a.set('maker',u);
+			a.set('nth',nth);
+			a.set('uid',uid);
+			a.set('url',url);
+			saveArr.push (a);
+		}
+		return Parse.Object.saveAll (saveArr)
+	}
+}
+
+//////////////////////////////////
+// Generate Record
+//////////////////////////////////
+
+function generateReview(){
+	qurClass('Review_Record')
+		.then(fakeRecord);
+	
+	function fakeRecord(ReviewArr){
+		
+		for (var i = 0 ; i < ReviewArr.length ; i++){
+			var s = ( i % 5  === 0) ? true : false ;
+			var r = randBtw(0,3);
+			var gr = gradeRef();
+			var g = gr.numToStr(r)
+			document.write( g+"\t");
+			ReviewArr[i].set("grade",g);
+			ReviewArr[i].set("star",s);
+		}
+		Parse.Object.saveAll (ReviewArr).then(Log,Log);
+	}
+}
+
+/*	
+	function generateReviewGrade (){
+		console.log("querying");
+		var promise = new Parse.Promise();
+		var Assign = Parse.Object.extend("Review_Record");
+		var assign = new Assign();
+		var q = new Parse.Query(Assign);
+		q.limit(1000);
+		q.equalTo("nth",assignToReview.toString());
+		q.ascending("createdAt");
+		q.find().then(function(r){
+			console.log(r);
+			for (var i = 0 ; i < r.length ; i++){
+				var a = randomBtw(0,3);
+				r[i].set("grade",gradeToStrRef[a]);
+				r[i].set("assign_id",r[i].get("assign").id);
+			}
+			return Parse.Object.saveAll(r);
+		}).then(function(r){
+			console.log (r);
+			},function(e){
+			promise.reject(e.message);
+			console.log(e.message);
+		});
+		return promise ;
+	}
+	
+	*/
+	
+
+////////////////////////////////////////////////////////
+
 
 
 /*

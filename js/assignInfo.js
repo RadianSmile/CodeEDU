@@ -202,7 +202,15 @@ function generateAssignInfo (nth) {
 
 
 $D.on('click',".submit-asnUrl",function(e){
+	var userDone = false ,
+			checkDone = false ;
 	
+	
+	var currentUserObj ;currentUser.fetch().then(function(u){
+		currentUserObj=u ;
+		userDone = true ;
+		controlSave () ;
+	},Log);
 	$aI = $('.assignModalInfo');
 	e.stopPropagation();
 	var nth = $(this).data("nth").toString();
@@ -233,11 +241,18 @@ $D.on('click',".submit-asnUrl",function(e){
 				}else{
 					console.log (d);
 					//alert(d);
-					saveAssign();
+					checkDone = true ;
+					controlSave();
 				}		
 		//		alert(d);
 			}
 		});
+	}
+	
+	function controlSave(){
+		if (userDone && checkDone){
+			saveAssign();
+		}
 	}
 	function saveAssign (){
 		var asnUrl = URL ;
@@ -246,6 +261,7 @@ $D.on('click',".submit-asnUrl",function(e){
 			var savingasn = new Asn();
 			savingasn.set("nth",nth);
 			savingasn.set("maker",currentUser);
+			savingasn.set("uid",currentUserObj.get('uid'))
 		}else {
 			savingasn = asn ;
 		}
