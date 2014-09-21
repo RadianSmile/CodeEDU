@@ -248,3 +248,10 @@ footer p{
 	text-align: center;
 	font-size: 1em;
 }
+
+footer h5{
+	margin: 0px;
+	color: #80ABBC;
+	text-align: center;
+	font-size: 1.7em;
+}
