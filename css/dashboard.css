@@ -117,8 +117,6 @@ article{
 
 .card-box img{
 	width: 100%;
-	margin-top: 10px;
-	margin-bottom: 10px;
 }
 
 
@@ -142,6 +140,8 @@ article{
 	
 .card-box{
 	cursor:pointer;
+	padding-top: 10px;
+	padding-bottom: 10px;
 	transition:all .6s ease;
 	-webkit-transition:all .4s ease;
 }
