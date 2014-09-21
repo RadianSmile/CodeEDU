@@ -19,6 +19,8 @@ body{
 
 .block{
 	text-align: center;
+	transform-style: preserve-3d;
+	-webkit-transition: -webkit-transform 1.5s;
 }
 
 .front img{
