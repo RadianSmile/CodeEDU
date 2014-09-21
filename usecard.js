@@ -702,7 +702,7 @@ function donateHP(cardid, target){
                         udata1.set('objectId', results[0].id);
                         udata1.save(null,{
                             success: function(udata1){
-                                var hpAfter = hp + hpSteal;
+                                var hpAfter = hp + hpDonate;
                                 if(hpAfter > 100)
                                     hpAfter = 100;
                                 udata1.set('HP',hpAfter);
@@ -715,7 +715,7 @@ function donateHP(cardid, target){
                         udata2.set('objectId', results[1].id);
                         udata2.save(null,{
                             success: function(udata2){
-                                var hpAfter = hp2 - hpSteal;
+                                var hpAfter = hp2 - hpDonate;
                                 if(hpAfter < 0)
                                     hpAfter = 0;
                                 udata2.set('HP',hpAfter);
