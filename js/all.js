@@ -280,6 +280,11 @@ Array.prototype.getIndexById = function (value) {
 		return -1
 }
 
+function getObjectByAttrVal (Arr, attr , val){
+	return Arr[Arr.getIndexByAttr(attr,val)];
+}
+
+
 $.fn.toggleDisabled = function () {
 	return this.each(function () {
 		var $this = $(this);

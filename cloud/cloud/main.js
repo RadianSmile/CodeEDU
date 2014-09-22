@@ -307,7 +307,7 @@ Parse.Cloud.job("setEventRecord_EventInfo",function(rq,rp){
 })
 
 
-Parse.Cloud.beforeSave("_Event_Record",function(request,response){
+Parse.Cloud.beforeSave("Event_Record",function(request,response){
 	var obj = request.object ;
 	var eidNum = obj.get('eid');
 	var eid = eidNum.toString();

@@ -3,14 +3,22 @@ $(document).ready(function(){
     Parse.initialize("9eo5r1mHWoIPSTCzmrpdKa3lcHPjySx4y5D6q8Nq", "R8SWwYxpJcy73ogQKuSD43y7FigrlDGjBLcy1lzC");
     var current_user = Parse.User.current();
     if(current_user){
+			var EI = [] ;
         function getEventInfo (){
-				   var eventrecord = Parse.Object.extend("Event_Record");
+				   var EventInfo = Parse.Object.extend("Event_Info");
+					 var q = new Parse.Query (EventInfo);
+					 return q.find();
 				}
-				
-				
+				getEventInfo().then(function (Ei){
+						EI = Ei ;
+						 showEventRecord();
+						
+				})
+				function showEventRecord (){
         var eventnotification = "";
         var eventrecord = Parse.Object.extend("Event_Record");
         var query3 = new Parse.Query(eventrecord);
+				query3.descending("createdAt");
         query3.equalTo('target', Parse.User.current());
         query3.find({
            success:function(data){ // evetRecord
@@ -18,23 +26,28 @@ $(document).ready(function(){
                 for(var i = 0; i<data.length; i++){
                     
                     var eid = data[i].get('eid');
+											var eidStr = eid.toString();
                     var datai = data[i]; // Event Record
-                    var eventinfo = Parse.Object.extend("Event_Info");
+                   /* var eventinfo = Parse.Object.extend("Event_Info");
                     var query4 = new Parse.Query(eventinfo);
-                    query4.equalTo('eid', eid.toString());
+                    query4.equalTo('eid', eid.toString());  */
 											var j = (data[i].get('isNoti') !== true)? 'noti-new' : '' ;
 
-                    query4.first({
+//**					
+											var currentEventInfo = getObjectByAttrVal(EI,"eid",eidStr);
+//
+                   /* query4.first({
                         success:function(data2){
 															 var er = datai ;
-															 console.log ("er",er);
-                            var s = eventRecord(er, data2);
+															 console.log ("er",er);*/
+                            var s = eventRecord(datai, currentEventInfo);
                             eventnotification += s;
                             var strings = "<div class = 'notification-info "+ j +"'>" + eventnotification + "</div>";   //Rn
                             $('#works').append(strings);
                             eventnotification = "";
-                        }
-                    });
+                        //}
+                   // });
+//**
 										  if (data[i].get('isNoti') !== true){
 											data[i].set('isNoti', true);
 											saveArr.push (data[i]);
@@ -43,7 +56,8 @@ $(document).ready(function(){
                 } // for
                 Parse.Object.saveAll(saveArr).then(Log,Log);
             }
-        })
+        });
+				}
         //Card use
         var notification = "";
         var notif = Parse.Object.extend("Card_record");
