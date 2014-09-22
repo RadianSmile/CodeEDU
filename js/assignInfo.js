@@ -204,10 +204,17 @@ function generateAssignInfo (nth) {
 $D.on('click',".submit-asnUrl",function(e){
 	var userDone = false ,
 			checkDone = false ;
+
 	
 	
 	var currentUserObj ;currentUser.fetch().then(function(u){
 		currentUserObj=u ;
+		if (u.get('role') !== 'student')
+		{
+			alert("你不是學生，不可以上傳作業");
+			return false ;
+			
+		}
 		userDone = true ;
 		controlSave () ;
 	},Log);

@@ -5,7 +5,6 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
     echo 'Text to send if user hits Cancel button';
     exit;
 } else {
-   
-	// echo
-}        
+   // echo wrong
+} 
 ?>

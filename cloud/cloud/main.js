@@ -392,12 +392,13 @@ Parse.Cloud.afterDelete(Parse.User,function(rq){
 
 });
 
-
+//-----------------------------------------------------------------------------
 Parse.Cloud.job("Random_review", function(rq, status) {
 		
 	var ASSIGN_NTH = rq.params.nth	 ;	
 	var STD_NUM = 0 ; //user(role=std).length
 	var REVIEW_MAX = 5 ; 
+	var BLANK_URL = "radiansmile.github.io/CodeEDU/final_11/play.html?blak";
 
 	var AssignArr =[];
 	var UserArr = [];
@@ -417,13 +418,46 @@ Parse.Cloud.job("Random_review", function(rq, status) {
 				qu.equalTo("role","student");
 	
 		// Start
-		qa.find().then(function(o){AssignArr = o ;}).then(function(e){
-			qu.find().then(function(o){UserArr = o ; 
-				STD_NUM = UserArr.length; status.message(STD_NUM.toString()); 
-				reviewRandomArr = getReviewNumArr ();
-				Record();
-			},Log);
+		qa.find().then(function(a){
+			AssignArr = a ;
+			qu.find().then(function(u){
+				UserArr = u ; STD_NUM = UserArr.length; status.message(STD_NUM.toString()); 
+				// 這時候應該要先去找到，沒有交作業的人			
+				checkUserSubmit().then(function(blankAssigns){
+					console.log("AssignArr.length before "+AssignArr.length.toString());
+					AssignArr = AssignArr.concat(blankAssigns);
+					console.log("AssignArr.length after "+AssignArr.length.toString());
+					reviewRandomArr = getReviewNumArr ();
+					Record();
+				},function (e){status.error(e.message)});
+			},function (e){status.error(e.message)});
 		});
+	}
+	
+	function checkUserSubmit(){
+		var saveArr = [] ;
+		for (var i = 0 ; i < UserArr.length ; i++){
+			var uoid = UserArr[i].id ;
+			var checkSubmit = false ;
+			for (var j = 0 ; j < AssignArr.length ; j++){
+				var auoid = AssignArr[j].get('maker').id;
+				if (auoid === uoid) {checkSubmit = true ; break ;}
+			}
+			if (checkSubmit){
+				continue ;
+			}else {
+				var A = Parse.Object.extend("Assign");
+				var aa = new A();
+				aa.set("maker",UserArr[i]);
+				aa.set("nth",ASSIGN_NTH);
+				aa.set("url",BLANK_URL);
+				aa.set("uid",UserArr[i].get('ID'));
+				aa.set("note","uncomplete");
+				saveArr.push (aa);
+				console.log ("Didnot Submit User Id : "+UserArr[i].id);
+			}
+		}
+		return Parse.Object.saveAll (saveArr);
 	}
 	
 	function getReviewNumArr (){
@@ -472,8 +506,7 @@ Parse.Cloud.job("Random_review", function(rq, status) {
 					default :
 						break; 
 				}
-			}//	
-		
+			}//		
 	}	
 	function Hcheck(hw,x,y){
 		//判別：下面這邊開始要縱項檢查
@@ -545,7 +578,7 @@ Parse.Cloud.job("Random_review", function(rq, status) {
 						var reviewRecord = new ReviewRecord ();
 						reviewRecord.set("reviewer",UserArr[i]);
 						reviewRecord.set("assign",assign);
-						reviewRecord.set("assign_ID",assign.id);
+						reviewRecord.set("assign_id",assign.id);
 						reviewRecord.set("nth",ASSIGN_NTH);	
 						saveAllArr.push (reviewRecord);		
 					}
@@ -554,9 +587,9 @@ Parse.Cloud.job("Random_review", function(rq, status) {
 		}
 		console.log("saveAllArr",saveAllArr);
 		Parse.Object.saveAll(saveAllArr).then(function(l){
-			console.log("Fuck");
+			console.log("Random Done!! Congratulations!!");
 			console.log(l);
-			status.success("Random Done!! Congratulations!!");
+			status.success("Random Done!!");
 			}
 		,function(e){
 			console.log (e);	
@@ -565,15 +598,17 @@ Parse.Cloud.job("Random_review", function(rq, status) {
 	}
 });
 
-//Frading-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//Grading-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 Parse.Cloud.job("Grading",function(rq,rp){
 	var nth = rq.params.nth ;
 	var assignNum = 0 ;
 	var successCount = 0  ;
 	
+	var AssignArr = []
+	
 	getAssign()
-		.then(doGrading);
+		.then(doGrading,function (e){rp.error("really!?")});
 	
 	var gradeToStrRef = [];
 	gradeToStrRef[0] = "X";
@@ -582,7 +617,7 @@ Parse.Cloud.job("Grading",function(rq,rp){
 	gradeToStrRef[3] = "A";
 	
 	var gradeToNumRef = [];
-	gradeToNumRef["O"] =0 ;
+	gradeToNumRef["X"] =0 ;
 	gradeToNumRef["C"] =1 ;
 	gradeToNumRef["B"] =2 ;
 	gradeToNumRef["A"] =3 ;
@@ -591,28 +626,28 @@ Parse.Cloud.job("Grading",function(rq,rp){
 		successCount++;
 		rp.message("success " + successCount +" "+a.id);
 		if (successCount === assignNum ){
-			rp.success();
+			rp.success("successCount "+successCount);
 		}
 	}
-	function doGrading (Assign){
-		var p = new Parse.Promise() ;
-		assignNum =  Assign.length ;
-		for (var i = 0 ; i < Assign.length ; i++){
-			getRecordByAssign(Assign[i])
+	function doGrading (Assigns){
+		AssignArr = Assigns
+		assignNum =  Assigns.length ;
+		console.log ("assignNum" + assignNum.toString());
+		for (var i = 0 ; i < AssignArr.length ; i++){
+			//console.log (Assign[i].id);
+			getRecordByAssign(AssignArr[i])
 			.then(singleGrading)
 			.then(function(a){
 				successPlus (a);
-				console.log(a.id,"grade",a.get("grade") );		
+				console.log(a.id+" grade "+a.get("grade") );		
 			},function(e){
 				rp.error('fail to save a assign');	
 			});
 		}
-		
-		return p
 	}
 	
 	function singleGrading (r){
-		console.log(r.length.toString());
+		//console.log("Record Length "+r.length.toString());
 		var p = new Parse.Promise();
 		var star = 0 ;
 		var total = 0 ;
@@ -623,7 +658,7 @@ Parse.Cloud.job("Grading",function(rq,rp){
 				total += gradeToNumRef[g];
 				count++;
 			}
-			console.log (r[i].get("star"));
+			//console.log (r[i].get("star"));
 			r[i].get("star") ? star++ : star ;
 		}
 		var avg = Math.round(total/ count) ;
@@ -650,7 +685,13 @@ Parse.Cloud.job("Grading",function(rq,rp){
 			r[i].set("note", note );
 		}
 		
-		Parse.Object.saveAll(r).then(Log,Log);
+		Parse.Object.saveAll(r).then(function(rr){
+			rp.message("Record One Assign !");
+		},function(e){
+			rp.error("Record Save To Assign Fail");
+		});
+		
+		
 		var assign = r[0].get("assign");
 		assign.set("grade",gradeToStrRef[avg]);
 		assign.set("star",star);
@@ -662,7 +703,8 @@ Parse.Cloud.job("Grading",function(rq,rp){
 		var ReviewRecord = Parse.Object.extend ("Review_Record");
 		var q = new Parse.Query (ReviewRecord);
 		q.include("assign");
-		q.equalTo("assign", assign);
+		q.equalTo("assign",assign);
+		q.limit(1000);
 		return q.find();
 	}
 	function getRecordByReviewer (userId) {
@@ -679,6 +721,7 @@ Parse.Cloud.job("Grading",function(rq,rp){
 	function getAssign(){
 		var Assign = Parse.Object.extend("Assign");
 		var q = new Parse.Query (Assign);
+		q.include("maker");
 		q.equalTo('nth',nth);
 		q.limit(1000);
 		return q.find();
@@ -713,7 +756,7 @@ function Log(o){
 }
 
 function pointer (objectID,className){
-	var c = (typeof(className) !== 'undefined') ? className : "Test_Assign";
+	var c = (typeof(className) !== 'undefined') ? className : "Assign";
 	console.log (c);
   var pointer = new Parse.Object(c);
   pointer.id = objectID;

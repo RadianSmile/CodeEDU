@@ -71,6 +71,8 @@ function generateAssigns (){
 	function qurUsers (){
 		var User = Parse.User;
 		var q = new Parse.Query(User);
+		q.equalTo("role",'student');
+
 		return q.find();
 	}
 	
@@ -103,13 +105,20 @@ function generateReview(){
 		.then(fakeRecord);
 	
 	function fakeRecord(ReviewArr){
-		
+		console.log (ReviewArr.length);
+		var starArr = [] ;
 		for (var i = 0 ; i < ReviewArr.length ; i++){
-			var s = ( i % 5  === 0) ? true : false ;
+			var j = i % 5 ;
+			if ( j === 0 ){
+				starArr = [false,false,false,false,false];
+				var k = randBtw(0,4);
+				starArr[k] = true ;
+			}
+			var s = starArr[j];
 			var r = randBtw(0,3);
 			var gr = gradeRef();
 			var g = gr.numToStr(r)
-			document.write( g+"\t");
+			document.write( g+"\t "+s.toString() +"<br>	");
 			ReviewArr[i].set("grade",g);
 			ReviewArr[i].set("star",s);
 		}
