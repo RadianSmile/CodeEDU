@@ -160,6 +160,16 @@ article{
 	display:block;
 }
 
+.owncard{
+	display: block;
+    margin-left: auto;
+    margin-right: auto
+}
+
+#shoredes{
+	text-align: center;
+}
+
 /*
 .individual-attr{
 	float:left;
