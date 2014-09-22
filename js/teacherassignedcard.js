@@ -32,12 +32,12 @@ $(document).ready(function(){
     				ccontainer += s;
                     if((i+1) % 6 ==0){
                         var string = "<div class='row-fluid'>" + ccontainer + "</div>";
-                        $('div.container-fluid').append(string);
+                        $('div#selecttarget').append(string);
                         ccontainer = "";
                     }
                     else if(i==data.length -1){
                         var string = "<div class="+"row-fluid"+">" + ccontainer + "</div>";
-                        $('div.container-fluid').append(string);
+                        $('div#selecttarget').append(string);
                         ccontainer = "";                                                        
                     }
                 }
