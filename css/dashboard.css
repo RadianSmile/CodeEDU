@@ -166,7 +166,12 @@ article{
     margin-right: auto
 }
 
-#shoredes{
+#shortdes{
+	text-align: center;
+	padding-top: 10px;
+}
+
+#cardTiltle{
 	text-align: center;
 }
 
