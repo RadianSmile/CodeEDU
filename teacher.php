@@ -5,6 +5,13 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
     echo 'Text to send if user hits Cancel button';
     exit;
 } else {
-   // echo wrong
+	
+	//echo $_SERVER['PHP_AUTH_USER'];
+  if ( $_SERVER['PHP_AUTH_USER'] === 'programming101'){
+		include ('js/include/._teacher.hide');
+	}else {
+		 header('HTTP/1.0 401 Unauthorized');
+
+	}
 } 
 ?>

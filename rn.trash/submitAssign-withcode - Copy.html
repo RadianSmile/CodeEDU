@@ -1,0 +1,111 @@
+<!doctype html>
+<html><head>
+<meta charset="UTF-8">
+<title>繳交作業</title>
+
+<link rel="icon" type="image/png" href="/include/icon.png" />
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="//www.parsecdn.com/js/parse-1.2.19.min.js"></script>
+<link href="/css/all.css" rel="stylesheet" />
+<script src="/js/all.js"></script>
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="../pkgs/processing/minim.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/processing.js/1.4.8/processing.min.js"></script> 
+
+<style>
+#editor-container {
+	position:relative;
+	margin:50px;
+	height:3000px;
+	
+}
+ #editor { 
+	margin: 0;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+</style>
+</head>
+
+<body>
+<!-- Button trigger modal -->
+<button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+  Submit Assign
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+      </div>
+      <div class="modal-body">
+				<form id="submitAssign">
+					<input id="link" placeholder="請貼入連入作業 play.html 的網址 " style="width:400px; padding:10px;"><br>
+				</form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button id="submit" type="button"  class="btn btn-primary" style="padding:10px;">送出作業</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="play">
+</div>
+<div id="editor-container">
+	<div id="editor">
+
+	</div>
+</div>
+
+<script type="text/javascript">
+$("#submit").on('click',function(){
+    toSubmit($('.submit-asnUrl').val());
+		var play = document.createElement("iframe");
+		play.setAttribute("src",$('#link').val());
+		$("#play").append(play);
+		    return false;
+});
+
+</script>
+
+<script>
+var callback = function (data, status, xhr) {		
+	if (status == 'success') {
+		var editor = ace.edit("editor");
+		editor.setTheme("ace/theme/twilight");
+		editor.getSession().setTabSize(2);
+		document.getElementById('editor').style.fontSize='16px';
+		editor.getSession().setMode("ace/mode/java");
+		editor.setValue(data);
+	}	
+};
+    //using jQuery to fire off an ajax request to load the xml,
+    //using our callback as the success function
+function toSubmit (url){
+		$.ajax(
+				{
+						url : "http://codedu.com/getcode.php" ,
+							type: "POST",
+							data:{url:url},
+						dataType : 'text', //explicitly requesting the xml as text, rather than an xml document
+						success : callback
+				}
+		);
+}
+
+
+</script>
+</body>
+</html>

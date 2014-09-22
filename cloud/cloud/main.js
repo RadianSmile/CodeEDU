@@ -12,8 +12,20 @@ Parse.Cloud.define("getRole",function(rq,rp){
 })
 
 
+/** Uncompleted Function
+/*Parse.Cloud.define("cleanUserStatus",function(rq,rp){
+	var userStatusArr = [] ;
+	qurClass("User_status").then(function(us){
+		userStatusArr = us ;
+		var q = new Parse.Query(Parse.User);
+		q.limit(10000);
+			
+		}).then(function(){},function(){})
+	})
+});*/
+
+
 /*Parse.Cloud.beforeSave("Event_Record",function(request){
-	
 });*/
 
 Parse.Cloud.beforeSave(Parse.User,function(request,response){

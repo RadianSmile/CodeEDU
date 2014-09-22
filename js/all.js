@@ -9,7 +9,7 @@ var currentUser = Parse.User.current();
 //console.log (currentUser);
 
 
-$("title").append(" | 程式學習平台");
+$("title").append(" | 程式設計基礎遊戲學習平台");
   window.fbAsyncInit = function() {
 		Parse.FacebookUtils.init({
 			appId      : '1452756891666119',
