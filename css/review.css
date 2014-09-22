@@ -3,9 +3,10 @@ html {
   padding:0;
   overflow-x:hidden;
 }
+
 body {
 	background:rgb(129,170,188);
-	
+	font-family: "Oswald", "微軟正黑體", sans-serif;	
 }
 
 .navbar-fixed-top{ 
@@ -15,12 +16,11 @@ body {
 	transition:top .5s;
 	-webkit-transition:top .5s;
 	margin-bottom:0;
-}.navbar-fixed-top:hover {
-	top:0px !important;
 }
 
-
-
+.navbar-fixed-top:hover {
+	top:0px !important;
+}
 
 li.tab > a {
 	background-color:rgb(60,60,60);
@@ -45,11 +45,13 @@ li.tab > a {
 }
 
 .bug-block-title{
-	color:rgb(61,94,109);
+	padding-top: 20px;
+	color:white;
 	text-align:center;
 }
 .bug {
 	margin-bottom:20px;
+	border-radius: 5px;
 	
 }
 /* 這是關於前端小*/
@@ -144,3 +146,6 @@ input.star{
 	
 }
 
+#review-submit{
+	font-size: 1em;
+}

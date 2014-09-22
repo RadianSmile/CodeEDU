@@ -8,8 +8,9 @@
 <!----><link rel="icon" type="image/png" href="include/icon.png" />
 <!----><script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 <!----><script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.19.min.js"></script>
-<!----><script type="text/javascript" src="js/checkUser.js" ></script>
+       <script type="text/javascript" src="js/checkUser.js" ></script>-->
         <link href="bootstrap/css/bootstrap.css" rel="stylesheet" />
+        <link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
  
 <!----<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
 <!----><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
@@ -23,12 +24,6 @@
 
 <link rel="stylesheet" href="css/bug.css">
 <link rel="stylesheet" href="css/review.css">
-
-<!--HeadRoom-->
-<script src="http://cdnjs.cloudflare.com/ajax/libs/headroom/0.6.0/jQuery.headroom.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/headroom/0.6.0/headroom.min.js"></script>
-<!--/HeadRoom-->
-
 
 </head>
 <body>
@@ -52,45 +47,60 @@
 </div><!-- /.modal -->
 </div>
 
+
 <style>
-.pin  {
-	top:0px !important;
+nav {
+	
 }
-nav{
-	top:-45px !important;
-}
-
-
-
 </style>
 <script src="js/include/nav.js"></script>
-<script type="text/javascript" src="js/include/schedule.js"></script>
 <script>
 
-var t = setTimeout(r,5000);;
-$('nav').addClass('pin').mouseover(function(){
-	clearTimeout(t);
-	$('nav').addClass('pin');
-}).mouseout(function(){
-	clearTimeout(t);
-	t = setTimeout(r,500);
-});
-function r (){
-	$('nav').removeClass('pin');
-}
-
 </script>
+<script type="text/javascript" src="js/include/schedule.js"></script>
+
 <div class=" container-fluid">
 <!-- Nav tabs -->
 <div class="nav-row row" style="position:relative;">
 <ul id="review-tab" class="nav nav-tabs col-md-12" role="tablist">
-  <li class="title disabled"><a>Assign</a></li>
+ 	
+ 	<li class="title disabled"><a>ASSIGN</a></li>
+	
 	<li class="tab active">
-			<a href="#assign0" role="tab" data-toggle="tab">#1 <div class="badge grade-preview"></div> <span class="glyphicon glyphicon-star preview hidden"></span></a></li>
-  <li class="tab"><a href="#assign1" role="tab" data-toggle="tab">#2 <span class="badge grade-preview"></span> <span class="glyphicon glyphicon-star preview hidden"></span></a></li>
-  <li class="tab"><a href="#assign2" role="tab" data-toggle="tab">#3 <span class="badge grade-preview"></span> <span class="glyphicon glyphicon-star preview hidden"></span></a></li>
-  <li class="tab"><a href="#assign3" role="tab" data-toggle="tab">#4 <span class="badge grade-preview"></span> <span class="glyphicon glyphicon-star preview hidden"></span></a></li>
-  <li class="tab"><a href="#assign4" role="tab" data-toggle="tab">#5 <span class="badge grade-preview"></span> <span class="glyphicon glyphicon-star preview hidden"></span></a></li>
+		<a href="#assign0" role="tab" data-toggle="tab">#1 
+			<div class="badge grade-preview"></div> 
+			<span class="glyphicon glyphicon-star preview hidden"></span>
+		</a>
+	</li>
+
+  	<li class="tab">
+  		<a href="#assign1" role="tab" data-toggle="tab">#2 
+  			<span class="badge grade-preview"></span> 
+  			<span class="glyphicon glyphicon-star preview hidden"></span>
+  		</a>
+  	</li>
+
+  	<li class="tab">
+  		<a href="#assign2" role="tab" data-toggle="tab">#3 
+  			<span class="badge grade-preview"></span> 
+  			<span class="glyphicon glyphicon-star preview hidden"></span>
+  		</a>
+  	</li>
+
+  	<li class="tab">
+  		<a href="#assign3" role="tab" data-toggle="tab">#4 
+  			<span class="badge grade-preview"></span> 
+  			<span class="glyphicon glyphicon-star preview hidden"></span>
+  		</a>
+  	</li>
+
+  	<li class="tab">
+  		<a href="#assign4" role="tab" data-toggle="tab">#5 
+  			<span class="badge grade-preview"></span> 
+  			<span class="glyphicon glyphicon-star preview hidden"></span>
+  		</a>
+  	</li>
+
 </ul>
 <div class="control-area col-md-6">
 
@@ -98,7 +108,7 @@ function r (){
 	<div id="help-review-btn"  class="btn" style="color:rgba(212,211,211,1.00);">如何評分<!--span class="glyphicon glyphicon-question-sign"></span--></div>
 	<!--button id="save-grade-btn" type="button" class="btn btn-info"><span class="glyphicon glyphicon-save"></span></button-->
 
-	<button id="review-submit" type="button" class="btn btn-danger btn-lg" onClick="submitReview();"><span class="glyphicon glyphicon-send"></span> 繳交評分結果</button>
+	<button id="review-submit" type="button" class="btn btn-danger btn-lg" onClick="submitReview();"><span class="glyphicon glyphicon-send"></span>&nbsp;&nbsp;&nbsp;&nbsp;繳交評分結果</button>
 
 </div>
 </div>
@@ -135,7 +145,7 @@ function r (){
 			</div> 
 		</div>
 
-<h3 class="bug-block-title">遊戲霸個回報區</h3>
+<h3 class="bug-block-title">遊戲BUG回報區</h3>
 <div class="container">
 	<div id="add" class="add-bug bug	"> 
 		<form class="add-bug-form" >
@@ -245,7 +255,7 @@ function r (){
 			</div> 
 		</div>
 
-<h3 class="bug-block-title">遊戲霸個回報區</h3>
+<h3 class="bug-block-title">遊戲BUG回報區</h3>
 <div class="container">
 	<div id="add" class="add-bug bug	"> 
 		<form class="add-bug-form" >
@@ -303,7 +313,7 @@ function r (){
 			</div> 
 		</div>
 
-<h3 class="bug-block-title">遊戲霸個回報區</h3>
+<h3 class="bug-block-title">遊戲BUG回報區</h3>
 <div class="container">
 	<div id="add" class="add-bug bug	"> 
 		<form class="add-bug-form" >
