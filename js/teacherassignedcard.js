@@ -50,7 +50,7 @@ $(document).ready(function(){
                 	query.first({
                 		success:function(targetuserdata){
                             var targetusername = targetuserdata.get("name");
-                			var cardtext = $('#card').text();
+                			var cardtext = $('#card').val();
                 			var cardid = "";
                 			if(cardtext == "加生命值卡")
                 				cardid = "aJONHaxQtM";
