@@ -1,5 +1,5 @@
 $(document).ready(function(){
-    Parse.initialize("9eo5r1mHWoIPSTCzmrpdKa3lcHPjySx4y5D6q8Nq", "R8SWwYxpJcy73ogQKuSD43y7FigrlDGjBLcy1lzC");
+    Parse.initialize("sdPsOfCJu21F7DIrFF08tDwuVtfZZbx1sLwMbMDB", "11wLPl0BPrkmtTlba00jZfvPtxKR9TNCxoLp3Rrb");
     var current_user = Parse.User.current();
     if(current_user){
     	var user = Parse.Object.extend('User');
@@ -324,7 +324,7 @@ deletecard
 
 function getElementStringByowncard(name, id, photo){
     var s = "<h4>"+name+"</h4>";
-    var s1 = "<img id='alluserphoto' src ='../"+photo+"''>";
+    var s1 = "<img id='alluserphoto' src ='"+photo+"'>";
     var all = "<div class ='in' id='"+id+"'>"+ s + s1 + "</div>";
 
     return all;
