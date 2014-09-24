@@ -14,7 +14,7 @@ var $D = $(document);
 
 var AssignInfoArr = [];
 var PersonalAssignArr = [] ;
-
+var UserAsns = [];
 
 	function qurPersonalAssign (profileUser){  /* FOR PERSONAL */
 		var Assign = Parse.Object.extend("Assign");
@@ -47,7 +47,7 @@ var PersonalAssignArr = [] ;
 			return undefined;
 		}
 	}
-	
+	/*
 	qurPersonalAssign(profileUser).then(function (a){ 
 		//console.log ("1!!!!!!!!!");
 		getAsnDone = true; 
@@ -59,28 +59,71 @@ var PersonalAssignArr = [] ;
 		getInfoDone = true; 
 		AssignInfoArr = i; 
 		//controller();
-	});
-	function addProfileGameSHref(userAsns){		
-		console.log ('userAsns',userAsns);
+	});*/
+	
+	function checkTheUnvisibleGame(){
+		var now = new Date();
+		var p = new Parse.Promise();
+		var AI = Parse.Object.extend("Assign_Info");
+		var qAI =new Parse.Query(AI);
+		qAI.ascending("nth");
+		//qAI.lessThan("submitDate",now); //這樣會造成 腳交作業之前的 會被排除
+		qAI.greaterThan("reviewDue",now);
+		qAI.first().then(function(s){
+			var obj = new Object();
+			if (( typeof(s) !== 'undefined' )){
+				obj.nth = s.get("nth");
+				obj.openDate = s.get("reviewDue").toLocaleString();
+				console.log ("invisible",s);
+				
+			}else{
+				obj.nth = '0';
+			}
+				p.resolve(obj);
+
+		});
+		return p
+	}
+	
+	function addProfileGameSHref(invisibleAsn){
+			console.log ("invisible",invisibleAsn);
+
 		$('.game').each(function(i, e) {
 			var $e = $(e);
 			var nth = $e.data('nth').toString();
-			var j = userAsns.getIndexByAttr('nth',nth) ;
+			var j = UserAsns.getIndexByAttr('nth',nth) ;
+			
 			if (j === -1 ){
+				$e.parent(".machineBox").addClass("noGame");
+				$e.data("toggle",'tooltip');
+				$e.attr('title',"尚未發佈遊戲");
+				$e.tooltip();
 				return true ;
 			}else{
 				console.log ("showing");
-				var gameUrl = 'play.html?aid='+userAsns[j].id;
-				$e.attr('href',gameUrl);
-				$e.attr('target','_blank');
+				if (nth !== invisibleAsn.nth){
+					var gameUrl = 'play.html?aid='+UserAsns[j].id;
+					$e.attr('href',gameUrl);
+					$e.attr('target','_blank');
+				}else{
+					$e.attr('title',"遊戲將於" +invisibleAsn.openDate+"評分結束後開放參觀");
+					$e.data("toggle",'tooltip');
+					$e.tooltip();
+				}
 				$e.find('img').first().attr('src','img/games/dark-0'+nth+'.png');
 			}
 		});	
 	}
 
 	function ShowAssignStart(profileUser){
-		qurPersonalAssign(profileUser)
-		 .then(addProfileGameSHref);
+		qurAssignInfo().then(function(ai){
+			AssignInfoArr = ai;
+			qurPersonalAssign(profileUser)
+			 .then(function(userAsns){
+				 UserAsns = userAsns;
+				 return checkTheUnvisibleGame();})
+			 .then(addProfileGameSHref);
+		},Log);
 	}
 
 
@@ -227,7 +270,7 @@ $D.on('click',".submit-asnUrl",function(e){
 	function checkCode(URL){
 		console.log (URL);
 		$.ajax({
-			url:"http://ghost.cs.nccu.edu.tw/~programming101/getcode.php",
+			url:"getcode.php",
 			data:	{url:URL},
 			type: "POST",
 			success: function(d,s,x){

@@ -191,7 +191,7 @@ function eventRecord(data, data1){
         var start = (xp !== 0 || hp !== 0 || cd !== 0 ) ? "因此你" : '' ;
         var xpStr = (xp !== 0) ? (xp > 0 ) ? 'XP增加了'+Math.abs(xp)+"，" : 'XP減少了'+Math.abs(xp)+"，": '' ;
         var hpStr = (hp !== 0) ? (hp > 0 ) ? 'HP增加了'+Math.abs(hp)+"，" : 'HP減少了'+Math.abs(hp)+"，": '' ; 
-        var cdStr = (cd !== 0) ? (cd > 0 ) ? '的卡片增加了'+Math.abs(cd)+"張，" : '的卡片減少了'+Math.abs(cd)+"張，": '' ; 
+        var cdStr = (cd !== 0) ? (cd > 0 ) ? '卡片增加了'+Math.abs(cd)+"張，" : '的卡片減少了'+Math.abs(cd)+"張，": '' ; 
         s = start + xpStr + hpStr + cdStr;
         s = s.slice(0,-1) + "。";
     container =  "<span class = 'glyphicon glyphicon-info-sign' style = 'white-space: nowrap;'></span>"+eventdes+"，"+s+"<span class = 'time-gray-color'>"+m+"</span></div>";

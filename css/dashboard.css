@@ -155,7 +155,10 @@ article{
 	transform:scale(1.1,1.1);
 	-webkit-tranform:scale(1.1,1.1);
 }
-
+.machineBox.noGame:hover{
+	transform:scale(.97,.97);
+	-webkit-tranform::scale(.97,.97);
+}
 .card-box a {
 	display:block;
 }

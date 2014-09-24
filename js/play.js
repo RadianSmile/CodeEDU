@@ -44,16 +44,10 @@ console.log ("get code!")
 		alert("發生了某些狀況，請重新整理!");
 	}
 }
-function qurBugs (id){
-	var BugRecord = Parse.Object.extend("Bug_Record");
-	var q = new Parse.Query (BugRecord);
-	q.equalTo("assign",id);
-	q.ascending("createdAt");
-	return q.find();
-}
 
+showBug
 function apdBug(b){
-	var reviewer = b.get("reviewer");
+	var reviewer = b.get("reporter");
 	var des = b.get("des");
 	var imgUrl = b.get("img").url();
 	var time = b.createdAt;
@@ -65,7 +59,7 @@ function apdBug(b){
 		<span class="bug-des">'+""+'</span>\
 		<div class="bug-time">'+time+'</div>\
 	</div>';
-		$(".bugs").append(html);
+		$(".bug-pane").append(html);
 		$("#"+b.id).find(".bug-des").text(des);
 
 }
@@ -177,11 +171,10 @@ function showOther (other){
 	
 	
 	qurAssign(asnId).then(function(a){
-		console.log ("fuck");
 		var url = a.get("url") ;
 		nth = a.get("nth");
+		$(".submit-bug").data("aid",a.id);
 		showPlay (url); 
-		console.log ("what?");
 		$(".maker").text(a.get("maker").get("name"));
 		$(".count").text(a.get("count"));
 		$(".grade").text(a.get("grade"));
@@ -190,9 +183,11 @@ function showOther (other){
 		//if( curUser ){
 			pprEditor();
 			getCode(url,showCode);
+			console.log(asnId);
 			qurBugs(asnId).then(function(bs){
-				console.log ("bugggg pull done");
-				each(bs,apdBug);
+				console.log ("bug pull done " +bs.length);
+				each(bs,showBug);
+				bugInit();
 			},handleError);
 		//}
 		
@@ -208,15 +203,15 @@ function showOther (other){
 $(document).on('click' ,".submit-bug",function (e){
 	//Rn!!!!!!!!!
 	
-	var aid = (this).data('aid');
+	var aid = $(this).data('aid');
 	
 	var Assign = Parse.Object.extend ("Assign"),
 	assign = new Assign ();
 	assign.id = aid ;
 	
 	var user = new Parse.User();
-	console.log ("tTargetUserId",tTargetUserId);
-	user.id  = isSet(tTargetUserId) ?  tTargetUserId : currentUser.id;
+	//console.log ("tTargetUserId",tTargetUserId);
+	user.id = currentUser.id//  = isSet(tTargetUserId) ?  tTargetUserId : currentUser.id;
 	//!!!!!!!!
 	
 	

@@ -291,6 +291,92 @@ Parse.Cloud.afterSave("User_status",function(request){
 ///
 
 });    */
+
+//Singin_Log /=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+Parse.Cloud.job("checkClassParticipate",function(rq,rp){
+
+	var t = rq.params.time ; //[2014,9,22]
+	
+	var checkNum = 0 ;
+	var StdArr = [] ;
+	var SigninArr = [] ;
+	
+	var hoursPlusBecomeUTC = -8 ;
+	var classStart = new Date(t[0],t[1]-1,t[2] , 18, 0 , 0 );  // Time in Taiwan
+			classStart.setTime( classStart.getTime() + hoursPlusBecomeUTC*60*60*1000 ); // Become to Server
+	var classEnd = new Date(t[0],t[1]-1,t[2] , 21, 0 , 0 ); // Time in Taiwan 
+			classEnd.setTime( classEnd.getTime() +hoursPlusBecomeUTC*60*60*1000 ); // Become to Server
+
+	var SigninLog = Parse.Object.extend("Singin_Log");
+	var qSI = new Parse.Query(SigninLog);
+	qSI.limit(2000);
+	qSI.greaterThan("createdAt",classStart);
+	qSI.lessThan("createdAt",classEnd);
+	qSI.find().then(function(s){
+		console.log(s);
+		SigninArr = s ;
+		qurStudent().then(function(u){
+			StdArr = u ;
+			var saveArr = [] ;
+			var dropArr = [] ;
+			for (var i = 0 ; i < StdArr.length ; i++){
+				var u = StdArr[i];
+				for (var j = 0 ; j < SigninArr.length ; j++){
+					if (u.id === SigninArr[j].get("user").id &&  SigninArr[j].get("ip").indexOf("140.119.73") > -1 ){
+						console.log(u.get("name")+"\t"+SigninArr[j].createdAt+"\t"+SigninArr[j].get("ip")+"<br>");
+						saveArr.push(u);
+						participate(u);
+						break ;
+					}
+				}
+				if (j === SigninArr.length){ // 這是沒有 140.119.73的情況下
+					drop(u);
+					console.log(u.get("name")+"\t"+"曠課"+"<br>");		// 如果要該使用著的 登入ＩＰ 請點開本機版：signinLogAll.html
+/*				for (j = 0 ; j < SigninArr.length ; j++){
+						if (u.id === SigninArr[j].get("user").id ){
+							console.log("---"+u.get("name")+"\t"+SigninArr[j].createdAt+"\t"+SigninArr[j].get("ip")+"<br>");	
+							dropArr.push(u);
+						}
+					}
+*/
+				}
+			}
+			
+			
+			
+			console.log ("participants num :" +saveArr.length);
+			console.log ("drop num :"+dropArr.length);
+		});
+	});
+
+
+	function participate(u){
+		sendEvent(u,11).then(checked,Log);
+	}
+	function drop (u){
+		sendEvent(u,18).then(checked,Log);
+	}
+	function checked(){
+		if (++checkNum === StdArr.length )	{
+			rp.message(checkNum.toString());
+			rp.success();
+		}
+	}
+	function Log(e){
+		rp.error(e.message);
+	}
+
+	function qurStudent (){
+		var U = Parse.User;
+		var q = new Parse.Query(U);
+		q.equalTo("role",'student');
+		return q.find();
+	}
+});
+
+
+
 //Event Record /-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋
 
 
@@ -650,8 +736,15 @@ Parse.Cloud.job("Grading",function(rq,rp){
 			getRecordByAssign(AssignArr[i])
 			.then(singleGrading)
 			.then(function(a){
-				successPlus (a);
 				console.log(a.id+" grade "+a.get("grade") );		
+				sendGradEvent(a).then(function(e){
+					console.log ("userEventSend");
+					successPlus (a);
+				},function (e){
+					successCount++;
+					console.log ("event send fail, error : "+e.message);
+					rp.error('fail to save a assign');	
+				});
 			},function(e){
 				rp.error('fail to save a assign');	
 			});
@@ -699,6 +792,7 @@ Parse.Cloud.job("Grading",function(rq,rp){
 		
 		Parse.Object.saveAll(r).then(function(rr){
 			rp.message("Record One Assign !");
+			
 		},function(e){
 			rp.error("Record Save To Assign Fail");
 		});
@@ -738,8 +832,23 @@ Parse.Cloud.job("Grading",function(rq,rp){
 		q.limit(1000);
 		return q.find();
 	}
+	
+	function sendGradEvent(a){
+		var m = a.get('maker') ;
+		var g = a.get("grade");
+		var eid = 0 ;
+		switch(g){
+			case "A": eid = 34; break; 
+			case "B": eid = 33; break; 
+			case "C": eid = 32; break; 
+			case "X": eid = 31; break; 
+			default : rp.error("aoid "+a.id+" "+g+" wrong grade! why ?");
+		}
+		return sendEvent(m,eid);
+	}
+	
 	function Log (e){console.log(e);}
-
+	
 });
 
 
@@ -750,8 +859,16 @@ function qurClass (name) {
 	var Class = Parse.Object.extend(name),
 			q = new Parse.Query (Class);
 	q.limit (20000);
+	q.descending("createdAt");
 	return q.find ();
 }
+function qurStudent (){
+	var U = Parse.User;
+	var q = new Parse.Query(U);
+	q.equalTo("role",'student');
+	return q.find();
+}
+
 function newObject(className){
 	var C = Parse.Object.extend(className);
 	var c = new C();
@@ -783,6 +900,7 @@ function sendEvent (user,eidNum){
 	e.set("eid",eidNum);
 	return e.save();
 }
+
 function sucMes(s){
 	console.log ("成功完成！");
 }

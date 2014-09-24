@@ -231,7 +231,7 @@ $D.on('click',".submit-asnUrl",function(e){
 	function checkCode(URL){
 		console.log (URL);
 		$.ajax({
-			url:"http://ghost.cs.nccu.edu.tw/~programming101/getcode.php",
+			url:"getcode.php",
 			data:	{url:URL},
 			type: "POST",
 			success: function(d,s,x){
@@ -246,6 +246,7 @@ $D.on('click',".submit-asnUrl",function(e){
 				}else if (d === "no code"){
 					alert("沒有正確存取到Play.html內data-processing-sources是否正確\n2.請確認檔案是否已經上傳到gh-pages\n如果仍無法解決，請聯絡助教。");
 				}else{
+					alert(d);
 					console.log (d);
 					//alert(d);
 					checkDone = true ;

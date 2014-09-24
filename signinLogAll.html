@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<!-- Common links -->
+<!----><link rel="icon" type="image/png" href="/include/icon.png" />
+<!----><link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<!----><script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<!----><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<!----><script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.19.min.js"></script>
+<!----><link href="css/all.css" rel="stylesheet" />
+<!----><script src="js/all.js"></script>
+<!---------------------->
+<style>
+</style>
+<script>
+</script>
+<title>Codedu</title>
+</head>
+<body>
+
+
+<script>
+
+	var t = [2014,9,22]//rq.params.time ;
+
+	var StdArr = [] ;
+	var SigninArr = [] ;
+	
+	//var hoursPlusBecomeUTC = -8 ;
+	var classStart = new Date(t[0],t[1]-1,t[2] , 18, 0 , 0 );  // Time in Taiwan
+		//	classStart.setTime( classStart.getTime() + hoursPlusBecomeUTC*60*60*1000 ); // Become to Server
+	var classEnd = new Date(t[0],t[1]-1,t[2] , 21, 0 , 0 ); // Time in Taiwan 
+		//	classEnd.setTime( classEnd.getTime() +hoursPlusBecomeUTC*60*60*1000 ); // Become to Server
+
+	var SigninLog = Parse.Object.extend("Singin_Log");
+	var qSI = new Parse.Query(SigninLog);
+	qSI.limit(2000)
+	qSI.greaterThan("createdAt",classStart);
+	qSI.lessThan("createdAt",classEnd);
+	qSI.find().then(function(s){
+		console.log(s);
+		SigninArr = s ;
+			qurStudent().then(function(u){
+				StdArr = u ;
+				document.write("Total Std Nums : "+StdArr.length +"<br>");
+
+				var saveArr = [] ;
+				for (var i = 0 ; i < StdArr.length ; i++){
+					var u = StdArr[i];
+					for (var j = 0 ; j < SigninArr.length ; j++){
+							console.log (SigninArr[j].createdAt);
+							console.log(SigninArr[j].get("user"));
+						if (u.id === SigninArr[j].get("user").id &&  SigninArr[j].get("ip").indexOf("140.119.73") > -1 ){
+							
+							//saveArr.push(u) ;
+							document.write(u.get("name")+"\t"+SigninArr[j].createdAt+"\t"+SigninArr[j].get("ip")+"<br>");
+							break ;
+						}
+					}
+					
+					if (j === SigninArr.length){ // 這是沒有 140.119.73的情況下
+					document.write(u.get("name")+"\t"+"曠課?"+"<br>");		
+						for (j = 0 ; j < SigninArr.length ; j++){
+							if (u.id === SigninArr[j].get("user").id ){
+								document.write("---"+u.get("name")+"\t"+SigninArr[j].createdAt+"\t"+SigninArr[j].get("ip")+"<br>");	
+							}else{
+								
+							}
+						}
+						
+					}
+				}
+				console.log (saveArr);
+		});
+	});
+function qurStudent (){
+	var U = Parse.User;
+	var q = new Parse.Query(U);
+	q.equalTo("role",'student');
+	return q.find();
+}
+
+</script>
+</body>
+</html>

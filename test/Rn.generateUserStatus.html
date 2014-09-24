@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<!-- Common links -->
+<!----><script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.19.min.js"></script>
+<script>
+		Parse.initialize("9eo5r1mHWoIPSTCzmrpdKa3lcHPjySx4y5D6q8Nq", "R8SWwYxpJcy73ogQKuSD43y7FigrlDGjBLcy1lzC");	
+
+</script>
+<!----><link rel="icon" type="image/png" href="/include/icon.png" />
+<!----><link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<!----><script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<!----><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../js/all.js"></script>
+<!----><!--script src="../js/all.js"></script-->
+<!---------------------->
+<style>
+</style>
+<script>
+</script>
+<title>Codedu</title>
+</head>
+<body>
+
+
+<script>
+		Parse.initialize("9eo5r1mHWoIPSTCzmrpdKa3lcHPjySx4y5D6q8Nq", "R8SWwYxpJcy73ogQKuSD43y7FigrlDGjBLcy1lzC");	
+
+
+generateUserStatus();
+
+function qUser(){
+	var U = Parse.User;
+	var qU = new Parse.Query (U);
+	qU.limit(1000);
+	return qU.find();
+}
+
+function generateUserStatus (){
+	var UserStatsuArr = [];
+	qurClass("User_status").then(function(s){
+		UserStatsuArr = s;
+		qUser().then(function(UserArr){
+			var saveArr = [];
+			for (var i = 0 ; i < UserArr.length ; i++){
+				var uoid = UserArr[i].id;
+				var existUSbln = false ;
+				for (var j = 0 ; j < UserStatsuArr.length ; j++){
+					if (UserStatsuArr[j] === uoid){
+						existUSbln = true ;
+						break;
+					}
+				}
+				if (!existUSbln){
+					var US = Parse.Object.extend("User_status");
+					var us = new US();
+					us.set("HP",90);
+					us.set("XP",0);
+					us.set("Life",3);
+					us.set("Level",1);
+					//us.set("LevelInfo",l);
+					us.set("User",UserArr[i]);
+					saveArr.push(us);
+					console.log (UserArr[i].get('uid'));
+				}
+			}
+			Parse.Object.saveAll (saveArr).then(Log,Log);
+		});
+	});
+}
+
+</script>
+</body>
+</html>

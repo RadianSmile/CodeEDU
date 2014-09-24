@@ -33,6 +33,7 @@ function ableGrading (s){
 	var nth = s.get("nth");
 	var ddl = s.get("reviewDue").toLocaleDateString()+s.get("reviewDue").toLocaleTimeString();
 	localStorage.setItem("reviewNth",nth);
+	console.log("reviewNth " +nth );
 	var $btn = $(".nav-grading-btn") ;
 	$btn.data("title","Dead Line : "+ddl).removeClass("hidden").hide().fadeIn().tooltip({
 		animated: 'fade',
@@ -42,7 +43,7 @@ function ableGrading (s){
 
 function checkGradingTime (){
 	localStorage.removeItem("reveiwNth");
-	var now = new Date(2014,9,7)//Date(); 
+	var now = new Date (2014,9,7)//Date(); 
 	var AssignInfoArr = [] ;
 	var AssignInfo = Parse.Object.extend("Assign_Info");
 	//var assignInfo = new AssignInfo();

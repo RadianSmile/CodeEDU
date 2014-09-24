@@ -266,7 +266,7 @@ $("input:file.add-img-input")	.change(function () {
 $('sample_on_submit').on('click' ,".submit-bug",function (e){
 	//Rn!!!!!!!!!
 	
-	var aid = (this).data('aid');
+	var aid = $(this).data('aid'); 
 	
 	var Assign = Parse.Object.extend ("Assign"),
 	assign = new Assign ();

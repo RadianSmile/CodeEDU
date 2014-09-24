@@ -30,6 +30,11 @@
 .game {
 	cursor:pointer;
 }
+.noGame:hover {
+	cursor:default !important;
+	
+	
+}
 
 .intro{
 	margin-top: 20px;

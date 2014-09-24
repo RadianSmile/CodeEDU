@@ -10,7 +10,7 @@ var pfofileUid = (function (){
 			alert('系統無法判別你選取的使用者，請重新點取\n系統將跳返至個人主頁');
 			document.location = 'dashboard.html';
 		}
-		console.log (p);
+		//console.log (p);
 		profileUser = p ;
 		console.log(profileUser);
 		showPersonAndCard(profileUser);
