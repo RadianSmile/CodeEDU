@@ -47,6 +47,39 @@ var PersonalAssignArr = [] ;
 			return undefined;
 		}
 	}
+	function addProfileGameSHref(){
+
+		$('.game').each(function(i, e) {
+			var $e = $(e);
+			var nth = $e.data('nth').toString();
+			var j = UserAsns.getIndexByAttr('nth',nth) ;
+			
+			if (j === -1 ){
+				$e.parent(".machineBox").addClass("noGame");
+				$e.data("toggle",'tooltip');
+				$e.attr('title',"尚未遊戲");
+				$e.tooltip();
+				return true ;
+			}else{
+				console.log ("showing");
+				if (nth !== invisibleAsn.nth){
+					var gameUrl = 'play.html?aid='+UserAsns[j].id;
+					$e.attr('href',gameUrl);
+					$e.attr('target','_blank');
+				}else{
+					$e.attr('title',"遊戲將於" +invisibleAsn.openDate+"評分結束後開放參觀");
+					$e.data("toggle",'tooltip');
+					$e.tooltip();
+				}
+				$e.find('img').first().attr('src','img/games/dark-0'+nth+'.png');
+			}
+		});	
+	}
+
+
+	
+	
+	
 	
 	qurPersonalAssign(currentUser).then(function (a){ 
 		//console.log ("1!!!!!!!!!");
@@ -65,6 +98,7 @@ var PersonalAssignArr = [] ;
 			start();
 		}
 	}
+	
 	function start(){
 		$apd = $("#assignInfoArea");
 		for (var i = 1 ; i <= AssignInfoArr.length ; i++){    // Rn 6
@@ -87,7 +121,6 @@ function generateAssignInfo (nth) {
 	var btns = "";
 		makeAsnInfoBtns();
 		return prepareModal ();
-	
 
 	function makeAsnInfoBtns (){
 		var submitDate = asnInfo.get("submitDate");
@@ -246,7 +279,7 @@ $D.on('click',".submit-asnUrl",function(e){
 				}else if (d === "no code"){
 					alert("沒有正確存取到Play.html內data-processing-sources是否正確\n2.請確認檔案是否已經上傳到gh-pages\n如果仍無法解決，請聯絡助教。");
 				}else{
-					alert(d);
+					//alert(d);
 					console.log (d);
 					//alert(d);
 					checkDone = true ;
@@ -277,8 +310,10 @@ $D.on('click',".submit-asnUrl",function(e){
 		savingasn.save().then(function(s){
 			if (isNewAsn){
 				alert("作業繳交成功");
+				document.location.reload();
 			}else{
 				alert("作業更新成功");
+				document.location.reload();
 			}
 		},function(e){
 			alert(e.message);
