@@ -286,13 +286,16 @@ function getObjectByAttrVal (Arr, attr , val){
 
 
 $.fn.toggleDisabled = function () {
+
 	return this.each(function () {
 		var $this = $(this);
-		if ($this.prop('disabled')) {
-			$this.addClass("disabled");
-			$this.prop('disabled', false);
-		} else {
+		if ($this.prop('disabled')) { // 這時候代表 要變成 able
 			$this.removeClass("disabled");
+			console.log ("toggled to false");
+			$this.prop('disabled', false);
+		} else { // 這時候代表 要變成 disable
+			$this.addClass("disabled");
+			console.log ("toggled to true");		
 			$this.prop('disabled', true);
 		}
 	});

@@ -1,5 +1,5 @@
 //some gobal setting
-/* @pjs preload="data/01.png,data/02.png,data/03.png,data/04.png,data/05.png,data/06.png,"; */
+@pjs preload="data/01.png,data/02.png,data/03.png,data/04.png,data/05.png,data/06.png,";
 SlotMachine machine;
 int screen_width=640;
 int screen_height=480;

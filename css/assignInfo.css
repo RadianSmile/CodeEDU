@@ -11,9 +11,18 @@
 	padding:20px 0 ;
 }
 .assignInfo-line{
-	border-color:rgba(0,0,0,1.00) ; 
-	
+	border: rgba(67,98,112,1) thin dashed;
 }
+.assignInfo-main-btn{
+	background:rgba(67,98,112,1);
+	color:white;
+}
+.assignInfo-main-btn:hover{
+	background:rgba(70,120,130,1);
+	color:white;
+
+}
+
 .assignInfo-photo {
 	margin-top:20px;
 	text-align:center;

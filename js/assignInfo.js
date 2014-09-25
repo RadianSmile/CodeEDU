@@ -35,7 +35,7 @@ var PersonalAssignArr = [] ;
 		if (a >= 0 ){
 			return PersonalAssignArr[a];
 		}else{
-			return undefined;
+			return -1;
 		}
 	}
 	function getAssignInfoByNthFromArr(nth){
@@ -52,25 +52,25 @@ var PersonalAssignArr = [] ;
 		$('.game').each(function(i, e) {
 			var $e = $(e);
 			var nth = $e.data('nth').toString();
-			var j = UserAsns.getIndexByAttr('nth',nth) ;
+			var j = PersonalAssignArr.getIndexByAttr('nth',nth) ;
 			
 			if (j === -1 ){
-				$e.parent(".machineBox").addClass("noGame");
+				/*$e.parent(".machineBox").addClass("noGame");
 				$e.data("toggle",'tooltip');
 				$e.attr('title',"尚未遊戲");
 				$e.tooltip();
-				return true ;
+				return true ;*/
 			}else{
 				console.log ("showing");
-				if (nth !== invisibleAsn.nth){
-					var gameUrl = 'play.html?aid='+UserAsns[j].id;
-					$e.attr('href',gameUrl);
-					$e.attr('target','_blank');
-				}else{
-					$e.attr('title',"遊戲將於" +invisibleAsn.openDate+"評分結束後開放參觀");
-					$e.data("toggle",'tooltip');
-					$e.tooltip();
-				}
+				//if (nth !== invisibleAsn.nth){
+					//var gameUrl = 'play.html?aid='+UserAsns[j].id;
+					//$e.attr('href',gameUrl);
+					//$e.attr('target','_blank');
+				//}else{
+				//	$e.attr('title',"遊戲將於" +invisibleAsn.openDate+"評分結束後開放參觀");
+				//	$e.data("toggle",'tooltip');
+				//	$e.tooltip();
+				//}
 				$e.find('img').first().attr('src','img/games/dark-0'+nth+'.png');
 			}
 		});	
@@ -82,6 +82,7 @@ var PersonalAssignArr = [] ;
 	
 	
 	qurPersonalAssign(currentUser).then(function (a){ 
+
 		//console.log ("1!!!!!!!!!");
 		getAsnDone = true; 
 		PersonalAssignArr = a ;
@@ -100,6 +101,8 @@ var PersonalAssignArr = [] ;
 	}
 	
 	function start(){
+		addProfileGameSHref();
+
 		$apd = $("#assignInfoArea");
 		for (var i = 1 ; i <= AssignInfoArr.length ; i++){    // Rn 6
 			//console.log ("正在 append");
@@ -116,7 +119,7 @@ function generateAssignInfo (nth) {
 	console.log ("nth: ",nth);
 	var asnInfo = getAssignInfoByNthFromArr(nth);
 	var asn = getPersonalAssignByNthFromArr(nth);
-	var isNewAsn =  typeof(asn) ==='undefined';
+	var isNewAsn =  asn === -1 ;
 
 	var btns = "";
 		makeAsnInfoBtns();
@@ -132,7 +135,7 @@ function generateAssignInfo (nth) {
 		var uploadBtn =  
 			'<div class="note">\
 				<input class=" form-control input-md input-asnUrl" type="text" placeholder="請貼入遊戲play.html連結">\
-				<a class="btn btn-default assignInfo-link submit-asnUrl" data-nth="'+nth+'" >繳交遊戲連結</a>\
+				<a class="btn btn-default assignInfo-link assignInfo-main-btn submit-asnUrl" data-nth="'+nth+'" >繳交遊戲連結</a>\
 			</div>';
 
 		var renewBtn =  
@@ -149,9 +152,15 @@ function generateAssignInfo (nth) {
 				//<a class="btn btn-default assignInfo-link submit-asnUrl disabled" >上傳遊戲連結</a>\
 			
 		console.log (isNewAsn);
-		var viewSelfBtn ='<a class="btn btn-default assignInfo-link view-self" href="play.html?aid='+ (!isNewAsn ? asn.id :"")  +'">查看作業</a><hr class="assignInfo-line">';
-		var reviewBtn =  '<a class="btn btn-default assignInfo-link to-review" href="review.html">前往評分</a>';
-		var viewAllBtn =	'<a class="btn btn-default assignInfo-link view-other" href="assign.html?nth='+nth+'">看別人的遊戲</a>';
+		var viewSelfBtn ='<a class="btn btn-default assignInfo-main-btn assignInfo-link view-self" href="play.html?aid='+ (!isNewAsn ? asn.id :"")  +'">檢視已繳交的作業</a>';
+		var seperateLine = '<hr class="assignInfo-line">';
+		var viewSelfBtnDuringReview ='<a class="btn btn-default assignInfo-link view-self" href="play.html?aid='+ (!isNewAsn ? asn.id :"")  +'">查看已繳交的作業</a>';
+		var viewSelfBtn ='<a class="btn btn-default assignInfo-main-btn assignInfo-link view-self" href="play.html?aid='+ (!isNewAsn ? asn.id :"")  +'">檢視自己的遊戲</a>';
+		var reviewBtn =  '<a class="btn btn-default assignInfo-main-btn  assignInfo-link to-review" href="review.html">前往評分</a>';
+		var viewAllBtn =	'<a class="btn btn-default assignInfo-link view-other" href="games.html?nth='+nth+'">檢視全體的遊戲</a>';
+	
+		// 開始評分時的按鈕：
+
 	
 		var l ="";
 		if (submitDate > now) { status = 1 ;l=" 第一區間：還沒開始作業" ;
@@ -159,15 +168,16 @@ function generateAssignInfo (nth) {
 		if (reviewDate > now && now > submitDate ){status = 2 ;	l =" 第二區間：開始作業";
 			if (!isNewAsn){ 
 				btns+=(viewSelfBtn);
+				btns+=seperateLine;
 				btns+= renewBtn ;
 			}else{
 			btns+= uploadBtn ;
 			}
 		}
 		if (reviewDue > now && now  > reviewDate  ){	status = 3 ; l =" 第三區間：開始評分";
-			btns+= reviewBtn + viewSelfBtn ;}
+			btns+= reviewBtn + viewSelfBtnDuringReview ;}
 		if (now > reviewDue){  status = 4 ;l ="四區間：結束評分";
-			btns+=viewSelfBtn + viewAllBtn + uploadBtn ;}	
+			btns+= viewSelfBtn + viewAllBtn }	
 		//alert (l);
 		return btns;
 	}
@@ -238,7 +248,11 @@ $D.on('click',".submit-asnUrl",function(e){
 	var userDone = false ,
 			checkDone = false ;
 
-	
+	$t = $(this)  ;
+	$t.toggleDisabled();
+	var nth = $t.data("nth").toString();
+
+
 	
 	var currentUserObj ;currentUser.fetch().then(function(u){
 		currentUserObj=u ;
@@ -253,11 +267,10 @@ $D.on('click',".submit-asnUrl",function(e){
 	},Log);
 	$aI = $('.assignModalInfo');
 	e.stopPropagation();
-	var nth = $(this).data("nth").toString();
 	
 	var asn = getPersonalAssignByNthFromArr (nth);
-	var isNewAsn = typeof(asn)
-
+	var isNewAsn = ( asn === -1 );
+	
 	var URL = 	$aI.find(".input-asnUrl").first().val();
 	checkCode(URL); // it would both invoke check url and code ;
 
@@ -270,16 +283,21 @@ $D.on('click',".submit-asnUrl",function(e){
 			success: function(d,s,x){
 				if (d==="no val"){
 					alert("你沒有貼入連結");
+					$t.toggleDisabled();
 				}else if (d==="no play"){
 					alert("無法讀取play.html檔，請確認\n1.連結是否正確\n2.檔案是已經否上傳了\n如果仍無法解決，請聯絡助教。")
+					$t.toggleDisabled();
 				}else if (d === "wrong host"){
 					alert("要貼入的連結應該是 xxx.github.io/xxxx\n你是不是貼錯了?\n如果仍無法解決，請聯絡助教。")
+					$t.toggleDisabled();
 				}else if (d === "wrong play"){
 					alert ("不正確的play.html，請確認\n1.你可能貼到的不是play.html的連結\n2.你的play.html內容或位置不正確，可嘗試重新做一個play.html\n如果仍無法解決，請聯絡助教。")
+					$t.toggleDisabled();
 				}else if (d === "no code"){
 					alert("沒有正確存取到Play.html內data-processing-sources是否正確\n2.請確認檔案是否已經上傳到gh-pages\n如果仍無法解決，請聯絡助教。");
+					$(this).toggleDisabled();
+
 				}else{
-					//alert(d);
 					console.log (d);
 					//alert(d);
 					checkDone = true ;
@@ -298,6 +316,7 @@ $D.on('click',".submit-asnUrl",function(e){
 	function saveAssign (){
 		var asnUrl = URL ;
 		var Asn = Parse.Object.extend("Assign");
+		console.log ("isNewAsn",isNewAsn.toString());
 		if (isNewAsn) {
 			var savingasn = new Asn();
 			savingasn.set("nth",nth);
@@ -310,9 +329,11 @@ $D.on('click',".submit-asnUrl",function(e){
 		savingasn.save().then(function(s){
 			if (isNewAsn){
 				alert("作業繳交成功");
+				$t.toggleDisabled();
 				document.location.reload();
 			}else{
 				alert("作業更新成功");
+				$t.toggleDisabled();
 				document.location.reload();
 			}
 		},function(e){
