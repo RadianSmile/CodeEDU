@@ -156,8 +156,10 @@ Parse.Cloud.beforeSave("User_status",function(request,response){
 			sendEvent(user,20);
 			obj.set('Life', life-1);
 			obj.set('HP',100);
+			sendEvent(user,20);
 		}else if (life - 1 <= 0){
 			obj.set("HP",0);
+			sendEvent(user,21);
 			obj.set('Life', 0);
 		}
 	}
@@ -355,7 +357,7 @@ Parse.Cloud.job("checkClassParticipate",function(rq,rp){
 		sendEvent(u,11).then(checked,Log);
 	}
 	function drop (u){
-		sendEvent(u,18).then(checked,Log);
+		sendEvent(u,19).then(checked,Log);
 	}
 	function checked(){
 		if (++checkNum === StdArr.length )	{
@@ -445,9 +447,9 @@ Parse.Cloud.afterSave("Event_Record",function(request){
 	q.first().then(function (evt){
 		//console.log (JSON.stringify(evt));
 		var eft = evt.get("effect_target") ;
-		if (eft[0] > 0 || eft[1] > 0 ){	
-			var dXP = parseInt(eft[0]);
-			var dHP = parseInt(eft[1]);
+		if (eft[0] !== 0 || eft[1] !== 0 ){	
+			var dXP = eft[0];
+			var dHP = eft[1];
 			qurStatus().then(function(status){
 				status.increment("XP",dXP);
 				status.increment("HP",dHP);
