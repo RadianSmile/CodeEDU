@@ -270,7 +270,7 @@ $D.on('click',".submit-asnUrl",function(e){
 	function checkCode(URL){
 		console.log (URL);
 		$.ajax({
-			url:"getcode.php",
+			url:"getcodeForGhost.php",
 			data:	{url:URL},
 			type: "POST",
 			success: function(d,s,x){

@@ -24,7 +24,7 @@ function qurAssigns ( nth ,descendBy) {
 function getCode (url,callback){
 	console.log("Getting Code...");
 	$.ajax({
-		url : "/getcode.php",
+		url : "getcodeForGhost.php",
 		async : true,
 		type: "POST",
 		data:{url:url},

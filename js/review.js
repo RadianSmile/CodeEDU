@@ -38,7 +38,7 @@ $('#review-tab a').click(function (e) {
   e.preventDefault();
   $(this).tab('show');
 });
-var assignToReview = '1';
+var assignToReview ;
 var AssignArr = [] ;
 var CodeArr =  [] ;
 var TimeArr = [] ;
@@ -46,6 +46,10 @@ var gradeArr = [];
 init();
 
 function init (){	
+	// check is able grading
+
+
+
 	for (var i = 0 ; i < 5; i++){
 		// Prepare editor
 		var tabEditor =  $($(".tab-pane")[i]).find(".editor").first().get(0);
@@ -210,7 +214,7 @@ function isInTime(url,i){
 function getCode (url,i){
 		console.log("Ajaxing");
 		$.ajax({
-			url : "getcode.php",
+			url : "getcodeForGhost.php",
 			async : true,
 			type: "POST",
 			data:{url:url},

@@ -51,11 +51,23 @@ function checkGradingTime (){
 	qAI.lessThan("reviewDate",now);
 	qAI.greaterThan("reviewDue",now);
 	qAI.first().then(function(s){
+		console.log ("reviewBtn AI object : ",s);
 		if (s){
+
 			var nth = s.get("nth");
-	//		alert(s.get("nth"));
-			ableGrading(s);
-			
+			// 確定有沒有評過分			
+			var ReviewRecord = new Parse.Object.extend("Review_Record");
+			var qRR = new ReviewRecord();
+			qRR.equalTo("nth",nth);
+			qRR.first().then(function(rr){
+				console.log (rr.get("Grade"));
+				if (rr.get("Grade")){
+					console.log (rr.get("Grade"));
+					ableGrading(s);
+				}else {
+					// Have Done Review ;
+				}
+			},Log);
 		}else{
 			// Not During Reviewe
 		}

@@ -79,7 +79,7 @@ var PersonalAssignArr = [] ;
 
 	
 	
-	
+
 	
 	qurPersonalAssign(currentUser).then(function (a){ 
 
@@ -135,13 +135,13 @@ function generateAssignInfo (nth) {
 		var uploadBtn =  
 			'<div class="note">\
 				<input class=" form-control input-md input-asnUrl" type="text" placeholder="請貼入遊戲play.html連結">\
-				<a class="btn btn-default assignInfo-link assignInfo-main-btn submit-asnUrl" data-nth="'+nth+'" >繳交遊戲連結</a>\
+				<a class="btn btn-default assignInfo-link assignInfo-main-btn submit-asnUrl" data-loading-text="新增遊戲連結中..."  data-nth="'+nth+'" >繳交遊戲連結</a>\
 			</div>';
 
 		var renewBtn =  
 			'<div class="note">\
 				<input class=" form-control input-md input-asnUrl" type="text" placeholder="貼入更新的遊戲play.html連結">\
-				<a class="btn btn-default assignInfo-link submit-asnUrl" data-nth="'+nth+'" >更新遊戲連結</a>\
+				<a class="btn btn-default assignInfo-link submit-asnUrl" data-loading-text="更新遊戲連結中..." data-nth="'+nth+'" >更新遊戲連結</a>\
 			</div>';
 
 			
@@ -249,6 +249,7 @@ $D.on('click',".submit-asnUrl",function(e){
 			checkDone = false ;
 
 	$t = $(this)  ;
+	$t.button('loading');
 	$t.toggleDisabled();
 	var nth = $t.data("nth").toString();
 
@@ -259,6 +260,7 @@ $D.on('click',".submit-asnUrl",function(e){
 		if (u.get('role') !== 'student')
 		{
 			alert("你不是學生，不可以上傳作業");
+			$t.button('reset');
 			return false ;
 			
 		}
@@ -277,29 +279,35 @@ $D.on('click',".submit-asnUrl",function(e){
 	function checkCode(URL){
 		console.log (URL);
 		$.ajax({
-			url:"getcode.php",
+			url:"getcodeForGhost.php",
 			data:	{url:URL},
 			type: "POST",
 			success: function(d,s,x){
+				alert(s);
 				if (d==="no val"){
 					alert("你沒有貼入連結");
+					$t.button('reset');
 					$t.toggleDisabled();
 				}else if (d==="no play"){
 					alert("無法讀取play.html檔，請確認\n1.連結是否正確\n2.檔案是已經否上傳了\n如果仍無法解決，請聯絡助教。")
+					$t.button('reset');
 					$t.toggleDisabled();
 				}else if (d === "wrong host"){
 					alert("要貼入的連結應該是 xxx.github.io/xxxx\n你是不是貼錯了?\n如果仍無法解決，請聯絡助教。")
+					$t.button('reset');
 					$t.toggleDisabled();
 				}else if (d === "wrong play"){
 					alert ("不正確的play.html，請確認\n1.你可能貼到的不是play.html的連結\n2.你的play.html內容或位置不正確，可嘗試重新做一個play.html\n如果仍無法解決，請聯絡助教。")
+					$t.button('reset');
 					$t.toggleDisabled();
 				}else if (d === "no code"){
 					alert("沒有正確存取到Play.html內data-processing-sources是否正確\n2.請確認檔案是否已經上傳到gh-pages\n如果仍無法解決，請聯絡助教。");
 					$(this).toggleDisabled();
-
+					$t.button('reset');
 				}else{
 					console.log (d);
-					//alert(d);
+					alert(d);
+					
 					checkDone = true ;
 					controlSave();
 				}		
@@ -329,10 +337,12 @@ $D.on('click',".submit-asnUrl",function(e){
 		savingasn.save().then(function(s){
 			if (isNewAsn){
 				alert("作業繳交成功");
+				$t.button('reset');
 				$t.toggleDisabled();
 				document.location.reload();
 			}else{
 				alert("作業更新成功");
+				$t.button('reset');
 				$t.toggleDisabled();
 				document.location.reload();
 			}
