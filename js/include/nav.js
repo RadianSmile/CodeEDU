@@ -14,7 +14,7 @@ document.write('<nav class="navbar navbar-default navbar-fixed-top headroom " ro
 		<div class="container-fluid">\
 				<a class="navbar-brand" href="index.html">PROGRAMING 101</a>\
 \
-				<ul class="nav navbar-nav">\
+				<ul id="main-navigation" class="nav navbar-nav">\
 						<li id="nav-user-block"><a href="dashboard.html"><span class="glyphicon glyphicon-user"></span></a></li>   <!--RN-->\
 						<li><a href="notification.html" id="bell"><span class="glyphicon glyphicon-bell"></span></a></li>\
 		<li data-toggle="tooltip" title="" class="nav-grading-btn hidden"><a href="review.html">Grading</a></li>\
@@ -24,7 +24,7 @@ document.write('<nav class="navbar navbar-default navbar-fixed-top headroom " ro
 \
 				<ul class="nav navbar-nav navbar-right">\
 		<!--li><a href="#">Help</a></li-->\
-		<li><a id="logout" >Logout</a></li>\
+		<li><a href="#" id="logout" >Logout</a></li>\
 				</ul>\
 		</div>\
 </nav>');

@@ -21,17 +21,37 @@ $("title").append(" | 程式設計基礎遊戲學習平台");
 	
 	// 規定只能使用這種，使用 status:true 會造成Parse出問題
   FB.getLoginStatus(function(response) {
+		var s = response.status ; 
+		if (s === 'connected'){
+			
+		}else if (s === 'not_authorized'){
+			
+		}else{
+			if (currentUser){
+				Parse.User.logOut();
+			}
+		}
+		
+		
 		FBinitDone();
+		
 		currentUser.fetch().then(function(u){
 			userPhoto = u.get('photo');
 			changeBarView(response,userPhoto);
 		});
-		
-FB.Event.subscribe("auth.logout", function() {
- Parse.User.logOut();
-	window.location = 'index.html';
 	
-});
+	$(document).on('click','#logout',fb_logout);
+	function fb_logout(){
+		Parse.User.logOut();
+		FB.logout(function (){
+			alert("登出成功 :))");
+			window.location="index.html";
+			
+		});
+		return false;
+		//FB.logout();
+	}
+
 
   });
 };
@@ -72,7 +92,9 @@ FB.getLoginStatus(function(response) {
 */
 
 
+function getPhoto (){
 
+}
 
 function fb_login () {
 	FB.login(function(response){
@@ -90,8 +112,23 @@ function fb_login () {
 						alert ("我幫你註冊了，但好像有哪裡不太對噢");
 						document.location="signup.html";
 					}else{ 
+						FB.api("/me/picture",{"redirect": false,"height": "200","type": "normal","width": "200"},function (response) {
+								if (response && !response.error) {
+									var url = response.data.url;
+									var ourl = s.get("photo") ;
+									if ( ourl === url ){
+										alert("登入成功!");
+										reloadToDashBoard();
+									}else{
+										s.set("photo",url);
+										s.save().then(function (s){
+											alert("登入成功，並更新了你的大頭貼");
+											reloadToDashBoard();
+										});
+									}
+								}
+						});
 	//asSs				alert("登入成功!");
-						document.location ="dashboard.html";	
 					}
 				}, error : function(){
 					alert("請重新整理頁面再試一次");
@@ -108,17 +145,17 @@ function fb_login () {
 			console.log(e.message);	
 		});
 	});
+	
+	function reloadToDashBoard(){
+		document.location ="dashboard.html";	
+
+	}
 }
 
 
 
 
 
-$(document).on('click','#logout',logout);
-function logout () {   
-FB.logout(function(response) {	
-});
-}
 
 
 

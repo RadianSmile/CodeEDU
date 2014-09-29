@@ -34,14 +34,14 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title">回報作業問題</h4>
+        <h4 class="modal-title">舉報作弊</h4>
       </div>
       <div class="modal-body">
-        <p>發生了什麼事情</p>
+				<div class="cheat-row">第 <select id="cheat-select"></select> 份遊戲涉嫌作弊：事由 <input class="cheat-reason"  type="text"></div>	
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-primary">舉報作弊</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
@@ -57,6 +57,14 @@ nav {
 <script src="js/include/nav.js"></script>
 <script type="text/javascript" src="js/include/schedule.js"></script>
 <style>
+#navPre{
+	position:relative;
+	transition:height ease-in-out .6s ;
+	-webkit-transition:height ease-in-out .6s ;
+	
+	width:100%;
+	height:5px;
+}
 .pin  {
 	top:0px !important;
 }
@@ -64,26 +72,34 @@ nav{
 	top:-45px !important;
 }
 
+#navPre.pin{
+	height:50px;
+	
+}
+
 
 
 </style>
 <script>
 
-var t = setTimeout(r,5000);;
+var t = setTimeout(r,2000);;
 $('nav').addClass('pin').mouseover(function(){
 	clearTimeout(t);
 	$('nav').addClass('pin');
+	$('#navPre').addClass('pin');
 }).mouseout(function(){
 	clearTimeout(t);
 	t = setTimeout(r,500);
 });
 function r (){
+	$('#navPre').removeClass('pin');
 	$('nav').removeClass('pin');
 }
 
 </script>
 
-
+<div id="navPre" class="pin">
+</div>
 <div class=" container-fluid">
 <!-- Nav tabs -->
 <div class="nav-row row" style="position:relative;">
@@ -161,7 +177,7 @@ function r (){
 			</div>
 			<div class="checkbox" >
 				<label style="padding-left:0">
-					<button data-toggle="tooltip" title="標示為五份作品中的最佳解" type="button" class="btn btn-default star-btn "><span class="glyphicon glyphicon-star"></span> </button>
+					<button data-toggle="tooltip" title="選為五份作品中的最佳解" type="button" class="btn btn-default star-btn "><span class="glyphicon glyphicon-star"></span> </button>
 					<input class="grade star" type="radio" name="star"  />
 				</label>
 			</div>
@@ -216,7 +232,7 @@ function r (){
 			</div>
 			<div class="checkbox" >
 				<label style="padding-left:0">
-					<button data-toggle="tooltip" title="標示為五份作品中的最佳解" type="button" class="btn btn-default star-btn "><span class="glyphicon glyphicon-star"></span> </button>
+					<button data-toggle="tooltip" title="選為五份作品中的最佳解" type="button" class="btn btn-default star-btn "><span class="glyphicon glyphicon-star"></span> </button>
 					<input class="grade star" type="radio" name="star"  />
 				</label>
 			</div>
@@ -271,7 +287,7 @@ function r (){
 			</div>
 			<div class="checkbox" >
 				<label style="padding-left:0">
-					<button data-toggle="tooltip" title="標示為五份作品中的最佳解" type="button" class="btn btn-default star-btn "><span class="glyphicon glyphicon-star"></span> </button>
+					<button data-toggle="tooltip" title="選為五份作品中的最佳解" type="button" class="btn btn-default star-btn "><span class="glyphicon glyphicon-star"></span> </button>
 					<input class="grade star" type="radio" name="star"  />
 				</label>
 			</div>
@@ -329,7 +345,7 @@ function r (){
 			</div>
 			<div class="checkbox" >
 				<label style="padding-left:0">
-					<button data-toggle="tooltip" title="標示為五份作品中的最佳解" type="button" class="btn btn-default star-btn "><span class="glyphicon glyphicon-star"></span> </button>
+					<button data-toggle="tooltip" title="選為五份作品中的最佳解" type="button" class="btn btn-default star-btn "><span class="glyphicon glyphicon-star"></span> </button>
 					<input class="grade star" type="radio" name="star"  />
 				</label>
 			</div>
@@ -384,7 +400,7 @@ function r (){
 			</div>
 			<div class="checkbox" >
 				<label style="padding-left:0">
-					<button data-toggle="tooltip" title="標示為五份作品中的最佳解" type="button" class="btn btn-default star-btn "><span class="glyphicon glyphicon-star"></span> </button>
+					<button data-toggle="tooltip" title="選為五份作品中的最佳解" type="button" class="btn btn-default star-btn "><span class="glyphicon glyphicon-star"></span> </button>
 					<input class="grade star" type="radio" name="star"  />
 				</label>
 			</div>
@@ -435,9 +451,17 @@ function r (){
 
 
 
-$(".star-btn").tooltip();
+$(".star-btn").tooltip({
+	template:'<div class="tooltip star-tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+});
 
 
+$(document).on('click',".report-btn",function (e){
+	var $p = $(this).closest(".tab-pane") ;
+	var i = $p.index();
+
+	$("")
+});
 
 
 $(document).on('click' ,".submit-bug",function (e){

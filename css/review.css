@@ -6,7 +6,8 @@ html {
 
 body {
 	background:rgb(129,170,188);
-	font-family: "Oswald", "微軟正黑體", sans-serif;	
+	font-family: "Oswald", "微軟正黑體", sans-serif;
+	padding-bottom:50px;	
 }
 
 .navbar-fixed-top{ 
@@ -101,6 +102,7 @@ li.tab > a {
 }
 
 
+
 .grade-preview {
 	display:inline;
 }
@@ -143,7 +145,12 @@ li.tab > a {
 }
 input.star{
 	display:none;
-	
+}
+.star-tooltip{
+	width:200px;
+}
+.star-tooltip .tooltip-inner {
+	padding:10px !important;
 }
 
 #review-submit{

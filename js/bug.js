@@ -101,6 +101,7 @@ function showBug (b , i ){
 	var step  = judgeStep(b);
 	var html = getBugHtml(b,relation,step);	
 	$($('.bug-pane')[i]).prepend(html);
+	$(".no-bug-info").hide();
 }
 
 

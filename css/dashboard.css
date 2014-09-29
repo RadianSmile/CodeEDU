@@ -145,11 +145,14 @@ article{
 	transition:all .6s ease;
 	-webkit-transition:all .4s ease;
 }
-.machineBox , .glyphicon-heart {
+ .glyphicon-heart {
 	transition:all .6s ease;
+	-webkit-transition:all .6s ease;
+}
+.machineBox {
+	transition:all .4s ease;
 	-webkit-transition:all .4s ease;
 }
-
 
 .glyphicon-heart:hover, .machineBox:hover ,.card-box:hover{
 	transform:scale(1.1,1.1);
@@ -176,6 +179,11 @@ article{
 
 #cardTitle{
 	text-align: center;
+}
+
+.special-textarea{
+	width: 100%;
+	min-height:300px;
 }
 
 /*

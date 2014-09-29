@@ -43,44 +43,6 @@
 
 <style>
 
-/*Other*/
-body {
-	background:rgba(221,221,221,1.00);
-	
-}
-
-.info{
-	top:-webkit-calc(80vh +	 25px);
-	height:-webkit-calc(20vh - 25px);
-	_background:rgba(77,77,77,1.00);
-}
-.comment{
-	background:rgb(241,241,241);
-	min-height:100px;
-}
-.others		 {
-	_background:rgba(177,255,241,1.00);
-	min-height:100px;
-}
-
-.other {
-	margin:15px;
-	display:inline-block;
-	
-}
-.others > .inner {
-	width:100%; height:200px; 
-	background:rgba(255,255,255,1.00);
-}
-.other  .other-head > img{
-	width:50px;
-	height:50px;
-}
-[class*="block-title"]{
-	display:inline-block;
-	
-}
-
 </style>
 
 
@@ -109,26 +71,30 @@ body {
 		</div>
 	</div>
 </div>
+<div id="information-pane-disable" class="container-fluid hidden">
+	抓BUG、留言功能以及更多資訊將於 <span id="review-due-show"></span> 評分完成後 開放
+</div>
 
-<div class="container-fluid">
+<div id="information-pane" class="container-fluid hidden">
 
 
 <div class=" col-md-7 repadding">
-
-<div class="info-block block">
-	<h3 class="block-title">Pcak Man</h3>
+<div id="main-game-info" class="info-block block">
+	<h3 class="game-name block-title"></h3>
 	<div class="info">
-		<div class="maker"></div>
-		<div class="count"></div>
-		<div class="grade"></div>
-		<div class="fblike"></div>
+		<div class=" inline maker-photo"></div>
+		<div class="inline maker-name"></div>
+		<div class=" inline main-isBest hidden"><span class="glyphicon glyphicon-bookmark"></span></div>
+		<!--div class="count"></div-->
+		<div class="inline grade"></div>
+		<div class=" inline fblike"></div>
 	</div>
 </div>
 
 
 <div class="bug-block block">
 <h3 class="block-title">遊戲BUG回報區</h3>
-	<div id="add" class="add-bug bug	"> 
+	<div id="add-bug-container" class="add-bug bug	"> 
 		<form class="add-bug-form" >
 			<div class="media" style="background:none; border:none;">
 				<a class="pull-left">
@@ -179,78 +145,6 @@ body {
 
 <script type="text/javascript" src="js/bug.js"></script>
 <script src="js/play.js"></script>
-
-
-
-<!--div class="container-fluid nav">
-	<div class="btn"></div>
-</div>
-<div class="container">
-
-	<div class="main row">
-		<div class="show col-md-7">
-			<div class="head">Pack Man</div>
-			<div class="play">
-			</div>
-			<div class="info">
-				<div class="maker"></div>
-				<div class="count"></div>
-				<div class="grade"></div>
-				<div class="fblike"></div>
-			</div>
-		</div>
-		<div class="code col-md-5">
-			<div class="editor-container">
-				<div class="editor"></div>
-			</div>		
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-7">
-			<div class="bugs ">
-			</div>
-		</div>
-		<div class="others col-md-5">
-		</div>
-	</div>
-		<!--form class="add-bug-form" >
-			<div class="row add-bug ">
-				<div class="add-bug-img col-md-2">
-					<input type="file" class="add-img-input" />	
-				</div>
-				<div class="add-bug-des col-md-5">
-				 	<textarea  class="add-des-input" ></textarea>
-				</div>		
-			</div>
-			<div class="row">
-				<button type="button" class="submit-bug btn btn-danger col-md-offset-6 col-md-1" >呈交霸個</button>
-			</div>
-		</form>
-</div-->
-
-
-
-
-<!--script data-for="Bug">
-$(document).on('click','.add-bug-img',function(e){
-	$(this).siblings("input:file.add-img-input").first().trigger('click');
-});
-$(".bugs").on("focusin", function(){
-	console.log("fuck");
-	$("a.fancy").fancybox({
-		'transitionIn'	:	'elastic',
-		'transitionOut'	:	'elastic',
-		'speedIn'		:	600, 
-		'speedOut'		:	200, 
-		'overlayShow'	:	false,
-		'type' : "image"
-	});
-});
-
-
-
-
-</script-->
 <script type="text/javascript" src="js/include/students.js"></script>
 
 </body>

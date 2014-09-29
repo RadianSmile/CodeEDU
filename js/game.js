@@ -1,7 +1,7 @@
 
 
 /** test control**/
-var now = new  Date ()//(2014,8,30) ;
+var now = new Date ()//(2014,8,30) ;
 var currentUser = Parse.User.current() ;
 var $D = $(document);
 //console.log ("outer success , ",$("#assignModalInfo").length);
@@ -61,22 +61,64 @@ var PersonalAssignArr = [] ;
 		AssignInfoArr = i; 
 		controller();
 	});
+	
 	function controller (){
 		if (getAsnDone && getInfoDone){
 			start();
 		}
 	}
 	function start(){
-		$apd = $("#assignInfoArea");
 		for (var i = 1 ; i <= AssignInfoArr.length ; i++){    // Rn 6
-			//console.log ("正在 append");
-			//console.log (generateAssignInfo( i.toString()));
-			$apd.append(generateAssignInfo( i.toString()));
-			
+			$(generateAssignInfo(i.toString())).insertAfter("#assignInfoArea");
+		}
+		for (i = 1 ; i <= 6 ; i++ ){
+			changeIndexGame(i,$(".indexGame").eq(i-1));
 		}
 	}
 
 /////////////////////////////////
+
+function changeIndexGame (nth,$e){
+	var asnInfo = getAssignInfoByNthFromArr(nth);
+	console.log ("asnInfo",asnInfo);
+	if (asnInfo === -1 || typeof(asnInfo) === 'undefined'){
+		$e.addClass("noGame");
+		$e.data("toggle","tooltip");
+		$e.attr("title","尚未發佈");
+	}else{
+		var reviewDue = asnInfo.get("reviewDue");
+		var reviewDueString = reviewDue.toLocaleDateString() + reviewDue.toLocaleTimeString();
+		var now = new Date ();
+
+		if (now > reviewDue){  
+			$e.find('img').first().attr('src','img/games/light-0'+nth+'.png')
+			$e.addClass("repaired");
+			$e.data("toggle","tooltip");
+			$e.attr("title","快點進來玩");
+			//hoverChange($e);
+		}else{
+			$e.addClass("repairing");
+			$e.data("toggle","tooltip");
+			$e.attr("title","創作中的遊戲...將在"+reviewDueString+"開放");
+		}
+	}
+	$e.tooltip();
+}
+
+/*
+function hoverChange($e){
+	var nth = $e.data("nth");
+	$img = $e.find("img").eq(0) ;
+	var oPath = $img.attr("src");
+	var nPath = "img/games/light-0"+nth+".png";
+	$e.hover(function(i){
+		//$img.attr("src",nPath);
+	},function(o){
+		$img.attr("src",oPath);
+	});
+}
+*/
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,6 +129,7 @@ function generateAssignInfo (nth) {
 	var asnInfo = getAssignInfoByNthFromArr(nth);
 	var asn = getPersonalAssignByNthFromArr(nth);
 	var isNewAsn =  typeof(asn) ==='undefined';
+	var openDate = asnInfo.get("reviewDue").toLocaleDateString() + asnInfo.get("reviewDue").toLocaleTimeString();
 
 	var btns = "";
 		makeAsnInfoBtns();
@@ -101,23 +144,29 @@ function generateAssignInfo (nth) {
 		console.log ("reviewDate: " +reviewDate.toLocaleString());
 		console.log ("reviewDue : " +reviewDue.toLocaleString());
 
+		var viewAllBtnDisable =	'<a class="btn btn-default assignInfo-link view-other" href="#" onclick="return false"  style="background:rgba(250,250,250,1) !important; ">檢視全體的遊戲 ( 開放時間：'+openDate+' ) </a>';
+		var viewAllBtn =	'<a class="btn assignInfo-main-btn btn-default assignInfo-link view-other" href="games.html?nth='+nth+'">檢視全體的遊戲</a>';
+
 		var l ="";
 		if (submitDate > now) { 
 			status = 1 ;
 			l=" 第一區間：還沒開始作業" ;
+			btns+= viewAllBtnDisable
 		}
 		if (reviewDate > now && now > submitDate ){
 			status = 2 ;	
 			l =" 第二區間：開始作業";
+			btns+= viewAllBtnDisable
 		}
 		if (reviewDue > now && now  > reviewDate  ){	
 			status = 3 ; l =" 第三區間：開始評分";
-			btns+= reviewBtn + viewSelfBtn ;
+			btns+= viewAllBtnDisable
 		}
 		if (now > reviewDue){  
 			status = 4 ;
 			l ="四區間：結束評分";
-			btns+=viewSelfBtn + viewAllBtn + uploadBtn ;}	
+			btns+=  viewAllBtn;
+		}
 		//alert (l);
 		return btns;
 	}
@@ -126,11 +175,7 @@ function generateAssignInfo (nth) {
 		//alert(btns);
 		var imgUrl = 'img/games/' ;
 		if (status < 4  ){
-			if (isNewAsn){
 				imgUrl+= "broke-0"+nth+".png" ;
-			}else{
-				imgUrl+= "dark-0"+nth+".png";
-			}
 		}else{
 			imgUrl+= "light-0"+nth+".png";
 		}
@@ -139,7 +184,7 @@ function generateAssignInfo (nth) {
 		var req = asnInfo.get("req");
 		var n = asnInfo.get("name");
 		
-		var assignInfoModal = '<div class="modal fade" id="assignModalInfo'+nth+'" tabindex="-1" role="dialog"  aria-hidden="true">\
+		var assignInfoModal = '<div id="assignModalInfo'+nth+'" class="modal fade" tabindex="-1" role="dialog"  aria-hidden="true" aria-labelledby="AssignInfo'+nth+'">\
 		<div class="modal-dialog modal-lg" >\
 			<div class="modal-content" >\
 			\
@@ -158,7 +203,7 @@ function generateAssignInfo (nth) {
 			\					<div class="des assignInfo-intro">'+intro+'</div>				\
 							</div>\
 							<div class="des-block requirement">\
-								<h4>Requirement</h4>\
+								<h4>What Students Have Done</h4>\
 			\					<div class="des assignInfo-requirement">'+req+'</div>\
 							</div>\
 							<div class="links">\
@@ -171,16 +216,11 @@ function generateAssignInfo (nth) {
 				</div>\
 			</div>\
 		</div>';
-		console.log (assignInfoModal);
+		//console.log (assignInfoModal);
 		return assignInfoModal;
 	}	
 }
 
-$('.modal').on('hidden.bs.modal', function () {
-	$('.modal').modal('hide');
-	$('body').removeClass('modal-open');
-	$('.modal-backdrop').remove();
-})
 // 在初始化的時候就要去判斷是否有 null 這個值
 
 

@@ -1,4 +1,3 @@
-
 Parse.initialize("9eo5r1mHWoIPSTCzmrpdKa3lcHPjySx4y5D6q8Nq", "R8SWwYxpJcy73ogQKuSD43y7FigrlDGjBLcy1lzC");
 
 /** test control**/
@@ -16,101 +15,40 @@ var $D = $(document);
 var AssignInfoArr = [];
 var PersonalAssignArr = [] ;
 
-
-	function qurPersonalAssign (currentUser){  /* FOR PERSONAL */
-		var Assign = Parse.Object.extend("Assign");
-		var q = new Parse.Query(Assign);
-		q.equalTo("maker",currentUser);
-		q.ascending("nth");
-		//q.include("maker");
-		return q.find();
+function qurPersonalAssign (currentUser){  /* FOR PERSONAL */
+	var Assign = Parse.Object.extend("Assign");
+	var q = new Parse.Query(Assign);
+	q.equalTo("maker",currentUser);
+	q.ascending("nth");
+	//q.include("maker");
+	return q.find();
+}
+function qurAssignInfo (){
+	var AsnInfo = Parse.Object.extend("Assign_Info");
+	var q = new Parse.Query(AsnInfo);
+	return	q.find();
+}
+function getPersonalAssignByNthFromArr(nth){
+	var a = PersonalAssignArr.getIndexByAttr("nth", nth) ;
+	if (a >= 0 ){
+		return PersonalAssignArr[a];
+	}else{
+		return -1;
 	}
-	function qurAssignInfo (){
-		var AsnInfo = Parse.Object.extend("Assign_Info");
-		var q = new Parse.Query(AsnInfo);
-		return	q.find();
+}
+function getAssignInfoByNthFromArr(nth){
+	var a = AssignInfoArr.getIndexByAttr("nth", nth) ;
+	if (a >= 0 ){
+	//	console.log(AssignInfoArr[a]);
+		return AssignInfoArr[a];
+	}else{
+		return undefined;
 	}
-	function getPersonalAssignByNthFromArr(nth){
-		var a = PersonalAssignArr.getIndexByAttr("nth", nth) ;
-		if (a >= 0 ){
-			return PersonalAssignArr[a];
-		}else{
-			return -1;
-		}
-	}
-	function getAssignInfoByNthFromArr(nth){
-		var a = AssignInfoArr.getIndexByAttr("nth", nth) ;
-		if (a >= 0 ){
-		//	console.log(AssignInfoArr[a]);
-			return AssignInfoArr[a];
-		}else{
-			return undefined;
-		}
-	}
-	function addProfileGameSHref(){
-
-		$('.game').each(function(i, e) {
-			var $e = $(e);
-			var nth = $e.data('nth').toString();
-			var j = PersonalAssignArr.getIndexByAttr('nth',nth) ;
-			
-			if (j === -1 ){
-				/*$e.parent(".machineBox").addClass("noGame");
-				$e.data("toggle",'tooltip');
-				$e.attr('title',"尚未遊戲");
-				$e.tooltip();
-				return true ;*/
-			}else{
-				console.log ("showing");
-				//if (nth !== invisibleAsn.nth){
-					//var gameUrl = 'play.html?aid='+UserAsns[j].id;
-					//$e.attr('href',gameUrl);
-					//$e.attr('target','_blank');
-				//}else{
-				//	$e.attr('title',"遊戲將於" +invisibleAsn.openDate+"評分結束後開放參觀");
-				//	$e.data("toggle",'tooltip');
-				//	$e.tooltip();
-				//}
-				$e.find('img').first().attr('src','img/games/dark-0'+nth+'.png');
-			}
-		});	
-	}
+}
 
 
 	
 	
-
-	
-	qurPersonalAssign(currentUser).then(function (a){ 
-
-		//console.log ("1!!!!!!!!!");
-		getAsnDone = true; 
-		PersonalAssignArr = a ;
-		isNewAsn = (typeof (a) === 'undefined') ;
-		controller();
-	});
-	qurAssignInfo().then(function(i){
-		getInfoDone = true; 
-		AssignInfoArr = i; 
-		controller();
-	});
-	function controller (){
-		if (getAsnDone && getInfoDone){
-			start();
-		}
-	}
-	
-	function start(){
-		addProfileGameSHref();
-
-		$apd = $("#assignInfoArea");
-		for (var i = 1 ; i <= AssignInfoArr.length ; i++){    // Rn 6
-			//console.log ("正在 append");
-			//console.log (generateAssignInfo( i.toString()));
-			$apd.append(generateAssignInfo( i.toString()));
-			
-		}
-	}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -243,111 +181,3 @@ function generateAssignInfo (nth) {
 
 
 
-
-$D.on('click',".submit-asnUrl",function(e){
-	var userDone = false ,
-			checkDone = false ;
-
-	$t = $(this)  ;
-	$t.button('loading');
-	$t.toggleDisabled();
-	var nth = $t.data("nth").toString();
-
-
-	
-	var currentUserObj ;currentUser.fetch().then(function(u){
-		currentUserObj=u ;
-		if (u.get('role') !== 'student')
-		{
-			alert("你不是學生，不可以上傳作業");
-			$t.button('reset');
-			return false ;
-			
-		}
-		userDone = true ;
-		controlSave () ;
-	},Log);
-	$aI = $('.assignModalInfo');
-	e.stopPropagation();
-	
-	var asn = getPersonalAssignByNthFromArr (nth);
-	var isNewAsn = ( asn === -1 );
-	
-	var URL = 	$aI.find(".input-asnUrl").first().val();
-	checkCode(URL); // it would both invoke check url and code ;
-
-	function checkCode(URL){
-		console.log (URL);
-		$.ajax({
-			url:"getcodeForGhost.php",
-			data:	{url:URL},
-			type: "POST",
-			success: function(d,s,x){
-				alert(s);
-				if (d==="no val"){
-					alert("你沒有貼入連結");
-					$t.button('reset');
-					$t.toggleDisabled();
-				}else if (d==="no play"){
-					alert("無法讀取play.html檔，請確認\n1.連結是否正確\n2.檔案是已經否上傳了\n如果仍無法解決，請聯絡助教。")
-					$t.button('reset');
-					$t.toggleDisabled();
-				}else if (d === "wrong host"){
-					alert("要貼入的連結應該是 xxx.github.io/xxxx\n你是不是貼錯了?\n如果仍無法解決，請聯絡助教。")
-					$t.button('reset');
-					$t.toggleDisabled();
-				}else if (d === "wrong play"){
-					alert ("不正確的play.html，請確認\n1.你可能貼到的不是play.html的連結\n2.你的play.html內容或位置不正確，可嘗試重新做一個play.html\n如果仍無法解決，請聯絡助教。")
-					$t.button('reset');
-					$t.toggleDisabled();
-				}else if (d === "no code"){
-					alert("沒有正確存取到Play.html內data-processing-sources是否正確\n2.請確認檔案是否已經上傳到gh-pages\n如果仍無法解決，請聯絡助教。");
-					$(this).toggleDisabled();
-					$t.button('reset');
-				}else{
-					console.log (d);
-					alert(d);
-					
-					checkDone = true ;
-					controlSave();
-				}		
-		//		alert(d);
-			}
-		});
-	}
-	
-	function controlSave(){
-		if (userDone && checkDone){
-			saveAssign();
-		}
-	}
-	function saveAssign (){
-		var asnUrl = URL ;
-		var Asn = Parse.Object.extend("Assign");
-		console.log ("isNewAsn",isNewAsn.toString());
-		if (isNewAsn) {
-			var savingasn = new Asn();
-			savingasn.set("nth",nth);
-			savingasn.set("maker",currentUser);
-			savingasn.set("uid",currentUserObj.get('uid'))
-		}else {
-			savingasn = asn ;
-		}
-		savingasn.set("url",asnUrl);
-		savingasn.save().then(function(s){
-			if (isNewAsn){
-				alert("作業繳交成功");
-				$t.button('reset');
-				$t.toggleDisabled();
-				document.location.reload();
-			}else{
-				alert("作業更新成功");
-				$t.button('reset');
-				$t.toggleDisabled();
-				document.location.reload();
-			}
-		},function(e){
-			alert(e.message);
-		})
-	}
-});

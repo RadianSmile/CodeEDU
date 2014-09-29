@@ -15,7 +15,6 @@
 
     <title>首頁</title>
     </head>
-		<div id="assignInfoArea"></div>
 		<div class="declareCodRole" data-role="index">
 		
 		</div>
@@ -42,7 +41,7 @@
                 <div class="row indentB btn-box">
 
                    	<div class="col-md-2 col-md-offset-3 text-center index-btn">
-                        <a href="#game-title">
+                        <a id="goGame">
                         <img src="img/games/btn-02.png"/>
                         <h4>GAMES</h4>
                         </a>
@@ -201,6 +200,7 @@
             </footer>
 
 
+<div id="assignInfoArea"></div>
 
 <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -210,23 +210,14 @@
         <h4 class="modal-title" id="myModalLabel">歡迎進入 PROGRAMING 101 的世界！</h4>
       </div>
       <div class="modal-body">
-        
-
-<div class="btn btn-primary authBtn"   onclick="fb_login();">
-  以ＦＢ帳號登入
-</div>
-<a class="btn btn-default authBtn" href="signup.html">
-  課程學生註冊
-</a>
-
-
-
-
-<div id="status">
-</div>
-
-<div id="result"></div>
-
+				<div class="btn btn-primary authBtn"   onclick="fb_login();">
+					以ＦＢ帳號登入
+				</div>
+				<a class="btn btn-default authBtn" href="signup.html">
+					課程學生註冊
+				</a>
+				<div id="status">
+				</div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

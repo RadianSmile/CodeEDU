@@ -44,8 +44,6 @@ console.log ("get code!")
 		alert("發生了某些狀況，請重新整理!");
 	}
 }
-
-showBug
 function apdBug(b){
 	var reviewer = b.get("reporter");
 	var des = b.get("des");
@@ -132,23 +130,32 @@ function FBinitDone(){
 	showFB (document.location);
 }
 
+// 精選作品
 function showOther (other){
-	var n = other.get("maker").get("name	"),
+	var n = other.get("maker").get("name"),
 			p = other.get("maker").get("photo"),
-			g = other.get("grade"),
-			s = other.get("star"),
+			g = other.get("grade") ? other.get("grade") : "沒有成績",
+			s = other.get("star") ? genStars(other.get("star")) : "";
+			t = other.get("isBest") ? '<span class="glyphicon glyphicon-bookmark"></span>'  : "";
 			h = other.get("url"),
 			
 			$p = $(".others  .inner").first();
 	var html = 
-			'<a class="other" href="play.html?asn='+other.id+'">\
+			'<a class="other" href="play.html?aid='+other.id+'">\
 				<span class="other-head"><img src="'+p+'"></span>\
 				<span class="other-name">'+n+'</span>\
 				<span class="other-grade">'+g+'</span>\
+				<span class="other-best">'+t+'</span>\
 				<span class="other-star">'+s+'</span>\
 			</a>';
 	$p.append(html);
-	
+}
+function genStars(s){
+	var starsString ='' ;
+	for (var i = 0 ; i < s ; i++){
+		starsString += '<span class="glyphicon glyphicon-star"></span>';
+	}
+	return starsString ;
 }
 
 
@@ -161,24 +168,51 @@ function showOther (other){
 	if (typeof asnId ==='undefined' ){
 		alert("系統無法辨別你要看哪個遊戲，請重新點取");
 		
-	/*	if (document.referrer === ""){
-			document.location = "http://codedu.com";
+		if (document.referrer === ""){
+			document.location = "dashboard.html";
 		}else {
 			document.location = document.referrer;
 		}
-		return false ;	*/
+		return false ;	
 	}
 	
 	
 	qurAssign(asnId).then(function(a){
 		var url = a.get("url") ;
-		nth = a.get("nth");
+		var maker = a.get("maker");
+		nth = a.get("nth");  
+		
+		// assignInfo
+		qurAssignInfo (nth).then(function(ai){
+			var now = new Date();
+			var openTime = ai.get("reviewDue") ;
+			var $p = $('#main-game-info');
+			
+			$p.find(".game-name").text(ai.get("name").toUpperCase());
+			
+			//於 評分完成後 再開啟 資訊互動區
+			if ( now.getTime() > openTime.getTime()){
+				$("#information-pane").removeClass('hidden');
+			}else{
+				$("#review-due-show").text(openTime.toLocaleDateString()+openTime.toLocaleTimeString());
+				$("#information-pane-disable").removeClass('hidden');
+			}			
+		});
+	
+		if (maker.id === currentUser.id){
+			$('#add-bug-container').remove();
+		}
+
 		$(".submit-bug").data("aid",a.id);
 		showPlay (url); 
-		$(".maker").text(a.get("maker").get("name"));
+		$(".maker-name").text(maker.get("name"));
+		$(".maker-photo").append('<img src="'+maker.get("photo")+'" height="50" width="50">');
+		
+
 		$(".count").text(a.get("count"));
-		$(".grade").text(a.get("grade"));
-		if (a.get("isBest")) $(".isBest").fadeIn();
+		var g =  a.get("grade") ? a.get("grade") : "尚未評分";
+		$(".grade").text(g);
+		if (a.get("isBest")) $(".main-isBest").fadeIn();
 		
 		//if( curUser ){
 			pprEditor();
@@ -186,8 +220,12 @@ function showOther (other){
 			console.log(asnId);
 			qurBugs(asnId).then(function(bs){
 				console.log ("bug pull done " +bs.length);
-				each(bs,showBug);
-				bugInit();
+				if (bs.length === 0){
+					$(".bug-pane").prepend('<div class="no-bug-info">太強了！你的遊戲沒有任何霸個！</div>');
+				}else{
+					each(bs,showBug);
+					bugInit();
+				}
 			},handleError);
 		//}
 		
@@ -201,8 +239,6 @@ function showOther (other){
 
 
 $(document).on('click' ,".submit-bug",function (e){
-	//Rn!!!!!!!!!
-	
 	var aid = $(this).data('aid');
 	
 	var Assign = Parse.Object.extend ("Assign"),
@@ -210,7 +246,6 @@ $(document).on('click' ,".submit-bug",function (e){
 	assign.id = aid ;
 	
 	var user = new Parse.User();
-	//console.log ("tTargetUserId",tTargetUserId);
 	user.id = currentUser.id//  = isSet(tTargetUserId) ?  tTargetUserId : currentUser.id;
 	//!!!!!!!!
 	

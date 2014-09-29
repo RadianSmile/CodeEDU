@@ -7,7 +7,7 @@ var $D = $(document);
 //console.log ("outer success , ",$("#assignModalInfo").length);
 //var nth =  assignNth// 
 
- var getAsnDone,getInfoDone ;
+var getAsnDone,getInfoDone ;
 
 // 原始頁面也需要的資訊
 

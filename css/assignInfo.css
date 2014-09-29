@@ -14,13 +14,12 @@
 	border: rgba(67,98,112,1) thin dashed;
 }
 .assignInfo-main-btn{
-	background:rgba(67,98,112,1);
+	background:rgba(67,98,112,1) !important;
 	color:white;
 }
 .assignInfo-main-btn:hover{
-	background:rgba(70,120,130,1);
+	background:rgba(70,120,130,1) !important;
 	color:white;
-
 }
 
 .assignInfo-photo {
@@ -35,6 +34,7 @@
 .assignInfo-link {
 	margin-top:10px;
 	width:100%;
+	background:rgba(240,240,240,1.00);
 }
 .game {
 	cursor:pointer;

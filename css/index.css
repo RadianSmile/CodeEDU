@@ -196,6 +196,11 @@ body{
 .machineBox > img {
 	width:100%;
 }
+.indexGame {
+	display:block;
+	cursor:pointer;
+	
+}
 
 .genreWord{
 	background-color:rgb(129,170,188);
@@ -225,6 +230,19 @@ body{
 	padding-left:0px;
 	padding-right:0px;
 }
+
+/* 遊戲機檯 */
+
+.repaired , .repairing{
+	transition:all .2s ease;
+	-webkit-transition:all .2s ease;
+}
+.repaired:hover , .repairing:hover{
+	transform:scale(1.1,1.1);
+	-webkit-tranform:scale(1.1,1.1);
+}
+
+
 
 .credit{
 	color: #80ABBC;

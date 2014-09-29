@@ -159,8 +159,13 @@ Parse.Cloud.beforeSave("User_status",function(request,response){
 			sendEvent(user,20);
 		}else if (life - 1 <= 0){
 			obj.set("HP",0);
-			sendEvent(user,21);
 			obj.set('Life', 0);
+			checkEventExistOne(user,21).then(function(s){
+				if (typeof (s) === 'undefined'){
+					sendEvent(user,21);
+				}
+			});
+			
 		}
 	}
 
@@ -902,6 +907,15 @@ function sendEvent (user,eidNum){
 	e.set("eid",eidNum);
 	return e.save();
 }
+
+function checkEventExistOne(user,eidNum){
+	var ER = Parse.Object.extend("Event_Record");
+	q = new Parse.Query(ER);
+	q.equalTo("eid",eidNum);
+	q.equalTo("target",user);
+	return q.first();		
+}
+
 
 function sucMes(s){
 	console.log ("成功完成！");

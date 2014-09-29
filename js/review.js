@@ -38,7 +38,14 @@ $('#review-tab a').click(function (e) {
   e.preventDefault();
   $(this).tab('show');
 });
-var assignToReview ;
+
+if (localStorage.getItem("reviewNth") === null){
+	alert("沒有偵測到要評分的作業，\n系統將跳返回個人主頁。");
+	document.location = "dashboard.html";
+}else{
+	var assignToReview = localStorage.getItem("reviewNth") ;
+}
+
 var AssignArr = [] ;
 var CodeArr =  [] ;
 var TimeArr = [] ;
@@ -126,8 +133,14 @@ function showAssignAndBug(){
 	var finalCount = 0 ; 
 	
 	QueryAssigns().then (function(r){
+		// prepare assigns and  report btns;
+		var $cheatSelect = $ ("#cheat-select");
 		finalCount = r.length ;
 		for (var i = 0 ; i < r.length ; i++){
+		
+			$cheatSelect.append('<option value="'+r[i].id+'">#'+(i+1)+'</option>');
+			
+			// prepare assigns to review 
 			var url = 	r[i].get("assign").get("url"); 	
 			isInTime(url,i);	
 			getCode(url,i); ///
@@ -172,6 +185,7 @@ function submitReview (e) {
 			$(this).attr("disabled","disabled");
 			Parse.Object.saveAll(AssignArr).then (function (re){
 				console.log ("SaveResult",re);
+				localStorage.removeItem("reviewNth");
 				localStorage.clear();
 				alert("繳交成功了!");
 				document.location="dashboard.html";

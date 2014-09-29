@@ -134,7 +134,12 @@
 .submit-bug {
 	color: #41626F;
 }
-
+.no-bug-info{
+	padding:20px 0 ;
+	_text-align:center;
+	font-size:18px;
+	color:rgba(160,187,195,1.00);
+}
 
 /* old version
 

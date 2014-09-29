@@ -125,3 +125,58 @@ input.star{
 	
 }
 
+/*****/
+
+/*Other*/
+body {
+	background:rgba(221,221,221,1.00);
+	
+}
+
+.info{
+	top:-webkit-calc(80vh +	 25px);
+	height:-webkit-calc(20vh - 25px);
+	_background:rgba(77,77,77,1.00);
+}
+.comment{
+	background:rgb(241,241,241);
+	min-height:100px;
+}
+.others		 { 
+	_background:rgba(177,255,241,1.00);
+	min-height:100px;
+}
+
+.other {
+	margin:15px;
+	display:block;
+	
+}
+.others > .inner {
+	width:100%; height:200px; 
+	background:rgba(255,255,255,1.00);
+}
+.other  .other-head > img{
+	width:50px;
+	height:50px;
+}
+[class*="block-title"]{
+	display:inline-block;
+}
+
+.main-isBest{
+	color:rgba(243,255,0,1.00);
+}
+.inline{
+	display:inline;
+	line-height:50px;
+}
+
+#information-pane-disable{
+	padding:80px 0 ;
+	font-size:25px;
+	color:rgba(20,90,129,1.00);
+	background:rgba(243,243,243,1.00);
+	text-align:center;
+	
+}

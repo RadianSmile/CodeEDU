@@ -20,7 +20,9 @@ $(document).ready(function(){
 		$(".story-text").removeClass("active");
 		$(".text-wrap").children().eq(3).addClass("active");
 	});
-
+	$(document).on('click','#goGame',function (e){	
+		$("html, body").animate({scrollTop:$("#games").offset().top - 100}, 500, 'swing');
+	});
 
 });
 
