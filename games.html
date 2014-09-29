@@ -99,7 +99,7 @@ tr:hover , tr:hover td {
 
 <script>
 function qurAssigns ( nth ,descendBy) {
-	var Assign = Parse.Object.extend("Test_Assign");
+	var Assign = Parse.Object.extend("Assign");
 	var q = new Parse.Query(Assign);
 	q.equalTo("nth",nth);
 	q.ascending("grade	");
@@ -112,7 +112,7 @@ function showAssign (a){
 	
 	var maker = 	a.get("maker") , 
 			name = maker.get("name"),
-			id = maker.get("uid"),
+			id = maker.get("ID"),
 			head = maker.get("photo");
 	var	isBest = (a.get("isBest")) ? "<img class='star' src='http://www.clipartbest.com/cliparts/aiq/knn/aiqknnqiM.png' width='50' heigh='50'>" : "" ;
 			grade = a.get("grade") ;			
@@ -145,7 +145,7 @@ function showAssign (a){
 
 $(document).on('click',".assigns tr",function(e){
 	var asnID = $(this).data('assign');
-	var win = window.open("play.html?asn="+asnID, '_blank');
+	var win = window.open("play.html?aid="+asnID, '_blank');
 	win.focus();
 });
 </script>
