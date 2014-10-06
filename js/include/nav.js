@@ -35,7 +35,7 @@ function ableGrading (s){
 	localStorage.setItem("reviewNth",nth);
 	console.log("reviewNth " +nth );
 	var $btn = $(".nav-grading-btn") ;
-	$btn.data("title","Dead Line : "+ddl).removeClass("hidden").hide().fadeIn().tooltip({
+	$btn.data("title","Dead Line : "+ddl).removeClass('hidden').show().tooltip({
 		animated: 'fade',
 		placement: 'bottom',
 	});;
@@ -68,25 +68,36 @@ function checkGradingTime (){
 			qRR.equalTo("reviewer",reviewer);
 			qRR.first().then(function(rr){
 				if (typeof (rr) !== 'undefined'){
-					//alert(rr.get("grade"));
-					if (rr.get("grade")){
+					alert("s");
+					ableGrading(s);
+					if (rr.get("grade") === '' || typeof(rr.get("grade")) ==='undefined' ){
+						//alert("have grade");
 						// Have Done Review ;
+						$(document).ready(function(e) {
+							$(".nav-grading-btn a").text("Find Bug");
+						});
 						$(document).on('click','.game', function (e) {
-							$(".assignInfo-link.to-review").text("前往評分 ( 太棒了！你已經評完分了 ) ").addClass("disabled").prop("disabled",true);;
+							$(".assignInfo-link.to-review").text("前往抓罷個 ( 你已經評完分了 ) ");
 						});
 
 						//alert(fileName);
 						if (fileName === "review.html" ){
 							$(document).ready(function(e) {
-								$(".review-submit").text("你已經評過分了").addClass("disabled").prop("disabled",true);	
+								
+								//alert("你已經評過分了，現在只能抓BUG");
+								$("#review-submit").text("你已經評過分了，現在只能抓BUG").addClass("disabled").prop("disabled",true);	
+								$(".grading-pane").remove();
 							});
 							//alert("你已經評完分了，不可以再次評分");
 							//document.location = "dashboard.html";
 						}
-					}else {
+					}else{
 						// Done Random but not review yet ;
+						//alert("not review yet");
+						if (fileName !== "review.html" ){
+							$(".nav-grading-btn").addClass("hasNoti");
+						}
 						console.log (rr.get("Grade"));
-						ableGrading(s);
 					}
 				}else {
 					// cloud job is not finished
