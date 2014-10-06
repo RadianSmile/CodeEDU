@@ -42,8 +42,14 @@ function ableGrading (s){
 }
 
 function checkGradingTime (){
+	/* */
+	
+	//review
+	var fileName = getFileName();
+	var reviewer = Parse.User.current();
+	
 	localStorage.removeItem("reveiwNth");
-	var now = new Date (2014,9,7)//Date(); 
+	var now = new Date();//new Date (2014,9,7)//Date(); 
 	var AssignInfoArr = [] ;
 	var AssignInfo = Parse.Object.extend("Assign_Info");
 	//var assignInfo = new AssignInfo();
@@ -56,16 +62,35 @@ function checkGradingTime (){
 
 			var nth = s.get("nth");
 			// 確定有沒有評過分			
-			var ReviewRecord = new Parse.Object.extend("Review_Record");
-			var qRR = new ReviewRecord();
+			var ReviewRecord = Parse.Object.extend("Review_Record");
+			var qRR = new Parse.Query(ReviewRecord);
 			qRR.equalTo("nth",nth);
+			qRR.equalTo("reviewer",reviewer);
 			qRR.first().then(function(rr){
-				console.log (rr.get("Grade"));
-				if (rr.get("Grade")){
-					console.log (rr.get("Grade"));
-					ableGrading(s);
+				if (typeof (rr) !== 'undefined'){
+					//alert(rr.get("grade"));
+					if (rr.get("grade")){
+						// Have Done Review ;
+						$(document).on('click','.game', function (e) {
+							$(".assignInfo-link.to-review").text("前往評分 ( 太棒了！你已經評完分了 ) ").addClass("disabled").prop("disabled",true);;
+						});
+
+						//alert(fileName);
+						if (fileName === "review.html" ){
+							$(document).ready(function(e) {
+								$(".review-submit").text("你已經評過分了").addClass("disabled").prop("disabled",true);	
+							});
+							//alert("你已經評完分了，不可以再次評分");
+							//document.location = "dashboard.html";
+						}
+					}else {
+						// Done Random but not review yet ;
+						console.log (rr.get("Grade"));
+						ableGrading(s);
+					}
 				}else {
-					// Have Done Review ;
+					// cloud job is not finished
+					console.log("cloud job not finish ");
 				}
 			},Log);
 		}else{

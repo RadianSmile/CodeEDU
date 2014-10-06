@@ -21,6 +21,16 @@ function qurAssigns ( nth ,descendBy) {
 	q.include("maker");
 	return q.find() ;
 }
+function qurElectAssigns (nth){
+	var Assign = Parse.Object.extend("Assign");
+	var q = new Parse.Query(Assign);
+	q.equalTo("isBest",true); 
+	q.equalTo("nth",nth);
+	q.descending("grade")
+	q.include("maker");
+	return q.find() ;
+}
+
 function getCode (url,callback){
 	console.log("Getting Code...");
 	$.ajax({
@@ -131,7 +141,8 @@ function FBinitDone(){
 }
 
 // 精選作品
-function showOther (other){
+function showElect (other){
+	//console.log (other);
 	var n = other.get("maker").get("name"),
 			p = other.get("maker").get("photo"),
 			g = other.get("grade") ? other.get("grade") : "沒有成績",
@@ -161,6 +172,7 @@ function genStars(s){
 
 
 (function start (){
+	var AsnArr ;
 	var srh = getQueryString () ,
 			asnId =   srh.aid,//typeof (srh.asn) === 'undefined' ? "LbQeJFDvRT" : srh.asn ,
 			nth  ,
@@ -229,8 +241,9 @@ function genStars(s){
 			},handleError);
 		//}
 		
-		qurAssigns(nth,"isBest,star,grade,createdAt").then(function (assigns){
-		each(assigns,showOther);
+		
+		qurElectAssigns(nth).then(function (assigns){
+		each(assigns,showElect);
 	});
 		
 	},function (e){console.log(e);})

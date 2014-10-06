@@ -24,12 +24,12 @@
 
 <link rel="stylesheet" href="css/bug.css">
 <link rel="stylesheet" href="css/review.css">
-
+<link rel="stylesheet" href="css/assignInfo.css">
 
 </head>
 <body>
 <div class="container-fluid">
-<div class="modal fade" id="report">
+<div class="modal fade" id="report-cheat-modal">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -41,7 +41,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">舉報作弊</button>
+        <button type="button" class="btn btn-primary report-cheat-submit-btn">舉報作弊</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
@@ -145,7 +145,7 @@ function r (){
 </ul>
 <div class="control-area col-md-6">
 
-	<div id="requirement-btn"  class="btn" style="color:rgba(212,211,211,1.00);">評分標準<!--span class="glyphicon glyphicon-list"></span--></div>
+	<div id="requirement-btn"  class="btn" style="color:rgba(212,211,211,1.00); "><a href="#" data-toggle="modal" data-target="#req" > 評分標準<!--span class="glyphicon glyphicon-list"></span--></a></div>
 	<div id="help-review-btn"  class="btn" style="color:rgba(212,211,211,1.00);">如何評分<!--span class="glyphicon glyphicon-question-sign"></span--></div>
 	<!--button id="save-grade-btn" type="button" class="btn btn-info"><span class="glyphicon glyphicon-save"></span></button-->
 
@@ -182,7 +182,7 @@ function r (){
 				</label>
 			</div>
 		<div>
-				<button type="button" class="report-btn btn btn-default " data-toggle="modal" data-target="#report"><span class="glyphicon glyphicon-flag"></span></button>
+				<button type="button" class="report-btn btn btn-default " data-toggle="modal" data-target="#report-cheat-modal"><span class="glyphicon glyphicon-flag"></span></button>
 			</div> 
 		</div>
 
@@ -237,7 +237,7 @@ function r (){
 				</label>
 			</div>
 		<div>
-				<button type="button" class="report-btn btn btn-default " data-toggle="modal" data-target="#report"><span class="glyphicon glyphicon-flag"></span></button>
+				<button type="button" class="report-btn btn btn-default " data-toggle="modal" data-target="#report-cheat-modal"><span class="glyphicon glyphicon-flag"></span></button>
 			</div> 
 		</div>
 
@@ -292,7 +292,7 @@ function r (){
 				</label>
 			</div>
 		<div>
-				<button type="button" class="report-btn btn btn-default " data-toggle="modal" data-target="#report"><span class="glyphicon glyphicon-flag"></span></button>
+				<button type="button" class="report-btn btn btn-default " data-toggle="modal" data-target="#report-cheat-modal"><span class="glyphicon glyphicon-flag"></span></button>
 			</div> 
 		</div>
 
@@ -350,7 +350,7 @@ function r (){
 				</label>
 			</div>
 		<div>
-				<button type="button" class="report-btn btn btn-default " data-toggle="modal" data-target="#report"><span class="glyphicon glyphicon-flag"></span></button>
+				<button type="button" class="report-btn btn btn-default " data-toggle="modal" data-target="#report-cheat-modal"><span class="glyphicon glyphicon-flag"></span></button>
 			</div> 
 		</div>
 
@@ -405,7 +405,7 @@ function r (){
 				</label>
 			</div>
 		<div>
-				<button type="button" class="report-btn btn btn-default " data-toggle="modal" data-target="#report"><span class="glyphicon glyphicon-flag"></span></button>
+				<button type="button" class="report-btn btn btn-default " data-toggle="modal" data-target="#report-cheat-modal"><span class="glyphicon glyphicon-flag"></span></button>
 			</div> 
 		</div>
 
@@ -436,7 +436,7 @@ function r (){
 </div><!--這是很厲害的 tab-pane 結尾！！-->
 
 
-
+<div id="apd"></div>
 
 
 
@@ -459,8 +459,7 @@ $(".star-btn").tooltip({
 $(document).on('click',".report-btn",function (e){
 	var $p = $(this).closest(".tab-pane") ;
 	var i = $p.index();
-
-	$("")
+	$("#cheat-select option").eq(i).attr("selected",true);
 });
 
 

@@ -57,7 +57,7 @@ function generateAssignInfo (nth) {
 	console.log ("nth: ",nth);
 	var asnInfo = getAssignInfoByNthFromArr(nth);
 	var asn = getPersonalAssignByNthFromArr(nth);
-	var isNewAsn =  asn === -1 ;
+	var isNewAsn =  (asn === -1) ;
 
 	var btns = "";
 		makeAsnInfoBtns();
@@ -90,6 +90,7 @@ function generateAssignInfo (nth) {
 				//<a class="btn btn-default assignInfo-link submit-asnUrl disabled" >上傳遊戲連結</a>\
 			
 		console.log (isNewAsn);
+		var viewSelfNoSubmit ='<a class="btn btn-default disabled assignInfo-link view-self" disabled="true">你沒有完成這份作品</a>';
 		var viewSelfBtn ='<a class="btn btn-default assignInfo-main-btn assignInfo-link view-self" href="play.html?aid='+ (!isNewAsn ? asn.id :"")  +'">檢視已繳交的作業</a>';
 		var seperateLine = '<hr class="assignInfo-line">';
 		var viewSelfBtnDuringReview ='<a class="btn btn-default assignInfo-link view-self" href="play.html?aid='+ (!isNewAsn ? asn.id :"")  +'">查看已繳交的作業</a>';
@@ -113,24 +114,26 @@ function generateAssignInfo (nth) {
 			}
 		}
 		if (reviewDue > now && now  > reviewDate  ){	status = 3 ; l =" 第三區間：開始評分";
-			btns+= reviewBtn + viewSelfBtnDuringReview ;}
+
+			btns+= reviewBtn ;
+			btns+= (isNewAsn) ?  viewSelfNoSubmit: viewSelfBtnDuringReview ; } //!!!!!!!!
 		if (now > reviewDue){  status = 4 ;l ="四區間：結束評分";
-			btns+= viewSelfBtn + viewAllBtn }	
-		//alert (l);
+			btns+= (isNewAsn) ? viewSelfNoSubmit: viewSelfBtn ;
+			btns+=	viewAllBtn ;}	
 		return btns;
 	}
 	
 	function prepareModal(){
 		//alert(btns);
 		var imgUrl = 'img/games/' ;
-		if (status < 4  ){
-			if (isNewAsn){
-				imgUrl+= "broke-0"+nth+".png" ;
-			}else{
-				imgUrl+= "dark-0"+nth+".png";
-			}
+		if (isNewAsn){
+			imgUrl+= "broke-0"+nth+".png" ;
 		}else{
-			imgUrl+= "light-0"+nth+".png";
+			if (status < 4  ){
+				imgUrl+= "dark-0"+nth+".png";
+			}else{
+				imgUrl+= "light-0"+nth+".png";
+			}
 		}
 
 		var intro = asnInfo.get("intro");

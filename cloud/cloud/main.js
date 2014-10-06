@@ -6,9 +6,11 @@ Parse.Cloud.define("hello", function(request, response) {
 });
 Parse.Cloud.define("getRole",function(rq,rp){
 	Parse.Cloud.useMasterKey();
-	
+
+
 	var q = new Parse.Query(Parse.Role);
 	q.find().then(rp.success,rp.error);
+	//jj
 })
 
 
@@ -153,7 +155,6 @@ Parse.Cloud.beforeSave("User_status",function(request,response){
 	}else if ( hp <= 0 ){
 		//rn.yet 這邊要寫 防止 user 宰殺
 		if (life - 1 > 0 ){
-			sendEvent(user,20);
 			obj.set('Life', life-1);
 			obj.set('HP',100);
 			sendEvent(user,20);
@@ -315,7 +316,7 @@ Parse.Cloud.job("checkClassParticipate",function(rq,rp){
 	var classEnd = new Date(t[0],t[1]-1,t[2] , 21, 0 , 0 ); // Time in Taiwan 
 			classEnd.setTime( classEnd.getTime() +hoursPlusBecomeUTC*60*60*1000 ); // Become to Server
 
-	var SigninLog = Parse.Object.extend("Singin_Log");
+	var SigninLog = Parse.Object.extend("Signin_Log");
 	var qSI = new Parse.Query(SigninLog);
 	qSI.limit(2000);
 	qSI.greaterThan("createdAt",classStart);
@@ -503,7 +504,7 @@ Parse.Cloud.job("Random_review", function(rq, status) {
 	var ASSIGN_NTH = rq.params.nth	 ;	
 	var STD_NUM = 0 ; //user(role=std).length
 	var REVIEW_MAX = 5 ; 
-	var BLANK_URL = "radiansmile.github.io/CodeEDU/final_11/play.html?blak";
+	var BLANK_URL = "blankAssign/play.html";//"radiansmile.github.io/CodeEDU/final_11/play.html?blak";
 
 	var AssignArr =[];
 	var UserArr = [];
@@ -550,7 +551,7 @@ Parse.Cloud.job("Random_review", function(rq, status) {
 			}
 			if (checkSubmit){
 				continue ;
-			}else {
+			}else { // 這裡是沒有如期交作業的狀況 ;
 				var A = Parse.Object.extend("Assign");
 				var aa = new A();
 				aa.set("maker",UserArr[i]);
@@ -558,7 +559,14 @@ Parse.Cloud.job("Random_review", function(rq, status) {
 				aa.set("url",BLANK_URL);
 				aa.set("uid",UserArr[i].get('ID'));
 				aa.set("note","uncomplete");
-				saveArr.push (aa);
+				saveArr.push(aa);
+				console.log ("Someone no submit!!");
+				status.message(UserArr[i].get('ID'));
+				sendEvent(UserArr[i],43).then(function (ER){
+					
+				},function (e){
+					console.log (e.message);
+				});
 				console.log ("Didnot Submit User Id : "+UserArr[i].id);
 			}
 		}
@@ -682,6 +690,8 @@ Parse.Cloud.job("Random_review", function(rq, status) {
 					if (assign.get("maker").id === UserArr[makerIndex].id ){//
 						var reviewRecord = new ReviewRecord ();
 						reviewRecord.set("reviewer",UserArr[i]);
+						reviewRecord.set("reviewer_name",UserArr[i].get("name"));
+						reviewRecord.set("reviewee_name",assign.get("maker").get("name"));
 						reviewRecord.set("assign",assign);
 						reviewRecord.set("assign_id",assign.id);
 						reviewRecord.set("nth",ASSIGN_NTH);	
@@ -709,6 +719,8 @@ Parse.Cloud.job("Grading",function(rq,rp){
 	var nth = rq.params.nth ;
 	var assignNum = 0 ;
 	var successCount = 0  ;
+	var undoneReviewUserArr = [] ;
+	
 	
 	var AssignArr = []
 	
@@ -731,6 +743,9 @@ Parse.Cloud.job("Grading",function(rq,rp){
 		successCount++;
 		rp.message("success " + successCount +" "+a.id);
 		if (successCount === assignNum ){
+			each(undoneReviewUserArr,function(u){
+				sendEvent(u,42);
+			});
 			rp.success("successCount "+successCount);
 		}
 	}
@@ -739,26 +754,34 @@ Parse.Cloud.job("Grading",function(rq,rp){
 		assignNum =  Assigns.length ;
 		console.log ("assignNum" + assignNum.toString());
 		for (var i = 0 ; i < AssignArr.length ; i++){
-			//console.log (Assign[i].id);
+			
 			getRecordByAssign(AssignArr[i])
 			.then(singleGrading)
 			.then(function(a){
 				console.log(a.id+" grade "+a.get("grade") );		
-				sendGradEvent(a).then(function(e){
-					console.log ("userEventSend");
+				
+				console.log (a.get("note"));
+				// 判斷這是不是沒有繳交的作業; 
+				if ( a.get("note")==="uncomplete" || a.get("note")==="overtime" ){ // 如果是沒有繳交的作業，就不用再重複事件了
+					console.log ("uncomplete");
 					successPlus (a);
-				},function (e){
-					successCount++;
-					console.log ("event send fail, error : "+e.message);
-					rp.error('fail to save a assign');	
-				});
+				}else{
+					sendGradEvent(a).then(function(e){  
+						console.log ("userEventSend");
+						successPlus (a);
+					},function (e){
+						successCount++;
+						console.log ("event send fail, error : "+e.message);
+						rp.error('fail to save a assign');	
+					});
+				}
 			},function(e){
 				rp.error('fail to save a assign');	
 			});
 		}
 	}
 	
-	function singleGrading (r){
+	function singleGrading (r){ // @r = single grading ;
 		//console.log("Record Length "+r.length.toString());
 		var p = new Parse.Promise();
 		var star = 0 ;
@@ -769,6 +792,8 @@ Parse.Cloud.job("Grading",function(rq,rp){
 			if (typeof (g) !== 'undefined'){ 
 				total += gradeToNumRef[g];
 				count++;
+			}else {
+				undoneReview(r[i]);
 			}
 			//console.log (r[i].get("star"));
 			r[i].get("star") ? star++ : star ;
@@ -790,7 +815,7 @@ Parse.Cloud.job("Grading",function(rq,rp){
 					default : note = "";
 				}
 			}else{
-				note = "Uncomplete!";
+				note = "uncomplete"; // 沒有評分
 			}
 			r[i].set("final", gradeToStrRef[avg]);
 			r[i].set("variaty", d );
@@ -841,6 +866,7 @@ Parse.Cloud.job("Grading",function(rq,rp){
 	}
 	
 	function sendGradEvent(a){
+		
 		var m = a.get('maker') ;
 		var g = a.get("grade");
 		var eid = 0 ;
@@ -849,10 +875,20 @@ Parse.Cloud.job("Grading",function(rq,rp){
 			case "B": eid = 33; break; 
 			case "C": eid = 32; break; 
 			case "X": eid = 31; break; 
-			default : rp.error("aoid "+a.id+" "+g+" wrong grade! why ?");
+			default : console.log ("No Grade : "+a.id ) ;
+			//rp.error("aoid "+a.id+" "+g+" wrong grade! why ?");
 		}
 		return sendEvent(m,eid);
 	}
+	function undoneReview(r){ // @r single Record
+		var reviewer = r.get("reviewer") ;
+		if (undoneReviewUserArr.getIndexById(reviewer.id) === -1){
+			undoneReviewUserArr.push(reviewer);
+		}
+		
+	
+	}
+	
 	
 	function Log (e){console.log(e);}
 	
@@ -938,8 +974,16 @@ Array.prototype.getIndexById = function (value) {
     }
 		return -1
 }
-
 function getObjectByAttrVal (Arr, attr , val){
 	return Arr[Arr.getIndexByAttr(attr,val)];
 }
+
+function each (arr,func ){
+	console.log (arr.length);
+	for (var i = 0 ; i < arr.length ; i++){
+		func(arr[i] , i);
+	}
+}
+
+
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

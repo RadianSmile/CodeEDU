@@ -3,7 +3,6 @@
 init_ai_dashboard ();
 function init_ai_dashboard (){	
 	qurPersonalAssign(currentUser).then(function (a){ 
-
 		//console.log ("1!!!!!!!!!");
 		getAsnDone = true; 
 		PersonalAssignArr = a ;
@@ -47,14 +46,14 @@ function addDashboardGameSHref(){
 			$e.attr('title',"尚未發佈");
 			$e.tooltip();
 			return true ;
-		}else{
+		}else{ // 已經有發佈的遊戲
 			$e.css("display","block");
 			var asnInfo = AssignInfoArr[AIj];
-			if (j === -1){
+			if (j === -1){ // 代表沒有這份作業
 				if ( now > asnInfo.get("submitDate") ){
-					$e.attr('title',"上傳作業，繳交截止日期：" + asnInfo.get("reviewDue").toLocaleDateString() + asnInfo.get("reviewDue").toLocaleTimeString());
+					$e.attr('title',"上傳作業，繳交截止日期：" + asnInfo.get("reviewDate").toLocaleDateString() + asnInfo.get("reviewDue").toLocaleTimeString());
 					$e.data("toggle",'tooltip');
-				}else if (now > asnInfo.get("reviewDate")){
+				}else if (now > asnInfo.get("reviewDate")){ // 
 					$e.attr('title','遊戲未交');
 					$e.data("toggle",'tooltip');
 				}else{
@@ -65,12 +64,16 @@ function addDashboardGameSHref(){
 
 			}else{
 				//var gameUrl = 'play.html?aid='+PersonalAssignArr[j].id;
-				$e.attr('title',"遊戲已繳交");
+				if (PersonalAssignArr[j].get("note") ==='uncomplete'){
+					$e.attr('title','遊戲未交');
+				}else {
+					$e.attr('title',"遊戲已繳交");
+					$e.find('img').first().attr('src','img/games/dark-0'+nth+'.png');
+					//$e.attr('target','_blank');
+				}
+				
 				$e.data("toggle",'tooltip');
-				//$e.attr('href',gameUrl);
-				$e.attr('target','_blank');
 				$e.tooltip();
-				$e.find('img').first().attr('src','img/games/dark-0'+nth+'.png');
 
 			}
 		}

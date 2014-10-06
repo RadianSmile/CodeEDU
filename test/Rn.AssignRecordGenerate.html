@@ -25,7 +25,7 @@
 		Parse.initialize("9eo5r1mHWoIPSTCzmrpdKa3lcHPjySx4y5D6q8Nq", "R8SWwYxpJcy73ogQKuSD43y7FigrlDGjBLcy1lzC");	
 
 //generateUser(67);
-generateAssigns()
+//generateAssigns()
 //generateReview();
 
 ////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,9 @@ function generateAssigns (){
 
 	qurUsers()
 	.then(generateAssign)
-	.then(Log,Log);
+	.then(function (s){
+		Write(s.length);
+	},Log);
 
 
 	function qurUsers (){
@@ -118,7 +120,11 @@ function generateReview(){
 			ReviewArr[i].set("grade",g);
 			ReviewArr[i].set("star",s);
 		}
-		Parse.Object.saveAll (ReviewArr).then(Log,Log);
+		Parse.Object.saveAll (ReviewArr)
+			.then(function (s){
+				Write(s.length);
+			},Log);
+
 	}
 }
 

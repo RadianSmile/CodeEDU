@@ -1,8 +1,51 @@
-moment.locale('zh-TW');
-$(document).ready(function(){
+(function (){
+var notification_user ;
+
+	var srh = getQueryString();
+	var uid = srh.uid ;
+
+
+$(document).ready(function (e){
+
+	
+	if (typeof (uid) !== 'undefined' && uid.length >= 1){
+		getViewerRole().then(function(u){
+			//alert(u);
+			if ( u === 'guest'){
+				alert("你沒有瀏覽別人的通知的權限\n系統將跳轉回Dashboard");
+				document.location = "index.html";
+			}else if (u === 'student'){
+				alert("你沒有瀏覽別人的通知的權限\n系統將跳轉回Dashboard");
+				document.location = "dashboard.html";	
+			}else{ // 老師或ＴＡ
+				
+				var qU = new  Parse.Query (Parse.User);
+				qU.equalTo("ID",uid);
+				qU.first().then(function(s){  // 這個是 要看的目標
+					if (typeof s ==='undefined'){    // 如果找不到目標：
+						alert("找不到你要查詢的使用者\n系統將跳轉回Dashboard");
+						document.location = "dashboard.html";
+					}else{  // 找到目標了
+						$("#developer-note").html("Developer-note : "+s.get("name")+"的通知記錄").css("color","white").css("padding","20px 0");
+						notification_user = s ;					
+						initNotification();
+					}
+				});
+			}	
+		});
+	}else{
+		notification_user = Parse.User.current();
+	//	alert(notification_user.id);
+		initNotification();
+	}
+});
+
+
+function initNotification(nu){
+	moment.locale('zh-TW');
+
     Parse.initialize("9eo5r1mHWoIPSTCzmrpdKa3lcHPjySx4y5D6q8Nq", "R8SWwYxpJcy73ogQKuSD43y7FigrlDGjBLcy1lzC");
-    var current_user = Parse.User.current();
-    if(current_user){
+    if(notification_user){
 			var EI = [] ;
         function getEventInfo (){
 				   var EventInfo = Parse.Object.extend("Event_Info");
@@ -19,7 +62,7 @@ $(document).ready(function(){
         var eventrecord = Parse.Object.extend("Event_Record");
         var query3 = new Parse.Query(eventrecord);
 				query3.descending("createdAt");
-        query3.equalTo('target', Parse.User.current());
+        query3.equalTo('target', notification_user);
         query3.find({
            success:function(data){ // evetRecord
 						var saveArr = []
@@ -54,7 +97,11 @@ $(document).ready(function(){
 										}
 
                 } // for
+								
+								// 如果看的人是自己，那就跟更新
+								if ( typeof (uid) === 'undefined'){
                 Parse.Object.saveAll(saveArr).then(Log,Log);
+								}
             }
         });
 				}
@@ -66,9 +113,9 @@ $(document).ready(function(){
 				 //var q = new Parse.Query(notif);
 				 //q.equalTo('type', "get");
         var query2 = new Parse.Query(notif);
-        query2.equalTo('user', Parse.User.current());
+        query2.equalTo('user', notification_user);
         var query3 = new Parse.Query(notif);
-        query3.equalTo('targetuser', Parse.User.current());
+        query3.equalTo('targetuser', notification_user);
         var query = Parse.Query.or(query2,query3);
         //query1.include('User');
         query.include('Card_info');
@@ -97,7 +144,10 @@ $(document).ready(function(){
 												saveArr.push(data[i]);
                     }    
                 }
-                Parse.Object.saveAll(saveArr).then(Log,Log);
+									if ( typeof (uid) === 'undefined'){
+										//alert(uid);
+                		Parse.Object.saveAll(saveArr).then(Log,Log);
+									}
 
             },
             error:function(error){
@@ -111,7 +161,7 @@ $(document).ready(function(){
         var notif1 = Parse.Object.extend("Card_record");
         var query1 = new Parse.Query(notif1);
         query1.equalTo('type', "get");
-        query1.equalTo('user', Parse.User.current());
+        query1.equalTo('user', notification_user);
         query1.include('Card_info');
         query1.include('user');
         query1.descending('createdAt');
@@ -131,7 +181,7 @@ $(document).ready(function(){
         });
 */ 
     }
-})
+}
 
 function useRecord(data){
     var targetName = data.get('targetuser').get('name');
@@ -143,8 +193,8 @@ function useRecord(data){
         console.log ("createTime",createTime.toLocaleString());
     var container = "";
     var s = "";
-        if(userId == Parse.User.current().id){
-            if(targetId == Parse.User.current().id){
+        if(userId == notification_user.id){
+            if(targetId == notification_user.id){
                 s = "你對自己使用了" + cardName + "。";
                 container = "<div class = 'time-gray-color'>"+createTime+"</div><span class = 'glyphicon glyphicon-plus-sign' style = 'white-space: nowrap;'></span>"+ s +"</div>";
             }
@@ -153,7 +203,7 @@ function useRecord(data){
                 container = "<div class = 'time-gray-color'>"+createTime+"</div><span class = 'glyphicon glyphicon-record' style = 'white-space: nowrap;'></span>"+ s +"</div>";
             }
         }
-        else if(targetId == Parse.User.current().id){
+        else if(targetId == notification_user.id){
             s = userName+"對你使用了" + cardName + "。";
             container = "<div class = 'time-gray-color'>"+createTime+"</div><span class = 'glyphicon glyphicon-exclamation-sign' style = 'white-space: nowrap;'></span>"+ s +"</div>";
         }
@@ -167,7 +217,7 @@ function getRecord(data){
     
     var container = "";
     var s = "";
-        if(userId == Parse.User.current().id){
+        if(userId == notification_user.id){
             s = "你抽到了"+ cardName + "。";
             container = "<div class = 'time-gray-color'>"+createTime+"</div><span class = 'glyphicon glyphicon-certificate' style = 'white-space: nowrap;'></span>"+ s +"</div>";
         }
@@ -207,3 +257,5 @@ function eventRecord(data, data1){
 >>>>>>> FETCH_HEAD*/
     return container;
 }
+
+})();

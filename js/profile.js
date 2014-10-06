@@ -12,6 +12,7 @@ var pfofileUid = (function (){
 		}
 		//console.log (p);
 		profileUser = p ;
+		showNotificationBtn(profileUser);
 		console.log(profileUser);
 		showPersonAndCard(profileUser);
 		ShowAssignStart(profileUser);

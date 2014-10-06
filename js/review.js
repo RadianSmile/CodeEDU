@@ -1,4 +1,5 @@
 
+
 	$(document).on("change",".grade-select",function(){
 		var $this = $(this);
 		var $p = $this.closest(".tab-pane") ;
@@ -39,24 +40,48 @@ $('#review-tab a').click(function (e) {
   $(this).tab('show');
 });
 
-if (localStorage.getItem("reviewNth") === null){
-	alert("沒有偵測到要評分的作業，\n系統將跳返回個人主頁。");
-	document.location = "dashboard.html";
-}else{
-	var assignToReview = localStorage.getItem("reviewNth") ;
-}
-
+var assignToReview;
+var asnInfo ;
 var AssignArr = [] ;
 var CodeArr =  [] ;
 var TimeArr = [] ;
 var gradeArr = [];
-init();
+var submitDeadline ;
+
+checkAbleGrade();
+function checkAbleGrade (){
+
+	if (localStorage.getItem("reviewNth") === null){
+		alert("沒有偵測到要評分的作業，\n系統將跳返回個人主頁。");
+		document.location = "dashboard.html";
+	}else{
+		assignToReview = localStorage.getItem("reviewNth") ;
+	}
+
+	
+	qurAssignInfo().then(function (s){
+		asnInfo = getObjectByAttrVal(s,"nth",assignToReview);
+		var now = new Date ();
+		submitDeadline = asnInfo.get("reviewDate") ;
+		if ( now > asnInfo.get("reviewDate") && now < asnInfo.get("reviewDue") ){
+			init();
+		}else{
+			alert("評分時程已過，系統將返回Dashboard");
+			document.location = "dashboard.html";
+		}
+		
+		
+		
+	})
+}
 
 function init (){	
 	// check is able grading
 
-
-
+	var mdl = prepareReqModal(asnInfo);
+	$("#apd").append(mdl);
+	
+	
 	for (var i = 0 ; i < 5; i++){
 		// Prepare editor
 		var tabEditor =  $($(".tab-pane")[i]).find(".editor").first().get(0);
@@ -77,6 +102,7 @@ function init (){
 		
 	}else {
 		// 如果沒有，創造Local
+		console.log ("init, new gradeArr");
 		for (var i = 0 ; i < 5 ; i++){
 			var arr = ["","-",false];
 			gradeArr.push(arr);
@@ -138,11 +164,11 @@ function showAssignAndBug(){
 		finalCount = r.length ;
 		for (var i = 0 ; i < r.length ; i++){
 		
-			$cheatSelect.append('<option value="'+r[i].id+'">#'+(i+1)+'</option>');
+			$cheatSelect.append('<option value="'+r[i].get("assign").id+'">#'+(i+1)+'</option>');
 			
 			// prepare assigns to review 
 			var url = 	r[i].get("assign").get("url"); 	
-			isInTime(url,i);	
+			isInTime(url,i,r[i].get("assign"));	
 			getCode(url,i); ///
 			var id = AssignArr[i].get("assign").id; 
 			show(id , i );
@@ -186,7 +212,7 @@ function submitReview (e) {
 			Parse.Object.saveAll(AssignArr).then (function (re){
 				console.log ("SaveResult",re);
 				localStorage.removeItem("reviewNth");
-				localStorage.clear();
+				localStorage.removeItem("gradeArr");
 				alert("繳交成功了!");
 				document.location="dashboard.html";
 			},function(e){
@@ -196,24 +222,37 @@ function submitReview (e) {
 }
 
 
-function isInTime(url,i){
+function isInTime(url,i,a){
 	console.log("Check Last Modified...");
 		$.ajax({
-			url : "lastModify.php",
+			url : "lastModifyForGhost.php",
 			async : false,
-			type: "POST",
+			type: "GET",
 			data:{url:url},
 			dataType : 'text', //explicitly requesting the xml as text, rather than an xml document
 			success : function (data, status, xhr) {	
-			  data = JSON.parse(data);
-				console.log ("time",data['timenum']);
-				var t = Math.round(new Date().getTime() / 1000);
-				console.log ("t",t);
-				TimeArr[i] = data ;
+				var d = new Date (data);
+				
+				if ( typeof a.get("note") === 'undefined' || a.get("note") === ''){
+					a.set("note","overdue");
+					a.save().then(function(a){
+						sendEvent(a.get("maker"),44).then(function(s){
+							alert("EventSend 44"); // !T.alert
+						});
+					});
+				}
+				
+				
+
+				if (	d > submitDeadline){
+					//alert(d +"\n" + submitDeadline);
+					url = "blankAssign/play.html" ;
+				}
 				var play = document.createElement("iframe");
 				play.frameBorder = 0 ;
-				play.style.width = "600px";
-				play.style.height = "400px";
+				play.scrolling ="no";
+				play.style.width = "640px";
+				play.style.height = "480px";
 				play.setAttribute("src",url);
 				$($(".tab-pane")[i]).find(".play").first().html(play);
 			}
@@ -251,3 +290,74 @@ function getCode (url,i){
 }
 
 
+// reportCheat
+$(document).on('click','.report-cheat-submit-btn',function (e){
+	var $p = $("#report-cheat-modal") ; 
+	var v = $p.find(".cheat-reason").eq(0).val();
+	var a = $p.find("#cheat-select").eq(0).val();
+	console.log (a);
+	var $t = $(this);
+	$t.toggleDisabled();
+	
+	if (a.length > 1 ){
+		var Report = Parse.Object.extend("Report");
+		var r = new Report();
+		//r.set("a", );
+		r.set("assign",pointer(a,"Assign"));
+		r.set("reason",v);
+		r.set("type","cheat");
+		r.save().then(function (s){
+			alert("舉報成功!待助教確認！");
+			resetForm($p);
+			$t.toggleDisabled();
+			$p.modal('hide');
+		});
+		
+	}else{
+		alert("請輸入作弊事由");
+	}
+});
+
+//// assign info 
+
+function qurAssignInfo (){
+	var AsnInfo = Parse.Object.extend("Assign_Info");
+	var q = new Parse.Query(AsnInfo);
+	return	q.find();
+}
+
+function prepareReqModal(asnInfo){
+	//alert(btns);
+	var nth = asnInfo.get("nth");
+	var imgUrl = 'img/games/'+"broke-0"+nth+".png";
+	var req = asnInfo.get("req");
+	var n = asnInfo.get("name");
+	
+	var assignInfoModal = '<div class="modal fade assignModalInfo" id="req" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">\
+	<div class="modal-dialog modal-lg" >\
+		<div class="modal-content" >\
+		\
+		<div class="assign-info-outer">\
+			<div class="assignInfo container-fluid">\
+				<div class="row">\
+						<div class="col-xs-3 ">\
+							<div class="assignInfo-photo">\
+		\						<img src="'+imgUrl+'" width="100%" >\
+							</div>\
+						</div>\
+					<div class=" col-xs-9">\
+		\				<h2 class="assignInfo-name">'+n +'</h2>\
+						<div class="des-block requirement">\
+							<h4>Requirement</h4>\
+		\					<div class="des assignInfo-requirement">'+req+'</div>\
+						</div>\
+					</div>\
+				</div>\
+			</div>\
+			</div>\
+			</div>\
+		</div>\
+	</div>';
+	//console.log (assignInfoModal);
+	return assignInfoModal;
+}	

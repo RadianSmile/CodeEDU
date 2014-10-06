@@ -189,6 +189,19 @@ $(document).on("scroll","window",function(e){
 
 
 
+function getViewerRole(){
+	var p = new Parse.Promise();
+	var u = Parse.User.current();
+	if (u){
+		u.fetch().then(function(s){
+			p.resolve (s.get("role"));
+		},Log)
+	}else {
+		p.resolve("guest");
+	}
+	return p ;
+}
+
 
 function each (arr,func ){
 	console.log (arr.length);
@@ -220,9 +233,9 @@ function Log(o){
 }
 
 function pointer (objectID,className){
-	var c = (typeof(className) !== 'undefined') ? className : "Test_Assign";
-	console.log (c);
-  var pointer = new Parse.Object(c);
+	//var c = (typeof(className) !== 'undefined') ? className : "Test_Assign";
+	//console.log (c);
+  var pointer = new Parse.Object(className);
   pointer.id = objectID;
   return pointer;
 }
@@ -315,6 +328,15 @@ Array.prototype.getIndexById = function (value) {
         }
     }
 		return -1
+}
+Array.prototype.getMatchElements = function (attr,value){
+	var arr = [] ;
+	for (var i = 0 ; i < this.length ; i++){
+		if (this[i]['attributes'][attr] == value){
+			arr.push (this[i]);
+		}
+	}
+	return arr ;
 }
 
 function getObjectByAttrVal (Arr, attr , val){
@@ -412,4 +434,22 @@ function gradeRef(){
 }
 function randBtw (Min,Max){
 	return Math.floor(Math.random() * (Max - Min + 1))+ Min ;
+}
+
+function Write(str){
+	document.write(str + "<br>");
+	
+}
+function resetForm($form) {
+    $form.find('input:text, input:password, input:file, select, textarea').val('');
+    $form.find('input:radio, input:checkbox')
+         .removeAttr('checked').removeAttr('selected');
+}
+
+function getFileName() {
+	var url = document.location.href;
+	url = url.substring(0, (url.indexOf("#") == -1) ? url.length : url.indexOf("#"));
+	url = url.substring(0, (url.indexOf("?") == -1) ? url.length : url.indexOf("?"));
+	url = url.substring(url.lastIndexOf("/") + 1, url.length);
+	return url;
 }
