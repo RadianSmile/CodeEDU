@@ -233,21 +233,19 @@ function isInTime(url,i,a){
 			success : function (data, status, xhr) {	
 				var d = new Date (data);
 				
-				if ( typeof a.get("note") === 'undefined' || a.get("note") === ''){
-					a.set("note","overdue");
-					a.save().then(function(a){
-						sendEvent(a.get("maker"),44).then(function(s){
-							alert("EventSend 44"); // !T.alert
-						});
-					});
-				}
-				
-				
-
 				if (	d > submitDeadline){
 					//alert(d +"\n" + submitDeadline);
 					url = "blankAssign/play.html" ;
+
+					if ( typeof a.get("note") === 'undefined' || a.get("note") === ''){
+						a.set("note","overdue");
+						a.save().then(function(a){
+							sendEvent(a.get("maker"),44).then(function(s){
+							},Log);
+						});
+					}
 				}
+				
 				var play = document.createElement("iframe");
 				play.frameBorder = 0 ;
 				play.scrolling ="no";
@@ -304,6 +302,8 @@ $(document).on('click','.report-cheat-submit-btn',function (e){
 		var r = new Report();
 		//r.set("a", );
 		r.set("assign",pointer(a,"Assign"));
+		r.set("reviewer",Parse.User.current());
+
 		r.set("reason",v);
 		r.set("type","cheat");
 		r.save().then(function (s){

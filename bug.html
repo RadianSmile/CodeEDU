@@ -17,11 +17,9 @@
 <link rel="stylesheet" href="css/bug.css" rel="stylesheet">
 
 <script>
-//var tRelation = 'reporter' ; // reporter , bugger , guest 
-var tAid ="ovhOdV0jQZ";
-var tTargetUserId	 = "HNSembpkZb" ; 
-
-var currentUser = Parse.User.current();
+var srh = getQueryString ();
+var vUid = replaceUndefined(srh.vUid,"vUid", "REkPjZuzNL");
+var aid = replaceUndefined(srh.aid,"aid","dbtUoPwviw");
 </script>
 
 </head>
@@ -55,7 +53,18 @@ var currentUser = Parse.User.current();
 <!---->
 <script src="js/bug.js"></script>
 <script>
-showBugs (tAid);
+var currentUser ;
+if (vUid){
+	var c =pointer(vUid,"User") ;
+	c.fetch ().then(function (s){
+		currentUser = s ;
+		showBugs (aid);
+	},Log);
+	
+}else{
+	currentUser =  Parse.User.current();	
+	showBugs (aid);
+}
 
 
 

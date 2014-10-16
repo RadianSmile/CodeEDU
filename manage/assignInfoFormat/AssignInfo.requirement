@@ -1,0 +1,19 @@
+<ul class="asnInfo-reqList">
+<li>C級條件: 
+	<ol>
+		<li>使用方向鍵控制青蛙上下左右移動</li>
+    <li>所有車子能向指定方向移動</li>	
+  </ol>
+</li>
+<li>B級條件: 
+	<ol>
+    <li>完成所有車子的碰撞判定，撞到青蛙時會進入 FROG_DIE 狀態。</li>
+    <li>青蛙進入池塘，遊戲進入 GAME_WIN狀態。</li>
+	</ol>	
+</li>
+<li>A級條件:
+	<ol>
+    <li>完整控制遊戲流程（流程圖如投影片GAME FLOW）</li>
+	</ol>
+</li>
+</ul>

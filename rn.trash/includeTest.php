@@ -1,5 +1,0 @@
-<?php
-
-readfile('../ttt.html');
-
-?>

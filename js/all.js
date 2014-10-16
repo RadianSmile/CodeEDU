@@ -23,7 +23,12 @@ $("title").append(" | 程式設計基礎遊戲學習平台");
   FB.getLoginStatus(function(response) {
 		var s = response.status ; 
 		if (s === 'connected'){
-			
+			if (currentUser){
+				currentUser.fetch().then(function(u){
+					userPhoto = u.get('photo');
+					changeBarView(response,userPhoto);				
+				});
+			}
 		}else if (s === 'not_authorized'){
 			
 		}else{
@@ -34,11 +39,6 @@ $("title").append(" | 程式設計基礎遊戲學習平台");
 		
 		
 		FBinitDone();
-		
-		currentUser.fetch().then(function(u){
-			userPhoto = u.get('photo');
-			changeBarView(response,userPhoto);
-		});
 	
 	$(document).on('click','#logout',fb_logout);
 	function fb_logout(){
@@ -233,10 +233,14 @@ function Log(o){
 }
 
 function pointer (objectID,className){
-	//var c = (typeof(className) !== 'undefined') ? className : "Test_Assign";
-	//console.log (c);
-  var pointer = new Parse.Object(className);
-  pointer.id = objectID;
+	
+	var pointer;
+	if ( className === "User"){
+		pointer = new Parse.User ();		
+	}else{
+		pointer = new Parse.Object(className);
+	}
+	pointer.id = objectID;
   return pointer;
 }
 
@@ -281,9 +285,11 @@ function handleError(e){
 }
 // Hyperlink no parameter
 
-function paraCheck (para,msg){
-	if ( typeof(para) === "undefined"){
-		alert(msg);
+function paraCheck (para,msg){  // return true if exist
+	if ( typeof(para) === "undefined" || para === null ){
+		if (typeof(msg) !== "undefined"){
+			alert(msg);
+		}
 		return false ;
 	}else {
 		return true;
@@ -312,6 +318,14 @@ function renameClass (oldClass , newClass) {
 }
 
 
+Array.prototype.getIndexByOfValue = function (value) {
+    for (var i = 0; i < this.length; i++) {
+        if (this[i] == value) {
+            return i;
+        }
+    }
+		return -1
+}
 
 Array.prototype.getIndexByAttr = function (attr, value) {
     for (var i = 0; i < this.length; i++) {
@@ -321,6 +335,15 @@ Array.prototype.getIndexByAttr = function (attr, value) {
     }
 		return -1
 }
+Array.prototype.getValueByAttr = function (attr) {
+	if (this['attributes'][attr]) {
+		return	this['attributes'][attr] ;
+	}else {
+		return -1;
+	}
+}
+
+
 Array.prototype.getIndexById = function (value) {
     for (var i = 0; i < this.length; i++) {
         if (this[i].id == value) {
@@ -434,6 +457,17 @@ function gradeRef(){
 }
 function randBtw (Min,Max){
 	return Math.floor(Math.random() * (Max - Min + 1))+ Min ;
+}
+
+function replaceUndefined (param,paramName,replaceVal){
+	console.log ("Typeof " + paramName + " is " + typeof (param) );
+	if (typeof(param) === 'undefined'){
+		console.log ("Check Done , the value is replaced with " + replaceVal);
+		return replaceVal ;
+	}else{
+		console.log ("Check Done , the value is " + param)
+		return param ;
+	}
 }
 
 function Write(str){

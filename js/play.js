@@ -1,3 +1,7 @@
+
+
+var currentAssign ;
+
 function qurAssign (id){
 	var Assign = Parse.Object.extend("Assign");
 	var assign = new Assign();
@@ -170,13 +174,12 @@ function genStars(s){
 }
 
 
-
-(function start (){
+function PlayJs_start (){
 	var AsnArr ;
 	var srh = getQueryString () ,
 			asnId =   srh.aid,//typeof (srh.asn) === 'undefined' ? "LbQeJFDvRT" : srh.asn ,
 			nth  ,
-			curUser = Parse.User.current();
+			curUser = currentUser ;//Parse.User.current();
 	if (typeof asnId ==='undefined' ){
 		alert("系統無法辨別你要看哪個遊戲，請重新點取");
 		
@@ -192,6 +195,8 @@ function genStars(s){
 	qurAssign(asnId).then(function(a){
 		var url = a.get("url") ;
 		var maker = a.get("maker");
+		currentAssign = a ;
+		
 		nth = a.get("nth");  
 		
 		// assignInfo
@@ -199,6 +204,9 @@ function genStars(s){
 			var now = new Date();
 			var openTime = ai.get("reviewDue") ;
 			var $p = $('#main-game-info');
+			
+			$("#view-others-hyperlink").attr("href","games.html?nth="+nth);
+			$(".assigninfo_name").text(ai.get("name"));
 			
 			$p.find(".game-name").text(ai.get("name").toUpperCase());
 			
@@ -211,9 +219,13 @@ function genStars(s){
 			}			
 		});
 	
-		if (maker.id === currentUser.id){
-			$('#add-bug-container').remove();
-		}
+		getViewerRole().then(function (s){
+			if (s === "guest"){
+				$(".add-bug-form").remove();
+			}
+		});
+		
+	
 
 		$(".submit-bug").data("aid",a.id);
 		showPlay (url); 
@@ -232,10 +244,16 @@ function genStars(s){
 			console.log(asnId);
 			qurBugs(asnId).then(function(bs){
 				console.log ("bug pull done " +bs.length);
-				if (bs.length === 0){
-					$(".bug-pane").prepend('<div class="no-bug-info">太強了！你的遊戲沒有任何霸個！</div>');
+				if (currentAssign.get("maker").id === currentUser.id){
+					$("#add-bug-container").remove();
+				}
+				if (bs.length === 0){			
+					$(".bug-pane").prepend('<div class="no-bug-info">太強了！沒有任何霸個！</div>');
 				}else{
-					each(bs,showBug);
+					$(".bug-pane").html("");
+					each(bs,function (bug){
+						showBug (bug);
+					});
 					bugInit();
 				}
 			},handleError);
@@ -248,19 +266,33 @@ function genStars(s){
 		
 	},function (e){console.log(e);})
 
-})();
-
+}// PlayJs
+ 
+function removeAddbug(assign){
+	var mUid = assign.get("maker").id ;
+	var cUid = currentUser.id ;
+	
+	if (mUid === cUid){
+		
+	}
+	
+}
 
 $(document).on('click' ,".submit-bug",function (e){
+
+	var $thisBtn = $(this);
+	$thisBtn.toggleDisabled();
+
 	var aid = $(this).data('aid');
 	
 	var Assign = Parse.Object.extend ("Assign"),
 	assign = new Assign ();
 	assign.id = aid ;
 	
-	var user = new Parse.User();
-	user.id = currentUser.id//  = isSet(tTargetUserId) ?  tTargetUserId : currentUser.id;
+	var bugger = new Parse.User();
+	bugger.id = currentAssign.get("maker").id
 	//!!!!!!!!
+	
 	
 	
 	//檢查BUg 是否新增完成	
@@ -279,6 +311,7 @@ $(document).on('click' ,".submit-bug",function (e){
 	
 	if(des.length < 10 ){ 
 		alert("你的描述太過精簡，請至少超過十個字。"); 
+		$thisBtn.toggleDisabled();
 		return false ;
 	}
 	
@@ -298,12 +331,15 @@ $(document).on('click' ,".submit-bug",function (e){
 				console.log(img);
 				bugRecord.set("reporter",currentUser);
 				bugRecord.set("assign",assign);
-				bugRecord.set("bugger",user);
+				bugRecord.set("bugger",bugger);
+				bugRecord.set("isDoneNoti",false);
 				bugRecord.set("img",img);
 				bugRecord.set("des",des);
 				return bugRecord.save();
 			}).then (function(bugRecord){
 				alert("BUG舉報成功，請等待作者確認");
+				$thisBtn.toggleDisabled();
+
 				console.log(bugRecord);
 				showBug(bugRecord);
 				bugInit();
@@ -314,9 +350,12 @@ $(document).on('click' ,".submit-bug",function (e){
 				$btn.removeAttr("disabled");
 			},function(e){console.log(e);});
 		}else { // file is not image;
+			$thisBtn.toggleDisabled();
+
 			$img.trigger('click');
 		}
 	}else { // if 沒有點選附檔
+		$thisBtn.toggleDisabled();
 		alert("請附上Bug圖片");
 	}
 	return false ;
@@ -347,4 +386,33 @@ function Validate(oForm) { // http://stackoverflow.com/questions/4234589/validat
     }
 
     return true;
+}
+
+
+function readTimePlus(){
+	$.post("getip.php",{},logip);
+	function logip(ip,s,x){
+		
+		getViewerRole ().then(function(){
+	
+			var Play_View = Parse.Object.extend("Play_View") ;
+			var qP = new Parse.Query(Play_View);
+			//qP.equalTo("")
+			
+			
+			var playView = new Play_View ();
+			playView.set("ip",ip);
+			if (currentUser){
+				playView.set("user",currentUser);
+			}
+		
+		
+			playView.save().then(function(s){
+				console.log (ip);
+				//alert("signin! "+ip );
+			},function (e){
+				//alert(e.message);
+			});
+		},Log);
+	}
 }

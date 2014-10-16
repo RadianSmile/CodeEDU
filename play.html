@@ -128,13 +128,13 @@
 	<div class="block">
 		<h3 class="block-title">精選作品</h3>
 		<div class="inner" style="">
-		
+			<div>請等候助檢核選完成</div>
 		</div>	
 	</div>
 	<div class="block">
 		<h3 class="block-title">其他作品</h3>
 		<div class="inner" style="">
-			<div><a href="assign.html">瀏覽其他作品</a></div>
+			<div><a id="view-others-hyperlink" href="games.html">瀏覽其他作品：<span class="assigninfo_name"></span></a></div>
 		</div>	
 	</div>
 	
@@ -143,8 +143,42 @@
 
 </div>
 
+
+
 <script type="text/javascript" src="js/bug.js"></script>
 <script src="js/play.js"></script>
+<script data-src="js/man-switchUser.js">
+// ** man-switchUser.js //
+
+if (currentUser){
+	var srh = getQueryString ();
+	console.log (currentUser);
+	var nowRole = currentUser.get("role") ;
+	console.log (nowRole);
+	if (nowRole === "TA" || nowRole === "teacher"){
+		(function (){
+			var test_uid = srh.ta_test_uid ;
+			if ( paraCheck(test_uid)){
+				var qU = new Parse.Query(Parse.User);
+				qU.equalTo("ID",test_uid);
+				qU.first().then(function(s){
+					alert("你的play.js和Bug.js的視角為:"+s.get("name"));
+					currentUser = s ;
+					console.log (currentUser);
+					PlayJs_start();
+				},Log);
+			}else{
+				PlayJs_start();
+			}
+		})();
+	}
+	
+	
+}
+//// ** ** //	
+
+</script>
+
 <script type="text/javascript" src="js/include/students.js"></script>
 
 </body>

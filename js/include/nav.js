@@ -68,9 +68,9 @@ function checkGradingTime (){
 			qRR.equalTo("reviewer",reviewer);
 			qRR.first().then(function(rr){
 				if (typeof (rr) !== 'undefined'){
-					alert("s");
+		//			alert("s");
 					ableGrading(s);
-					if (rr.get("grade") === '' || typeof(rr.get("grade")) ==='undefined' ){
+					if (rr.get("grade")){
 						//alert("have grade");
 						// Have Done Review ;
 						$(document).ready(function(e) {

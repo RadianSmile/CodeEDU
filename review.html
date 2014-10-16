@@ -155,7 +155,7 @@ function r (){
 <div class="control-area col-md-6">
 
 	<div id="requirement-btn"  class="btn" style="color:rgba(212,211,211,1.00); "><a href="#" data-toggle="modal" data-target="#req" > 評分標準<!--span class="glyphicon glyphicon-list"></span--></a></div>
-	<div id="help-review-btn"  class="btn" style="color:rgba(212,211,211,1.00);">如何評分<!--span class="glyphicon glyphicon-question-sign"></span--></div>
+	<div id="help-review-btn"  class="btn" style="color:rgba(212,211,211,1.00);"><a href="downloads/Help-Review.pdf" target="_blank">如何評分<!--span class="glyphicon glyphicon-question-sign"></span--></a></div>
 	<!--button id="save-grade-btn" type="button" class="btn btn-info"><span class="glyphicon glyphicon-save"></span></button-->
 
 	<button id="review-submit" type="button" class="btn btn-danger btn-lg" onClick="submitReview();"><span class="glyphicon glyphicon-send"></span>&nbsp;&nbsp;&nbsp;&nbsp;繳交評分結果</button>
@@ -473,10 +473,13 @@ $(document).on('click',".report-btn",function (e){
 
 
 $(document).on('click' ,".submit-bug",function (e){
-	//Rn!!!!!!!!!	
-	//檢查BUg 是否新增完成	
+	var $thisBtn = $(this);
+	$thisBtn.toggleDisabled();
+
+	
+
 	e.preventDefault();
-	//console.log ("true");
+
 	var $p = $(this).closest(".tab-pane") ;
 	var i = $p.index();
 	var form = $p.find(".add-bug-form").get(0);;
@@ -494,13 +497,12 @@ $(document).on('click' ,".submit-bug",function (e){
 	
 	if(des.length < 10 ){ 
 		alert("你的描述太過精簡，請至少超過十個字。"); 
+		$thisBtn.toggleDisabled();
 		return false ;
 	}
 	
 	if (fileUploadControl.files.length > 0) {
 		if (Validate(form)){
-			$btn.attr("disabled","disabled");
-			$btn.addClass('disabled');
 			var BugRecord = Parse.Object.extend("Bug_Record");
 			var bugRecord = new BugRecord();
 		
@@ -515,6 +517,7 @@ $(document).on('click' ,".submit-bug",function (e){
 				bugRecord.set("assign",assign);
 				bugRecord.set("bugger",bugger);
 				bugRecord.set("img",img);
+				bugRecord.set("isDoneNoti",true); // 這樣Cloud Code 就不會寄送任何通知
 				bugRecord.set("des",des);
 				return bugRecord.save();
 			}).then (function(bugRecord){
@@ -524,16 +527,17 @@ $(document).on('click' ,".submit-bug",function (e){
 				bugInit();
 				controlAllBugView();
 				controlAllStepView ();
-
+				
 				$p.find(".add-bug-form").trigger('reset');
 				$preImg.removeAttr("style");
-				$btn.removeClass('disabled');
-				$btn.removeAttr("disabled");
+				$thisBtn.toggleDisabled();
 			},function(e){console.log(e);});
 		}else { // file is not image;
+			$thisBtn.toggleDisabled();
 			$img.trigger('click');
 		}
 	}else { // if 沒有點選附檔
+		$thisBtn.toggleDisabled();
 		alert("請附上Bug圖片");
 	}
 	return false ;

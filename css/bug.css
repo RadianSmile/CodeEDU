@@ -94,12 +94,22 @@
 	border-radius: 5px;
 }
 
-.bug-bugger-control, .bug-reporter-control, .bug-guest-control, .bug-step{
+.bug-ta-control, .bug-bugger-control, .bug-reporter-control, .bug-guest-control, .bug-step{
  	display:none;
 
 }
 
 
+.ta-accept-bug-btn ,.ta-pass-bug-btn{
+	color:rgba(255,154,0,1.00) ;
+}.ta-reject-bug-btn {
+	.color:rgba(255,0,102,1.00);
+}
+.ta-accept-bug-btn:hover ,.ta-pass-bug-btn:hover{
+	color:rgba(214,129,0,1.00);
+}.ta-reject-bug-btn:hover {
+	.color:rgba(173,0,69,1.00);
+}
 
 
 .bug-func-btn.disabled ,.bug-func-btn.disabled:hover{
@@ -109,9 +119,7 @@
 	color:rgba(7,186,108,1.00);
 }
 .bug-waiting-check , .bug-waiting-accept ,.bug-waiting-update{
-	
 	color:rgba(150,150,150,1.00);
-	
 }
 .view-bug-time {
 	color:rgba(212,212,212,1.00);
@@ -120,7 +128,6 @@
 
 .fail-bug-btn ,.reject-bug-btn{
 	color:rgba(255,121,123,1.00);
-	
 }.fail-bug-btn:hover ,.reject-bug-btn:hover{
 	color:rgba(202,60,62,1.00);
 }

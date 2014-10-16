@@ -1,0 +1,129 @@
+
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<!-- Common links -->
+<!----><link rel="icon" type="image/png" href="../include/icon.png" />
+<!----><link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<!----><script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+<!----><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<!----><script type="text/javascript" src="//www.parsecdn.com/js/parse-1.2.19.min.js"></script>
+<!----><script type="text/javascript" src="../js/key.js"></script>
+<!----><link href="../css/all.css" rel="stylesheet" />
+<!----><script src="../js/all.js"></script>
+<!---------------------->
+<style>
+
+</style>
+<script>
+</script>
+<title>Codedu</title>
+</head>
+<body>
+
+
+<script>
+
+start();
+
+function start(){
+	//var needArray = ["reviewer_name","reviewee_name","grade","final"];
+	var aNth  = "1";
+	
+	var RRArr = [];
+	var AsnArr = [] ;
+	
+	qurReviewRecord (aNth).then(function(records){
+		RRArr = records ;
+		qurAssigns(aNth).then(function(asns){
+			AsnArr = asns ; 
+			
+			each (AsnArr,function(asn){
+				
+				var ID = asn.get("maker").get("ID");
+				var name = asn.get("maker").get("name");
+				if (asn.get("maker").get("role") !== 'student'){
+					return true ;
+				}
+				if (name.length < 3){name += "　";}
+				var row = ID + "\t" + name + "\t" ;
+				var aid = asn.id ;
+				var asnRRArr = RRArr.getMatchElements("assign_id",aid);
+				var asnGradeStr = "" ;
+				each(asnRRArr,function(g){
+					asnGradeStr += replaceUndefined(g.get("grade"),"grade","缺") + "\t" ;
+					
+				});
+				
+				var btns = getAssignLinkBtn (asn);
+				
+				row +=asnGradeStr +  btns ;
+				document.write('<div class="row" style="line-height:150%;">' +row + "</div>" );
+			});
+			
+		});
+		
+		
+		//ClassToDom (records,needArray);
+	},Log);
+	
+	
+}
+
+function getAssignLinkBtn(asn){
+	var btns =''; 
+	btns += getHyperlink("檢視頁面","http://programming101.cs.nccu.edu.tw/play.html?aid=" + asn.id );
+	btns += getHyperlink("原始頁面",asn.get("url")) ;
+	function getHyperlink(name,l){
+		var html = "<a href='"+l+"' target='_blank'>"+name+"</a> \t" ;
+		return html ;
+	}
+	
+	return btns;
+}
+
+function qurReviewRecord(nth){
+	var ReviewRecord = Parse.Object.extend("Review_Record");
+	var qRR = new Parse.Query (ReviewRecord);
+	qRR.equalTo("nth",nth);
+	qRR.limit(20000);
+	qRR.ascending("assign_id");
+	return qRR.find ();
+}
+
+
+function qurAssigns (nth){
+	var Assign = Parse.Object.extend("Assign");
+	var qAsn = new Parse.Query(Assign);
+	qAsn.include("maker");
+	qAsn.equalTo("nth",nth);
+	return qAsn.find ();
+}
+
+
+
+
+
+function ClassToDom (Objects,needAttrArr){
+	each(Objects,function(obj){
+		var row =""; 
+		var attrObj = obj['attributes'];
+		for (var i = 0 ; i < needAttrArr.length ; i++ ){
+			var value = obj.getValueByAttr(needAttrArr[i]);
+			row += strToDom(value);
+		}
+		row += "<br>";
+		document.write (row);
+	});
+}
+
+function strToDom(str){
+	return str + "\t" 
+}
+
+
+</script>
+</body>
+</html>

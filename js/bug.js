@@ -9,7 +9,7 @@ function qurBugs (assignID){ // old name QueryBug
 	q.equalTo("assign",a);
 	q.include("reporter");
 	q.include("bugger");
-	q.descending("createdAt");
+	q.ascending("createdAt");
 	return q.find();
 }
 function getBug (bid){
@@ -24,6 +24,7 @@ function getControlPanes  (e) {
 	$e.$d = $e.find('.bug-bugger-control') ;
 	$e.$r = $e.find('.bug-reporter-control') ;
 	$e.$g = $e.find('.bug-guest-control') ;
+	$e.$ta = $e.find('.bug-ta-control');
 	return $e ;
 }
 function controlAllBugView (){
@@ -32,21 +33,32 @@ function controlAllBugView (){
 			//alert("fffakjjjjjjjj;");
 			$e.$d.show();
 			$e.$r.remove();
-			$e.$g.remove();	
+			$e.$g.remove();
+			$e.$ta.remove();
 	});
-	console.log ("!!!!!!!!!!!!!!!!!",'$(".bug-reporter-view")',$(".bug-reporter-view").length);
+	//console.log ("!!!!!!!!!!!!!!!!!",'$(".bug-reporter-view")',$(".bug-reporter-view").length);
 	$(".bug-reporter-view").each(function(i, e) {
 			var $e = getControlPanes(e);
 			$e.$d.remove();
 			$e.$r.show();
-			$e.$g.remove();	 	
+			$e.$g.remove(); 	
+			$e.$ta.remove();
 	});
 	$(".bug-guest-view").each(function(i, e) {
 			var $e = getControlPanes(e);
 			$e.$d.remove();
 			$e.$r.remove();
 			$e.$g.show();	
+			$e.$ta.remove();			
 	});
+	$(".bug-ta-view").each(function(i, e) {
+			var $e = getControlPanes(e);
+			$e.$d.remove();
+			$e.$r.remove();
+			$e.$g.remove();	
+			$e.$ta.show();			
+	});
+	
 }
 function controlAllStepView (){
 	$('.bug').each(function(i,e) {
@@ -60,11 +72,48 @@ function controlAllStepView (){
 	});
 }
 function judgeStep(bugRecord){
+	
 	var a = bugRecord.get("isAccepted") ; 
+		var taA = bugRecord.get("taAccepted");
 	var b = bugRecord.get("isUpdated") ;
 	var c = bugRecord.get("isSolved");
-	var s = a ? b ? c ? 4 : 3 : 2  : 1 ; console.log ("step :"+s);
-	//return 2 ;
+		var taC = bugRecord.get("taSolved");
+
+	var s ; 
+	if (typeof a === 'undefined'){
+		s = 1 ;
+		return s ; 
+	}
+	if (a === false ){
+		if (taA === true){
+			a = true ;
+			// 假性呈現，作者承認了這筆BUG
+			s = a ? b ? c ? 4 : 3 : 2  : 1 ; console.log ("step :"+s);
+			return  s ;
+		}else if ( taA === false ){
+			s = -1 ;
+			// 連助教都否認了，這筆BUG就直接進入移除的狀態
+			return s ;		
+		}
+		// 這裡代表助教還沒有評訂，進入等待狀態
+		s = 0 ; 
+		return s ;
+	}
+	if ( c === false ){
+		if (taC === true){ // 認為通過
+			//假性呈現，呈報者已經認為通過了
+			s = 4 ; 
+			return s ;
+		}else if ( taC === false ){ 
+			// 認為不通過
+			// 理論上，taC === false 時，cloud code 就會進行改寫了
+		}
+		// 這裡代表助教還沒有評訂，進入等待狀態
+		s = 5 ; 
+		return s ;
+	}
+	
+	s = a ? b ? c ? 4 : 3 : 2  : 1 ; console.log ("step :"+s);
 	return  s ;
 }
 
@@ -73,15 +122,26 @@ function judgeRelation(bugRecord){
 	var reporter = bugRecord.get("reporter");
 
 	var a = ''; 
-	if (currentUser.id === bugger.id){
-		console.log ('bugger');
-		a = 'bugger';
-	}else if (currentUser.id  === reporter.id){
-		console.log ('reporter');
-		a =  'reporter';
-	}else {
+	if (!paraCheck(currentUser)){
 		console.log ('guest');
 		a = 'guest';
+	}else{
+		console.log ("currentUser in BugJS " ,currentUser);
+		var srh = getQueryString ();
+
+		if ((currentUser.get("role") === "TA" || currentUser.get("role") === "teacher") && srh.ta_test_role !== 'student'){
+			console.log ("TA");
+			a = 'ta';
+		}else if (currentUser.id === bugger.id){
+			console.log ('bugger');
+			a = 'bugger';
+		}else if (currentUser.id  === reporter.id){
+			console.log ('reporter');
+			a =  'reporter';
+		}else{
+			console.log ('guest');
+			a = 'guest';
+		}
 	}
 	return a ;
 }
@@ -89,7 +149,9 @@ function judgeRelation(bugRecord){
 function showBugs (aid){
 	console.log (aid);
 	qurBugs(aid).then(function(bugs){
-		each(bugs,showBug);
+		each(bugs,function (bug){
+			showBug(bug);
+		});
 		bugInit();
 	},Log);
 
@@ -99,8 +161,9 @@ function showBug (b , i ){
 	i = isSet(i) ? i : 0 ;
 	var relation = judgeRelation (b);
 	var step  = judgeStep(b);
-	var html = getBugHtml(b,relation,step);	
-	$($('.bug-pane')[i]).prepend(html);
+	var html = getBugHtml(b,relation,step);
+	$($('.bug-pane')[i]).prepend(html); 
+	console.log($('.bug-pane')[i]);
 	$(".no-bug-info").hide();
 }
 
@@ -129,12 +192,18 @@ function getBugHtml (b,relation,step)
 	<div class="pull-right">\
 		<div class="bug-func-btns">\
 			<div class="bug-bugger-control">\
+				<div class="bug-step" data-bugStep="-1">\
+					<div class="bug-status bug-notExist"  data-toggle="tooltip" data-placement="left" title="BUG已經被助教確定為不存在">X</div>\
+				</div>\
+				<div class="bug-step bug-func-btns" data-bugStep="0">\
+					<div class="bug-status bug-waiting-ta-check" data-toggle="tooltip" data-placement="left" title="BUG被否認，等待助教審核中"><span class="glyphicon  glyphicon-eye-open"></span></div>\
+				</div>\
 				<div class="bug-step bug-func-btns" data-bugStep="1">\
 					<a class="accept-bug-btn bug-func-btn" data-toggle="tooltip" data-placement="left" title="承認這筆BUG" ><span class="glyphicon glyphicon-ok"></span></a>\
 					<a class="reject-bug-btn bug-func-btn" data-toggle="tooltip" data-placement="left" title="BUG並不存在" ><span class="glyphicon glyphicon-remove"></span></a>\
 				</div>\
 				<div class="bug-step" data-bugStep="2">\
-					<a class="noti-reporter-bug-btn bug-func-btn bug-func-btn-lg" data-toggle="tooltip" data-placement="left" title="通知呈報者已經更新"><span class="glyphicon glyphicon-bell"></span></a>\
+					<a class="noti-reporter-bug-btn bug-func-btn bug-func-btn-lg" data-toggle="tooltip" data-placement="left" title="通知舉報者已經解除BUG"><span class="glyphicon glyphicon-bell"></span></a>\
 				</div>\
 				<div class="bug-step" data-bugStep="3">\
 					<div class="bug-status bug-waiting-check" data-toggle="tooltip" data-placement="left" title="等待呈報者審核中"><span class="glyphicon glyphicon-time"></span></div>\
@@ -142,8 +211,17 @@ function getBugHtml (b,relation,step)
 				<div class="bug-step" data-bugStep="4">\
 					<div class="bug-status bug-resolved"  data-toggle="tooltip" data-placement="left" title="BUG已經解除"><span class="glyphicon glyphicon-ok-circle"></span></div>\
 				</div>\
+				<div class="bug-step bug-func-btns" data-bugStep="5">\
+					<div class="bug-status bug-waiting-ta-check" data-toggle="tooltip" data-placement="left" title="呈報者認為BUG沒有成功修正，等待助教審核中"><span class="glyphicon glyphicon-eye-open"></span></div>\
+				</div>\
 			</div>\
 			<div class="bug-reporter-control">			\
+				<div class="bug-step" data-bugStep="-1">\
+					<div class="bug-status bug-notExist"  data-toggle="tooltip" data-placement="left" title="BUG已經被助教確定為不存在">X</div>\
+				</div>\
+				<div class="bug-step bug-func-btns" data-bugStep="0">\
+					<div class="bug-status bug-waiting-ta-check" data-toggle="tooltip" data-placement="left" title="BUG被否認，等待助教審核中"><span class="glyphicon glyphicon-eye-open"></span></div>\
+				</div>\
 				<div class="bug-step" data-bugStep="1">\
 					<div class="bug-status bug-waiting-accept"  data-toggle="tooltip" data-placement="left" title="等待作者承認中"><span class="glyphicon glyphicon-question-sign"></span></div>\
 				</div>\
@@ -157,10 +235,41 @@ function getBugHtml (b,relation,step)
 				<div class="bug-step" data-bugStep="4">\
 					<div class="bug-status bug-resolved" data-bugStep="4"  data-toggle="tooltip" data-placement="left" title="已經解除霸個"><span class="glyphicon glyphicon-ok-circle"></span></div>\
 				</div>\
+				<div class="bug-step bug-func-btns" data-bugStep="5">\
+					<div class="bug-status bug-waiting-ta-check" data-toggle="tooltip" data-placement="left" title="呈報者認為BUG沒有成功修正，等待助教審核中"><span class="glyphicon glyphicon-eye-open"></span></div>\
+				</div>\
 			</div>\
 			<div class="bug-guest-control" >\
+				<div class="bug-step" data-bugStep="-1">\
+					<div class="bug-status bug-notExist"  data-toggle="tooltip" data-placement="left" title="BUG已經被助教確定為不存在">X</div>\
+				</div>\
 				<div class="bug-step" data-bugStep="4">\
 					<div class="bug-status bug-resolved" data-bugStep="4"  data-toggle="tooltip" data-placement="left" title="已經解除霸個"><span class="glyphicon glyphicon-ok-circle"></span></div>\
+				</div>\
+			</div>\
+			<div class="bug-ta-control">\
+				<div class="bug-step" data-bugStep="-1">\
+					<div class="bug-status bug-notExist"  data-toggle="tooltip" data-placement="left" title="BUG已經被核定為不存在">X</div>\
+				</div>\
+				<div class="bug-step bug-func-btns" data-bugStep="0">\
+					<a class="ta-accept-bug-btn bug-func-btn" data-toggle="tooltip" data-placement="left" title="強制作者承認這筆BUG" ><span class="glyphicon glyphicon-ok"></span></a>\
+					<a class="ta-reject-bug-btn bug-func-btn" data-toggle="tooltip" data-placement="left" title="同意作者，BUG並不存在" ><span class="glyphicon glyphicon-remove"></span></a>\
+				</div>\
+				<div class="bug-step" data-bugStep="1">\
+					<div class="bug-status bug-waiting-accept"  data-toggle="tooltip" data-placement="left" title="等待作者承認中">認</div>\
+				</div>\
+				<div class="bug-step" data-bugStep="2">\
+					<div class="bug-status bug-waiting-update" data-toggle="tooltip" data-placement="left" title="等待作者更新中">更</div>\
+				</div>\
+				<div class="bug-step" data-bugStep="3">\
+					<div class="bug-status bug-waiting-check" data-toggle="tooltip" data-placement="left" title="等待呈報者審核中">審</div>\
+				</div>\
+				<div class="bug-step" data-bugStep="4">\
+					<div class="bug-status bug-resolved" data-bugStep="4"  data-toggle="tooltip" data-placement="left" title="已經解除霸個">V</div>\
+				</div>\
+				<div class="bug-step bug-func-btns" data-bugStep="5">\
+					<a class="ta-pass-bug-btn bug-func-btn "  data-toggle="tooltip" data-placement="left" title="作者有成功解除BUG"><span class="glyphicon glyphicon-ok"></span></a>\
+					<a class="ta-fail-bug-btn bug-func-btn "  data-toggle="tooltip" data-placement="left" title="同意舉報者，作者沒有成功解除BUG"><span class="glyphicon glyphicon-remove"></span></a>\
 				</div>\
 			</div>\
 		</div>\
@@ -173,7 +282,7 @@ function getBugHtml (b,relation,step)
 </div>' ;
 	return html ;
 }
-
+  
 
 
 function appendEvent (){
@@ -200,11 +309,22 @@ $(document).on('click',".reject-bug-btn",{attr:"isAccepted",val: false},updateBu
 $(document).on('click',".pass-bug-btn",{attr:"isSolved",val: true},updateBugStatus);
 $(document).on('click',".fail-bug-btn",{attr:"isSolved",val: false},updateBugStatus);
 $(document).on('click',".noti-reporter-bug-btn",{attr:"isUpdated",val: true},updateBugStatus);
+
+$(document).on('click',".ta-accept-bug-btn",{attr:"taAccepted",val: true},updateBugStatus);
+$(document).on('click',".ta-reject-bug-btn",{attr:"taAccepted",val: false},updateBugStatus);
+
+$(document).on('click',".ta-pass-bug-btn",{attr:"taSolved",val: true},updateBugStatus);
+$(document).on('click',".ta-fail-bug-btn",{attr:"taSolved",val: false},updateBugStatus);
+
+
+
 function updateBugStatus (e){
 	var $this = $(this) ;
 	if ($this.hasClass('disabled')) {
 		return false 
 	};
+	
+	
 	$this.parent().children('.bug-func-btn').tooltip('disable');
 	$this.parent().children('.bug-func-btn').addClass('disabled');
 	$this.parent().children('.bug-func-btn').removeAttr('href');
@@ -214,9 +334,23 @@ function updateBugStatus (e){
 	var bug = new Bug();
 	bug.id = $b.attr('id');
 	console.log ($b.attr('id'));
-	console.log (e.data.attr);
 	console.log (e.data.attr , e.data.val );
+	
+	
+	if (e.data.attr === 'taAccepted' && !e.data.val){
+		var removeReason = prompt("請輸入此筆BUG不存在的原因，以提示大家");
+		if (removeReason != null && confirm ("確認送出?")) {
+			bug.set("tell",removeReason) ;
+    }else {
+			$this.parent().children('.bug-func-btn').tooltip();
+			$this.parent().children('.bug-func-btn').removeClass('disabled');			
+			return false ;
+		}
+	}
+	
 	bug.set(e.data.attr , e.data.val );
+	bug.set("isDoneNoti",false);
+
 	bug.save().then(function(b){
 		return getBug(b.id);
 	}).then (function(ee){
@@ -227,8 +361,7 @@ function updateBugStatus (e){
 		var html = getBugHtml(ee,relation,step);	
 		appendEvent();
 		$b.replaceWith(html);
-		controlAllStepView();
-		controlAllBugView();	
+		bugInit();
 	},Log);
 }
 
@@ -237,6 +370,10 @@ function updateBugStatus (e){
 // 這裡是偵測點選上傳圖片時
 $("input:file.add-img-input")	.change(function () {				
 	var $p = $(this).closest(".bug") ;
+	
+	var isTooBig = this.files[0].size  ;
+	//alert ("File size " +isTooBig);
+	console.log (isTooBig);
 
 		var reader =  new  FileReader ();
 		 reader.onload = function (e) {
@@ -250,6 +387,9 @@ $("input:file.add-img-input")	.change(function () {
 			cvs.width = finalWitdh ;
 			cvs.height = finalHeight;
 			var ctx = cvs.getContext( "2d" ).drawImage( i,0,0,finalWitdh,finalHeight);
+			
+			// 這邊應該要做壓縮倍率的判斷 Rn.yet			
+			
 			var newImageData = cvs.toDataURL ( "image/jpeg" , .6 );
 			var result_image_obj =  new  Image ();
 				 result_image_obj.src = newImageData ;
@@ -273,9 +413,8 @@ $('sample_on_submit').on('click' ,".submit-bug",function (e){
 	assign = new Assign ();
 	assign.id = aid ;
 	
-	var user = new Parse.User();
-	console.log ("tTargetUserId",tTargetUserId);
-	user.id  = isSet(tTargetUserId) ?  tTargetUserId : currentUser.id;
+	var bugger = new Parse.User();
+	bugger.id  = currentAssign.get("maker").id;
 	//!!!!!!!!
 	
 	
@@ -314,7 +453,8 @@ $('sample_on_submit').on('click' ,".submit-bug",function (e){
 				console.log(img);
 				bugRecord.set("reporter",currentUser);
 				bugRecord.set("assign",assign);
-				bugRecord.set("bugger",user);
+				bugRecord.set("bugger",bugger);
+				bugRecord.set("isDoneNoti",false);
 				bugRecord.set("img",img);
 				bugRecord.set("des",des);
 				return bugRecord.save();

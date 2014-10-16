@@ -6,7 +6,7 @@ Parse.Cloud.define("hello", function(request, response) {
 });
 Parse.Cloud.define("getRole",function(rq,rp){
 	Parse.Cloud.useMasterKey();
-
+ 
 
 	var q = new Parse.Query(Parse.Role);
 	q.find().then(rp.success,rp.error);
@@ -133,7 +133,134 @@ Parse.Cloud.afterSave(Parse.User,function(rq){
 	}
 });
 
+//Rn.Anchor.Bug_Record-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Parse.Cloud.beforeSave ("Bug_Record",function (rq,rp){
+	var bugRecord = rq.object ; 
 
+	var isDoneNoti = bugRecord.get("isDoneNoti") ;
+
+	var assign = bugRecord.get("assign");
+	var reporter = bugRecord.get("reporter");
+	var bugger= bugRecord.get("bugger");
+	
+	var a = bugRecord.get("isAccepted") ; 
+		var taA = bugRecord.get("taAccepted");
+	var b = bugRecord.get("isUpdated") ;
+	var c = bugRecord.get("isSolved");
+		var taC = bugRecord.get("taSolved");
+
+	
+	var noteObject ;
+	assign.fetch ().then(function (a){
+		noteObject = {"aid":assign.id, "bid":bugRecord.id,"nth":assign.get("nth") };
+		bugNoti();
+		rp.success()	;
+	},function (e){rp.error(e.message)
+	});
+	
+	function bugNoti(){
+		var noteObj = JSON.stringify(noteObject);
+
+		if (isDoneNoti === true){ // 不做任何事情
+			return true ;
+		}else{ 
+			bugRecord.set("isDoneNoti",true);
+			//Step 0 : 使用者收到通知
+			if (!paraCheck(a))	{ // 代表使用者還沒有回應
+				sendEvent(reporter,90,noteObj);
+				sendEvent(bugger,80,noteObj);	
+				return true ;
+			}else{
+			
+				//Step 1 : 代表使用者有了回應 的階段
+				if (paraCheck(a) && !paraCheck(b) && !paraCheck(c)  ){
+					if (a){ // 使用者承認了這筆BUG
+						sendEvent(reporter,91,noteObj);
+						sendEvent(bugger,81,noteObj);
+						return true ;
+					}else { // 使用者否認了這筆BUG
+					
+						if (!paraCheck(taA)){ //助教還沒看的狀態
+							sendEvent(reporter,92,noteObj);
+							sendEvent(bugger,82,noteObj);
+							sendEventToRole("TA",980,noteObj);
+							return true ;
+						}else{ //助教已經回應了
+							if (taA){ // 助教強制承認
+								sendEvent(reporter,96,noteObj);
+								sendEvent(bugger,86,noteObj);
+								sendEventToRole("TA",996,noteObj);
+								addLog(bugRecord,"助教評訂存在");
+
+							}else{ // 助教同意這筆霸個不存在
+								sendEvent(reporter,97,noteObj);
+								sendEvent(bugger,87,noteObj);
+								sendEventToRole("TA",997,noteObj);
+								addLog(bugRecord,"助教評訂不存在");
+							}
+						}
+					}
+					
+				} 
+				//Step 2 : 使用者承認，並通知已經更新
+				if (a && b && !paraCheck(c) ){
+					sendEvent(reporter,93,noteObj);
+					sendEvent(bugger,83,noteObj);
+					return true ;
+				}
+				
+				//Step 3 : 使用者承認，並通知已經更新，舉報者核定通過與否
+				if (a && b && paraCheck(c) ){
+					if (c){  // 核定為通過
+						sendEvent(reporter,94,noteObj);
+						sendEvent(bugger,84,noteObj);
+						return true ;
+					}else{  // 核定為未通過 ，確認助教看過的狀態
+					
+						if (!paraCheck(taC)){ //助教還沒看的狀態
+							sendEvent(reporter,95,noteObj);
+							sendEvent(bugger,85,noteObj);
+							sendEventToRole("TA",981,noteObj);
+							return true ;
+						}else{ //助教已經回應了
+							if (taC){ // 助教認為這筆BUG修正了
+								sendEvent(reporter,98,noteObj);
+								sendEvent(bugger,88,noteObj);
+								sendEventToRole("TA",998,noteObj);
+							}else{ // 助教同意這筆霸個沒有修正
+								sendEvent(reporter,99,noteObj);
+								sendEvent(bugger,89,noteObj);
+								sendEventToRole("TA",999,noteObj);
+								//退回 Step 1
+								bugRecord.unset("isUpdated");
+								bugRecord.unset("isSolved");
+								bugRecord.unset("taSolved");
+								addLog(bugRecord,"助教評訂未通過");
+							}
+						}
+						return true ;
+					}
+				}
+			}
+		}
+
+	}
+
+	
+	// 用來評斷狀態的方程式
+	function noSetOrFalse (param){
+		if ( paraCheck(param)){
+			if (param){ 
+			}else{ // 如果回應是False
+				return true;
+			}
+		}else{ // 如果還沒有回應時
+			return true ;
+		}
+	}
+
+
+});
 
 //UserStatus-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋-＋
 
@@ -504,7 +631,7 @@ Parse.Cloud.job("Random_review", function(rq, status) {
 	var ASSIGN_NTH = rq.params.nth	 ;	
 	var STD_NUM = 0 ; //user(role=std).length
 	var REVIEW_MAX = 5 ; 
-	var BLANK_URL = "blankAssign/play.html";//"radiansmile.github.io/CodeEDU/final_11/play.html?blak";
+	var BLANK_URL = "http://radiansmile.github.io/CodeEDU/blankAssign/play.html";//"radiansmile.github.io/CodeEDU/final_11/play.html?blak";
 
 	var AssignArr =[];
 	var UserArr = [];
@@ -713,7 +840,8 @@ Parse.Cloud.job("Random_review", function(rq, status) {
 	}
 });
 
-//Grading-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//
+//Rn.anchor.Grading-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 Parse.Cloud.job("Grading",function(rq,rp){
 	var nth = rq.params.nth ;
@@ -721,11 +849,11 @@ Parse.Cloud.job("Grading",function(rq,rp){
 	var successCount = 0  ;
 	var undoneReviewUserArr = [] ;
 	
+	var AssignArr = [] ;
 	
-	var AssignArr = []
-	
-	getAssign()
-		.then(doGrading,function (e){rp.error("really!?")});
+	sendBugNotifi(nth)
+		.then(getAssign)
+		.then(doGrading,function (e){rp.error(e.message)});
 	
 	var gradeToStrRef = [];
 	gradeToStrRef[0] = "X";
@@ -750,11 +878,13 @@ Parse.Cloud.job("Grading",function(rq,rp){
 		}
 	}
 	function doGrading (Assigns){
-		AssignArr = Assigns
+		AssignArr = Assigns ;
 		assignNum =  Assigns.length ;
-		console.log ("assignNum" + assignNum.toString());
+		console.log ("assignNum " + assignNum.toString());
 		for (var i = 0 ; i < AssignArr.length ; i++){
 			
+			if (AssignArr[i].get("maker").get("role") !== 'student'){ continue ;}
+
 			getRecordByAssign(AssignArr[i])
 			.then(singleGrading)
 			.then(function(a){
@@ -781,8 +911,8 @@ Parse.Cloud.job("Grading",function(rq,rp){
 		}
 	}
 	
-	function singleGrading (r){ // @r = single grading ;
-		//console.log("Record Length "+r.length.toString());
+	function singleGrading (r){ // @r = Review_Records from a single Assign
+		console.log("Record Length "+r.length.toString());
 		var p = new Parse.Promise();
 		var star = 0 ;
 		var total = 0 ;
@@ -829,7 +959,7 @@ Parse.Cloud.job("Grading",function(rq,rp){
 			rp.error("Record Save To Assign Fail");
 		});
 		
-		
+		console.log ("review Record : " + r[0].id);
 		var assign = r[0].get("assign");
 		assign.set("grade",gradeToStrRef[avg]);
 		assign.set("star",star);
@@ -866,9 +996,10 @@ Parse.Cloud.job("Grading",function(rq,rp){
 	}
 	
 	function sendGradEvent(a){
-		
 		var m = a.get('maker') ;
 		var g = a.get("grade");
+		var noteObj = { "aid":m.id , "grade":g} ;
+		var note = JSON.stringify(noteObj);
 		var eid = 0 ;
 		switch(g){
 			case "A": eid = 34; break; 
@@ -878,20 +1009,61 @@ Parse.Cloud.job("Grading",function(rq,rp){
 			default : console.log ("No Grade : "+a.id ) ;
 			//rp.error("aoid "+a.id+" "+g+" wrong grade! why ?");
 		}
-		return sendEvent(m,eid);
+		return sendEvent(m,eid,note);
 	}
 	function undoneReview(r){ // @r single Record
 		var reviewer = r.get("reviewer") ;
 		if (undoneReviewUserArr.getIndexById(reviewer.id) === -1){
 			undoneReviewUserArr.push(reviewer);
 		}
-		
-	
 	}
 	
+	function sendBugNotifi(nth){
+		var BugRecord = Parse.Object.extend("Bug_Record");
+		var saveBugArr = [] ;
+		qBug = new Parse.Query (BugRecord);
+		qBug.include("assign");
+		qBug.notEqualTo("isDoneNoti",true);
+		return qBug.find().then(function(bugRecords){
+			each(bugRecords,function(bugRecord){
+				console.log (bugRecord.get("assign").get("nth"));
+				if (bugRecord.get("assign").get("nth") == nth ){
+					bugRecord.set("isDoneNoti",false);
+					saveBugArr.push(bugRecord);
+				}
+			});
+			return Parse.Object.saveAll(saveBugArr);
+		});
+	}
 	
 	function Log (e){console.log(e);}
 	
+});
+//
+Parse.Cloud.job("sendBugNotifi",function(rq,rp){
+	var nth = rq.params.nth ;
+	sendBugNotifi (nth)
+	function sendBugNotifi(nth){
+			var BugRecord = Parse.Object.extend("Bug_Record");
+			var saveBugArr = [] ;
+			qBug = new Parse.Query (BugRecord);
+			qBug.include("assign");
+			qBug.notEqualTo("isDoneNoti",true);
+			return qBug.find().then(function(bugRecords){
+				each(bugRecords,function(bugRecord){
+					console.log (bugRecord.get("assign").get("nth"));
+					if (bugRecord.get("assign").get("nth") == nth ){
+						bugRecord.set("isDoneNoti",false);
+						saveBugArr.push(bugRecord);
+					}
+				});
+				return Parse.Object.saveAll(saveBugArr).then(function (s){						
+						rp.success();
+					},function(e){
+						rp.error(e.message);
+					});
+			});
+		}
 });
 
 
@@ -923,8 +1095,8 @@ function newQur (className){
 	return q ;
 }
 
-function Log(o){
-	console.log (o) ;
+function Log(e){
+	console.log (e.message) ;
 }
 
 function pointer (objectID,className){
@@ -935,12 +1107,28 @@ function pointer (objectID,className){
   return pointer;
 }
 
+//Rn.anchor.sendEvent	
 
-function sendEvent (user,eidNum){
+function sendEventToRole (role,eidNum,noteArr){
+	var q = new Parse.Query(Parse.User);
+	q.equalTo("role",role);
+	q.find ().then(function(users){
+		console.log ("sendEventToRole : " + users.length);
+		each(users,function(u){
+			sendEvent(u,eidNum,noteArr);
+		});
+	},Log);
+}
+
+function sendEvent (user,eidNum,note){
+	
 	var EventRecord = Parse.Object.extend("Event_Record");
 	var e = new EventRecord ();
 	e.set("target",user); // Target
 	e.set("eid",eidNum);
+	if (paraCheck(note)){
+		e.set("note",note);
+	}
 	return e.save();
 }
 
@@ -977,6 +1165,11 @@ Array.prototype.getIndexById = function (value) {
 function getObjectByAttrVal (Arr, attr , val){
 	return Arr[Arr.getIndexByAttr(attr,val)];
 }
+function addLog(Obj , newLog){
+	var l = Obj.get("log");
+	Obj.set("log", l + ", " + newLog);
+	return Obj ;
+}
 
 function each (arr,func ){
 	console.log (arr.length);
@@ -984,6 +1177,15 @@ function each (arr,func ){
 		func(arr[i] , i);
 	}
 }
-
+function paraCheck (para,msg){  // return true if exist
+	if ( typeof(para) === "undefined" || para === null){
+		if (typeof(msg) !== "undefined"){
+			console.log(msg);
+		}
+		return false ;
+	}else {
+		return true;
+	}
+}
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
