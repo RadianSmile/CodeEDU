@@ -164,6 +164,7 @@ Parse.Cloud.beforeSave ("Bug_Record",function (rq,rp){
 		if (isDoneNoti === true){ // 不做任何事情
 			return true ;
 		}else{ 
+		
 			bugRecord.set("isDoneNoti",true);
 			//Step 0 : 使用者收到通知
 			if (!paraCheck(a))	{ // 代表使用者還沒有回應
@@ -203,14 +204,14 @@ Parse.Cloud.beforeSave ("Bug_Record",function (rq,rp){
 					
 				} 
 				//Step 2 : 使用者承認，並通知已經更新
-				if (a && b && !paraCheck(c) ){
+				if ((a || taA) && b && !paraCheck(c) ){
 					sendEvent(reporter,93,noteObj);
 					sendEvent(bugger,83,noteObj);
 					return true ;
 				}
 				
 				//Step 3 : 使用者承認，並通知已經更新，舉報者核定通過與否
-				if (a && b && paraCheck(c) ){
+				if ((a || taA ) && b && paraCheck(c) ){
 					if (c){  // 核定為通過
 						sendEvent(reporter,94,noteObj);
 						sendEvent(bugger,84,noteObj);
@@ -499,7 +500,7 @@ Parse.Cloud.job("checkClassParticipate",function(rq,rp){
 		}
 	}
 	function Log(e){
-		rp.error(e.message);
+		console.log (e.message);
 	}
 
 	function qurStudent (){
@@ -1110,14 +1111,17 @@ function pointer (objectID,className){
 //Rn.anchor.sendEvent	
 
 function sendEventToRole (role,eidNum,noteArr){
+	console.log ("sendEventToRole ing");
 	var q = new Parse.Query(Parse.User);
 	q.equalTo("role",role);
-	q.find ().then(function(users){
+	return q.find ().then(function(users){
 		console.log ("sendEventToRole : " + users.length);
 		each(users,function(u){
-			sendEvent(u,eidNum,noteArr);
+			sendEvent(u,eidNum,noteArr).then(function (){
+				console.log ("sendSuccess")	;
+			},Log);
 		});
-	},Log);
+	},function(e){console.log ("fuck")});
 }
 
 function sendEvent (user,eidNum,note){

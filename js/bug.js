@@ -87,17 +87,16 @@ function judgeStep(bugRecord){
 	if (a === false ){
 		if (taA === true){
 			a = true ;
-			// 假性呈現，作者承認了這筆BUG
-			s = a ? b ? c ? 4 : 3 : 2  : 1 ; console.log ("step :"+s);
-			return  s ;
+			// 假性呈現，作者承認了這筆BUG，繼續接下來的判斷
 		}else if ( taA === false ){
 			s = -1 ;
 			// 連助教都否認了，這筆BUG就直接進入移除的狀態
 			return s ;		
-		}
+		}else{
 		// 這裡代表助教還沒有評訂，進入等待狀態
-		s = 0 ; 
-		return s ;
+			s = 0 ; 
+			return s ;
+		}
 	}
 	if ( c === false ){
 		if (taC === true){ // 認為通過
@@ -107,10 +106,12 @@ function judgeStep(bugRecord){
 		}else if ( taC === false ){ 
 			// 認為不通過
 			// 理論上，taC === false 時，cloud code 就會進行改寫了
+		}else{		
+			// 這裡代表助教還沒有評訂，進入等待狀態
+			s = 5 ; 
+			console.log ("step 5");
+			return s;
 		}
-		// 這裡代表助教還沒有評訂，進入等待狀態
-		s = 5 ; 
-		return s ;
 	}
 	
 	s = a ? b ? c ? 4 : 3 : 2  : 1 ; console.log ("step :"+s);
@@ -163,6 +164,12 @@ function showBug (b , i ){
 	var step  = judgeStep(b);
 	var html = getBugHtml(b,relation,step);
 	$($('.bug-pane')[i]).prepend(html); 
+	if (step === -1 && paraCheck(b.get("tell"))){
+		$("#" + b.id).find(".bug-notExist").each(function(index, element) {
+			var t = $(element).attr("title");
+			$(element).attr("title",t +"。原因為："+ b.get("tell"));
+		});;
+	}
 	console.log($('.bug-pane')[i]);
 	$(".no-bug-info").hide();
 }
@@ -505,6 +512,13 @@ function Validate(oForm) { // http://stackoverflow.com/questions/4234589/validat
     return true;
 }
 
+
+function highLightBug (){
+	var srh = getQueryString ();
+	if (paraCheck(srh.bid)){
+		$("#"+srh.bid).addClass("highLight");
+	}
+}
 
 /*
 // 把霸個秀出去

@@ -12,6 +12,10 @@
 	background-color:#E0E0E0;	
 
 }
+.highLight {
+	background:rgba(255,248,199,1.00);
+	
+}
 .view-bug-img{
 	width:166px;
 	height:100px;

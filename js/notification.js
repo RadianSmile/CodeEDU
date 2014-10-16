@@ -71,23 +71,25 @@ function initNotification(nu){
                     var eid = data[i].get('eid');
 											var eidStr = eid.toString();
                     var datai = data[i]; // Event Record
-                   /* var eventinfo = Parse.Object.extend("Event_Info");
-                    var query4 = new Parse.Query(eventinfo);
-                    query4.equalTo('eid', eid.toString());  */
-											var j = (data[i].get('isNoti') !== true)? 'noti-new' : '' ;
-
+											var addClass = (data[i].get('isNoti') !== true)? 'noti-new' : '' ;
+											var noteArr = [] ;
 //**					
 											var currentEventInfo = getObjectByAttrVal(EI,"eid",eidStr);
 //
-                   /* query4.first({
-                        success:function(data2){
-															 var er = datai ;
-															 console.log ("er",er);*/
-                            var s = eventRecord(datai, currentEventInfo);
-                            eventnotification += s;
-                            var strings = "<div class = 'notification-info "+ j +"'>" + eventnotification + "</div>";   //Rn
-                            $('#works').append(strings);
-                            eventnotification = "";
+											
+											
+											if (currentEventInfo.get("type") === 'b' && paraCheck(datai.get("note"))){
+												addClass += " bug-event" ;
+												console.log (datai.get("note"));
+												noteArr = JSON.parse (datai.get("note"));
+//												console.log (arr);
+												
+											}
+												var s = eventRecord(datai, currentEventInfo);
+												eventnotification += s;
+												var strings = "<div class='notification-info "+ addClass +"' data-bid='"+noteArr.bid+"' data-aid='"+noteArr.aid+"'>" + eventnotification + "</div>";   //Rn
+												$('#works').append(strings);
+												eventnotification = "";
                         //}
                    // });
 //**
@@ -224,7 +226,10 @@ function getRecord(data){
     return container;
 }
 
-function eventRecord(data, data1){
+function eventRecord(data, data1){ // Event Record , Event Info
+		var isBug = data1.get("tyep") === 'b' ;
+		var bid = "#" + isBug ? "<span class='bidText'>(霸個 " +JSON.parse(data.get("note")).bid + ")</span> " : "" ;
+		
     var eventdes = data1.get('description');
         console.log (eventdes);
     var createTime = data.createdAt;
@@ -244,7 +249,7 @@ function eventRecord(data, data1){
         var cdStr = (cd !== 0) ? (cd > 0 ) ? '卡片增加了'+Math.abs(cd)+"張，" : '的卡片減少了'+Math.abs(cd)+"張，": '' ; 
         s = start + xpStr + hpStr + cdStr;
         s = s.slice(0,-1) + "。";
-    container =  "<span class = 'glyphicon glyphicon-info-sign' style = 'white-space: nowrap;'></span>"+eventdes+s+"<span class = 'time-gray-color'>"+m+"</span></div>";
+    container =  "<span class = 'glyphicon glyphicon-info-sign' style = 'white-space: nowrap;'></span>" + bid+"<br>" +eventdes+s+"<span class = 'time-gray-color'>"+m+"</span></div>";
 /*=======
     if(hp >=0){
         s = "因為" + eventdes + "，所以造成你的XP增加" + xp +"、你的HP增加" + hp + "、你的抽卡機會增加" + draw + "次。";
@@ -259,3 +264,12 @@ function eventRecord(data, data1){
 }
 
 })();
+
+//  Attach Event 
+
+$(document).on('click',".bug-event",function(e){
+	var bid = $(this).data("bid");
+	var aid = $(this).data("aid");
+	document.location = "play.html?aid=" + aid +"&bid=" + bid ;
+	
+});

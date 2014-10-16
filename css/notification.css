@@ -80,6 +80,13 @@ h3{
 	background:rgba(129,170,188,.1);	
 }
 
+.bug-event {
+	cursor:pointer;
+	_color:rgba(150,20,164,1.00);
+}
+.bidText {
+	color:rgba(80,112,205,1.00);
+}
 
 hr{
 	margin-top: 10px;

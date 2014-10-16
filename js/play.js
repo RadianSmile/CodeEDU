@@ -253,8 +253,10 @@ function PlayJs_start (){
 					$(".bug-pane").html("");
 					each(bs,function (bug){
 						showBug (bug);
+						
 					});
 					bugInit();
+					highLightBug();
 				}
 			},handleError);
 		//}
