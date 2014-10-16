@@ -153,66 +153,51 @@ Parse.Cloud.beforeSave ("Bug_Record",function (rq,rp){
 	var noteObject ;
 	assign.fetch ().then(function (a){
 		noteObject = {"aid":assign.id, "bid":bugRecord.id,"nth":assign.get("nth") };
-		bugNoti().then(function(s){
-			rp.success()	;
-		},function (e){
-			rp.error(e.message);
-		})
-		
+		bugNoti();
+		rp.success()	;
 	},function (e){rp.error(e.message)
 	});
 	
 	function bugNoti(){
-		var p = new Parse.Promise ();
 		var noteObj = JSON.stringify(noteObject);
 
 		if (isDoneNoti === true){ // 不做任何事情
-			p.resolve(true);
-			return p ;							
+			return true ;
 		}else{ 
+			var p = new Parse.Promise();
 			bugRecord.set("isDoneNoti",true);
 			//Step 0 : 使用者收到通知
 			if (!paraCheck(a))	{ // 代表使用者還沒有回應
 				sendEvent(reporter,90,noteObj);
 				sendEvent(bugger,80,noteObj);	
-				p.resolve(true);
-				return p ;							
-			}else{	
+				return true ;
+			}else{
+			
 				//Step 1 : 代表使用者有了回應 的階段
 				if (paraCheck(a) && !paraCheck(b) && !paraCheck(c)  ){
 					if (a){ // 使用者承認了這筆BUG
 						sendEvent(reporter,91,noteObj);
 						sendEvent(bugger,81,noteObj);
-						p.resolve(true);
-						return p ;							
-					}else { // 使用者否認了這筆BUG				
+						return true ;
+					}else { // 使用者否認了這筆BUG
+					
 						if (!paraCheck(taA)){ //助教還沒看的狀態
 							sendEvent(reporter,92,noteObj);
 							sendEvent(bugger,82,noteObj);
-							sendEventToRole("TA",980,noteObj).then(function(){
-								p.resolve(true);
-								return p ;							
-							},Log)
-
-
+							sendEventToRole("TA",980,noteObj);
+							return true ;
 						}else{ //助教已經回應了
 							if (taA){ // 助教強制承認
 								sendEvent(reporter,96,noteObj);
 								sendEvent(bugger,86,noteObj);
+								sendEventToRole("TA",996,noteObj);
 								addLog(bugRecord,"助教評訂存在");
-								sendEventToRole("TA",996,noteObj).then(function(){
-									p.resolve(true);
-									return p ;							
-								},Log);
 
 							}else{ // 助教同意這筆霸個不存在
 								sendEvent(reporter,97,noteObj);
 								sendEvent(bugger,87,noteObj);
+								sendEventToRole("TA",997,noteObj);
 								addLog(bugRecord,"助教評訂不存在");
-								sendEventToRole("TA",997,noteObj).then(function(){
-									p.resolve(true);
-									return p ;							
-								},Log);
 							}
 						}
 					}
@@ -222,8 +207,7 @@ Parse.Cloud.beforeSave ("Bug_Record",function (rq,rp){
 				if ((a || taA) && b && !paraCheck(c) ){
 					sendEvent(reporter,93,noteObj);
 					sendEvent(bugger,83,noteObj);
-					p.resolve(true);
-					return p ;
+					return true ;
 				}
 				
 				//Step 3 : 使用者承認，並通知已經更新，舉報者核定通過與否
@@ -231,55 +215,38 @@ Parse.Cloud.beforeSave ("Bug_Record",function (rq,rp){
 					if (c){  // 核定為通過
 						sendEvent(reporter,94,noteObj);
 						sendEvent(bugger,84,noteObj);
-						p.resolve(true);
-						return p ;
+						return true ;
 					}else{  // 核定為未通過 ，確認助教看過的狀態
+					
 						if (!paraCheck(taC)){ //助教還沒看的狀態
 							sendEvent(reporter,95,noteObj);
 							sendEvent(bugger,85,noteObj);
-							sendEventToRole("TA",981,noteObj).then(function(){
-								p.resolve(true);
-								return p ;							
-							},Log)
-
+							sendEventToRole("TA",981,noteObj);
+							return true ;
 						}else{ //助教已經回應了
 							if (taC){ // 助教認為這筆BUG修正了
 								sendEvent(reporter,98,noteObj);
 								sendEvent(bugger,88,noteObj);
-								sendEventToRole("TA",998,noteObj).then(function(){
-									p.resolve(true);
-									return p ;							
-								},Log)
+								sendEventToRole("TA",998,noteObj);
 							}else{ // 助教同意這筆霸個沒有修正
 								sendEvent(reporter,99,noteObj);
 								sendEvent(bugger,89,noteObj);
-								
+								sendEventToRole("TA",999,noteObj);
+								//退回 Step 1
+								bugRecord.unset("isUpdated");
 								bugRecord.unset("isSolved");
 								bugRecord.unset("taSolved");
 								addLog(bugRecord,"助教評訂未通過");
-								
-								sendEventToRole("TA",999,noteObj).then(function(){
-									p.resolve(true);
-									return p ;							
-								},Log);
-							
 							}
 						}
+						return true ;
 					}
 				}
 			}
-			
-			return p ;
 		}
+
 	}
-	/*
-	function sendEventToRole (role,eidNum,noteArr){
-		sendEvent("23JTJQaVzj",eidNum,noteArr);
-		sendEvent("ACEnaouxsZ",eidNum,noteArr);
-		sendEvent("jWFDJUa2DK",eidNum,noteArr);
-		sendEvent("JCA9Ifctox",eidNum,noteArr);
-		sendEvent("GivQRPtq1e",eidNum,noteArr);
-	}*/
+
 	
 	// 用來評斷狀態的方程式
 	function noSetOrFalse (param){
@@ -1144,32 +1111,20 @@ function pointer (objectID,className){
 //Rn.anchor.sendEvent	
 
 function sendEventToRole (role,eidNum,noteArr){
-	var p = new Parse.Promise();
-	console.log ("sendEventToRole ing " + eidNum );
+	console.log ("sendEventToRole ing");
 	var q = new Parse.Query(Parse.User);
 	q.equalTo("role",role);
-	 q.find ().then(function(users){
-		console.log ("??");
+	return q.find ().then(function(users){
 		console.log ("sendEventToRole : " + users.length);
-		var l = users.length ;
-		var i = 0 ;
 		each(users,function(u){
-			sendEvent(u,eidNum,noteArr).then(function (s){
+			sendEvent(u,eidNum,noteArr).then(function (){
 				console.log ("sendSuccess")	;
-				if (++i === l  ) {
-					p.resolve(true);
-					return p ;
-				}
-			},function (e){Log(e);p.reject(e.maessage)});
+			},Log);
 		});
-	},function (e){Log(e);console.log ("??") ;p.reject(e.maessage)});
-	return p ;
+	},function(e){console.log ("fuck")});
 }
 
 function sendEvent (user,eidNum,note){
-	if ( typeof user ==="string"){
-		user = pointer (user,"User");
-	}
 	
 	var EventRecord = Parse.Object.extend("Event_Record");
 	var e = new EventRecord ();
@@ -1180,19 +1135,6 @@ function sendEvent (user,eidNum,note){
 	}
 	return e.save();
 }
-
-function pointer (objectID,className){
-	
-	var pointer;
-	if ( className === "User"){
-		pointer = new Parse.User ();		
-	}else{
-		pointer = new Parse.Object(className);
-	}
-	pointer.id = objectID;
-  return pointer;
-}
-
 
 function checkEventExistOne(user,eidNum){
 	var ER = Parse.Object.extend("Event_Record");
