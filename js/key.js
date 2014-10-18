@@ -2,6 +2,7 @@
 
 
 // Working
+//console.log ("Key.js status : Programming101 !!");
 //Parse.initialize("sdPsOfCJu21F7DIrFF08tDwuVtfZZbx1sLwMbMDB", "11wLPl0BPrkmtTlba00jZfvPtxKR9TNCxoLp3Rrb");
 
 // Testing

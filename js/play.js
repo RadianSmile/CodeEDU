@@ -250,16 +250,16 @@ function PlayJs_start (){
 					$('div').remove("#add-bug-container");
 					
 				}
-				if (bs.length === 0){			
+				if (bs.length === 0){
 					$(".bug-pane").prepend('<div class="no-bug-info">太強了！沒有任何霸個！</div>');
 				}else{
 					$(".bug-pane").html("");
 					each(bs,function (bug){
 						showBug (bug);
-						
 					});
 					bugInit();
 					highLightBug();
+					
 				}
 			},handleError);
 		//}

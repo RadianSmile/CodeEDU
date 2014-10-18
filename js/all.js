@@ -166,8 +166,13 @@ function fb_login () {
 $(document).on("click",".toTop",function(e){
 	var scroll_pos=(0);          
    $('html, body').animate({scrollTop:(scroll_pos)}, '1000');
-	
 });
+
+function scrollToEle(selector){
+	var pos = $(selector).offset().top - 70  ;
+	alert("scrollToEle");
+   $('html, body').animate({scrollTop:(pos)}, '1000');
+}
 
 $(document).on("scroll","window",function(e){
 	console.log($(document).scrollTop());
@@ -204,7 +209,7 @@ function getViewerRole(){
 
 
 function each (arr,func ){
-	console.log (arr.length);
+	console.log ("Rn.Each is Triggered , Array Length is : " + arr.length);
 	for (var i = 0 ; i < arr.length ; i++){
 		func(arr[i] , i);
 	}

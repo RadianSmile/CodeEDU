@@ -526,9 +526,11 @@ function Validate(oForm) { // http://stackoverflow.com/questions/4234589/validat
 
 
 function highLightBug (){
+	alert("sdafasfas");
 	var srh = getQueryString ();
 	if (paraCheck(srh.bid)){
 		$("#"+srh.bid).addClass("highLight");
+		scrollToEle ("#"+srh.bid);
 	}
 }
 

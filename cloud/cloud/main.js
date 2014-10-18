@@ -6,8 +6,6 @@ Parse.Cloud.define("hello", function(request, response) {
 });
 Parse.Cloud.define("getRole",function(rq,rp){
 	Parse.Cloud.useMasterKey();
- 
-
 	var q = new Parse.Query(Parse.Role);
 	q.find().then(rp.success,rp.error);
 	//jj
@@ -1087,13 +1085,14 @@ Parse.Cloud.job("Grading",function(rq,rp){
 //---------
 Parse.Cloud.job("sendBugNotifi",function(rq,rp){
 	var nth = rq.params.nth ;
-	sendBugNotifi (nth)
+	sendBugNotifi (nth);
 	function sendBugNotifi(nth){
 			var BugRecord = Parse.Object.extend("Bug_Record");
 			var saveBugArr = [] ;
 			qBug = new Parse.Query (BugRecord);
+			qBug.limit(20000);
 			qBug.include("assign");
-			qBug.notEqualTo("isDoneNoti",true);
+			//qBug.notEqualTo("isDoneNoti",true);
 			return qBug.find().then(function(bugRecords){
 				each(bugRecords,function(bugRecord){
 					console.log (bugRecord.get("assign").get("nth"));
@@ -1245,7 +1244,7 @@ function addLog(Obj , newLog){
 }
 
 function each (arr,func ){
-	console.log (arr.length);
+	console.log ("Each Triggered : Array length : "+arr.length);
 	for (var i = 0 ; i < arr.length ; i++){
 		func(arr[i] , i);
 	}
