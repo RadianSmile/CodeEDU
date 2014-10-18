@@ -21,12 +21,14 @@
 <!----><script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 <!----><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 <!----><script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.19.min.js"></script>
+<!-- key --><script type="text/javascript" src="js/key.js"></script>
+
 <!----><link href="css/all.css" rel="stylesheet" />
 <!----><script src="js/all.js"></script>
 <!---------------------->
 	   <link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="jquery-ui/jquery-ui.css">
-<script type="text/javascript" src="jquery-ui/jquery-ui.min.js"></script>
+<!--link rel="stylesheet" href="jquery-ui/jquery-ui.css"-->
+<!--script type="text/javascript" src="jquery-ui/jquery-ui.min.js"></script-->
 <script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js" type="text/javascript" charset="utf-8"></script>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" />
@@ -82,8 +84,9 @@
 <div id="main-game-info" class="info-block block">
 	<h3 class="game-name block-title"></h3>
 	<div class="info">
-		<div class=" inline maker-photo"></div>
+		<a id="profile-link"><div class=" inline maker-photo"></div>
 		<div class="inline maker-name"></div>
+		</a>
 		<div class=" inline main-isBest hidden"><span class="glyphicon glyphicon-bookmark"></span></div>
 		<!--div class="count"></div-->
 		<div class="inline grade"></div>
@@ -128,7 +131,7 @@
 	<div class="block">
 		<h3 class="block-title">精選作品</h3>
 		<div class="inner" style="">
-			<div>請等候助檢核選完成</div>
+			<div>請等候助教檢核選完成</div>
 		</div>	
 	</div>
 	<div class="block">
@@ -162,9 +165,11 @@ if (currentUser){
 				var qU = new Parse.Query(Parse.User);
 				qU.equalTo("ID",test_uid);
 				qU.first().then(function(s){
-					alert("你的play.js和Bug.js的視角為:"+s.get("name"));
-					currentUser = s ;
-					console.log (currentUser);
+					if (paraCheck(s)){
+						alert("你的play.js和Bug.js的視角為:"+s.get("name"));
+						currentUser = s ;
+					}else{
+					}
 					PlayJs_start();
 				},Log);
 			}else{

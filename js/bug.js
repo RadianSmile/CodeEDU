@@ -114,7 +114,7 @@ function judgeStep(bugRecord){
 		}
 	}
 	
-	s = a ? b ? c ? 4 : 3 : 2  : 1 ; console.log ("step :"+s);
+	s = a ? b ? c ? 4 : 3 : 2 : 1 ; console.log ("step :"+s);
 	return  s ;
 }
 
@@ -200,7 +200,7 @@ function getBugHtml (b,relation,step)
 		<div class="bug-func-btns">\
 			<div class="bug-bugger-control">\
 				<div class="bug-step" data-bugStep="-1">\
-					<div class="bug-status bug-notExist"  data-toggle="tooltip" data-placement="left" title="BUG已經被助教確定為不存在">X</div>\
+					<div class="bug-status bug-notExist"  data-toggle="tooltip" data-placement="left" title="BUG並不存在"><span class="glyphicon glyphicon-remove-circle"></span></div>\
 				</div>\
 				<div class="bug-step bug-func-btns" data-bugStep="0">\
 					<div class="bug-status bug-waiting-ta-check" data-toggle="tooltip" data-placement="left" title="BUG被否認，等待助教審核中"><span class="glyphicon  glyphicon-eye-open"></span></div>\
@@ -224,16 +224,16 @@ function getBugHtml (b,relation,step)
 			</div>\
 			<div class="bug-reporter-control">			\
 				<div class="bug-step" data-bugStep="-1">\
-					<div class="bug-status bug-notExist"  data-toggle="tooltip" data-placement="left" title="BUG已經被助教確定為不存在">X</div>\
+					<div class="bug-status bug-notExist"  data-toggle="tooltip" data-placement="left" title="BUG並不存在"><span class="glyphicon glyphicon-remove-circle"></span></div>\
 				</div>\
 				<div class="bug-step bug-func-btns" data-bugStep="0">\
 					<div class="bug-status bug-waiting-ta-check" data-toggle="tooltip" data-placement="left" title="BUG被否認，等待助教審核中"><span class="glyphicon glyphicon-eye-open"></span></div>\
 				</div>\
 				<div class="bug-step" data-bugStep="1">\
-					<div class="bug-status bug-waiting-accept"  data-toggle="tooltip" data-placement="left" title="等待作者承認中"><span class="glyphicon glyphicon-question-sign"></span></div>\
+					<div class="bug-status bug-waiting-accept"  data-toggle="tooltip" data-placement="left" title="等待遊戲作者承認中"><span class="glyphicon glyphicon-question-sign"></span></div>\
 				</div>\
 				<div class="bug-step" data-bugStep="2">\
-					<div class="bug-status bug-waiting-update" data-toggle="tooltip" data-placement="left" title="等待作者更新中"><span class="glyphicon glyphicon-time"></span></div>\
+					<div class="bug-status bug-waiting-update" data-toggle="tooltip" data-placement="left" title="等待遊戲作者更新中"><span class="glyphicon glyphicon-time"></span></div>\
 				</div>\
 				<div class="bug-step bug-func-btns" data-bugStep="3">\
 					<a class="pass-bug-btn bug-func-btn "  data-toggle="tooltip" data-placement="left" title="作者成功解除BUG"><span class="glyphicon glyphicon-ok"></span></a>\
@@ -248,7 +248,19 @@ function getBugHtml (b,relation,step)
 			</div>\
 			<div class="bug-guest-control" >\
 				<div class="bug-step" data-bugStep="-1">\
-					<div class="bug-status bug-notExist"  data-toggle="tooltip" data-placement="left" title="BUG已經被助教確定為不存在">X</div>\
+					<div class="bug-status bug-notExist"  data-toggle="tooltip" data-placement="left" title="BUG並不存在"><span class="glyphicon glyphicon-remove-circle"></span></div>\
+				</div>\
+				<div class="bug-step bug-func-btns" data-bugStep="0">\
+					<div class="bug-status bug-guest-waiting-resolve" data-toggle="tooltip" data-placement="left" title="處理中"><span class="glyphicon glyphicon-time"></span></div>\
+				</div>\
+				<div class="bug-step" data-bugStep="1">\
+					<div class="bug-status bug-guest-waiting-resolve" data-toggle="tooltip" data-placement="left" title="處理中"><span class="glyphicon glyphicon-time"></span></div>\
+				</div>\
+				<div class="bug-step" data-bugStep="2">\
+					<div class="bug-status bug-guest-waiting-resolve" data-toggle="tooltip" data-placement="left" title="處理中"><span class="glyphicon glyphicon-time"></span></div>\
+				</div>\
+				<div class="bug-step" data-bugStep="3">\
+					<div class="bug-status bug-guest-waiting-resolve" data-toggle="tooltip" data-placement="left" title="處理中"><span class="glyphicon glyphicon-time"></span></div>\
 				</div>\
 				<div class="bug-step" data-bugStep="4">\
 					<div class="bug-status bug-resolved" data-bugStep="4"  data-toggle="tooltip" data-placement="left" title="已經解除霸個"><span class="glyphicon glyphicon-ok-circle"></span></div>\
@@ -256,26 +268,26 @@ function getBugHtml (b,relation,step)
 			</div>\
 			<div class="bug-ta-control">\
 				<div class="bug-step" data-bugStep="-1">\
-					<div class="bug-status bug-notExist"  data-toggle="tooltip" data-placement="left" title="BUG已經被核定為不存在">X</div>\
+					<div class="bug-status bug-notExist"  data-toggle="tooltip" data-placement="left" title="BUG已經被核定為不存在"><span class="glyphicon glyphicon-remove-circle"></span></div>\
 				</div>\
 				<div class="bug-step bug-func-btns" data-bugStep="0">\
-					<a class="ta-accept-bug-btn bug-func-btn" data-toggle="tooltip" data-placement="left" title="強制作者承認這筆BUG" ><span class="glyphicon glyphicon-ok"></span></a>\
+					<a class="ta-accept-bug-btn bug-func-btn" data-toggle="tooltip" data-placement="left" title="這筆BUG是存在的" ><span class="glyphicon glyphicon-ok"></span></a>\
 					<a class="ta-reject-bug-btn bug-func-btn" data-toggle="tooltip" data-placement="left" title="同意作者，BUG並不存在" ><span class="glyphicon glyphicon-remove"></span></a>\
 				</div>\
 				<div class="bug-step" data-bugStep="1">\
-					<div class="bug-status bug-waiting-accept"  data-toggle="tooltip" data-placement="left" title="等待作者承認中">認</div>\
+					<div class="bug-status bug-waiting-accept"  data-toggle="tooltip" data-placement="left" title="等待遊戲作者承認中">認</div>\
 				</div>\
 				<div class="bug-step" data-bugStep="2">\
-					<div class="bug-status bug-waiting-update" data-toggle="tooltip" data-placement="left" title="等待作者更新中">更</div>\
+					<div class="bug-status bug-waiting-update" data-toggle="tooltip" data-placement="left" title="等待遊戲作者更新中">更</div>\
 				</div>\
 				<div class="bug-step" data-bugStep="3">\
 					<div class="bug-status bug-waiting-check" data-toggle="tooltip" data-placement="left" title="等待呈報者審核中">審</div>\
 				</div>\
 				<div class="bug-step" data-bugStep="4">\
-					<div class="bug-status bug-resolved" data-bugStep="4"  data-toggle="tooltip" data-placement="left" title="已經解除霸個">V</div>\
+					<div class="bug-status bug-resolved" data-bugStep="4"  data-toggle="tooltip" data-placement="left" title="已經解除霸個"><span class="glyphicon glyphicon-ok-circle"></span></div>\
 				</div>\
 				<div class="bug-step bug-func-btns" data-bugStep="5">\
-					<a class="ta-pass-bug-btn bug-func-btn "  data-toggle="tooltip" data-placement="left" title="作者有成功解除BUG"><span class="glyphicon glyphicon-ok"></span></a>\
+					<a class="ta-pass-bug-btn bug-func-btn "  data-toggle="tooltip" data-placement="left" title="遊戲作者有成功解除BUG"><span class="glyphicon glyphicon-ok-circle"></span></a>\
 					<a class="ta-fail-bug-btn bug-func-btn "  data-toggle="tooltip" data-placement="left" title="同意舉報者，作者沒有成功解除BUG"><span class="glyphicon glyphicon-remove"></span></a>\
 				</div>\
 			</div>\

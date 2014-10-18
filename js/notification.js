@@ -43,8 +43,6 @@ $(document).ready(function (e){
 
 function initNotification(nu){
 	moment.locale('zh-TW');
-
-    Parse.initialize("9eo5r1mHWoIPSTCzmrpdKa3lcHPjySx4y5D6q8Nq", "R8SWwYxpJcy73ogQKuSD43y7FigrlDGjBLcy1lzC");
     if(notification_user){
 			var EI = [] ;
         function getEventInfo (){
@@ -65,7 +63,7 @@ function initNotification(nu){
         query3.equalTo('target', notification_user);
         query3.find({
            success:function(data){ // evetRecord
-						var saveArr = []
+						var saveArr = [] ;
                 for(var i = 0; i<data.length; i++){
                     
                     var eid = data[i].get('eid');
@@ -227,9 +225,14 @@ function getRecord(data){
 }
 
 function eventRecord(data, data1){ // Event Record , Event Info
-		var isBug = data1.get("tyep") === 'b' ;
-		var bid = "#" + isBug ? "<span class='bidText'>(霸個 " +JSON.parse(data.get("note")).bid + ")</span> " : "" ;
-		
+		var isBug = (data1.get("type") === 'b') ;
+		var bid = "";
+		if (isBug){
+			var note = data.get("note") ;
+			var noteObj = note ? JSON.parse(note) : false ; 
+			var makerName = noteObj ? paraCheck(JSON.parse(data.get("note")).makerName) ? JSON.parse(data.get("note")).makerName: "": "" ;
+			bid = makerName ? "<span class='bidText'><span class='bugger'>(" + makerName  +" </span> 的霸個 )</span><br>" : "" ;
+		}
     var eventdes = data1.get('description');
         console.log (eventdes);
     var createTime = data.createdAt;
@@ -249,7 +252,7 @@ function eventRecord(data, data1){ // Event Record , Event Info
         var cdStr = (cd !== 0) ? (cd > 0 ) ? '卡片增加了'+Math.abs(cd)+"張，" : '的卡片減少了'+Math.abs(cd)+"張，": '' ; 
         s = start + xpStr + hpStr + cdStr;
         s = s.slice(0,-1) + "。";
-    container =  "<span class = 'glyphicon glyphicon-info-sign' style = 'white-space: nowrap;'></span>" + bid+"<br>" +eventdes+s+"<span class = 'time-gray-color'>"+m+"</span></div>";
+    container =  "<span class = 'glyphicon glyphicon-info-sign' style = 'white-space: nowrap;'></span>" + bid +eventdes+s+"<span class = 'time-gray-color'>"+m+"</span></div>";
 /*=======
     if(hp >=0){
         s = "因為" + eventdes + "，所以造成你的XP增加" + xp +"、你的HP增加" + hp + "、你的抽卡機會增加" + draw + "次。";

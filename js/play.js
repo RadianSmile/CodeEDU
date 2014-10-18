@@ -149,7 +149,7 @@ function showElect (other){
 	//console.log (other);
 	var n = other.get("maker").get("name"),
 			p = other.get("maker").get("photo"),
-			g = other.get("grade") ? other.get("grade") : "沒有成績",
+			g = other.get("grade") ? other.get("grade") : "成績尚未公佈",
 			s = other.get("star") ? genStars(other.get("star")) : "";
 			t = other.get("isBest") ? '<span class="glyphicon glyphicon-bookmark"></span>'  : "";
 			h = other.get("url"),
@@ -195,6 +195,8 @@ function PlayJs_start (){
 	qurAssign(asnId).then(function(a){
 		var url = a.get("url") ;
 		var maker = a.get("maker");
+		var $profileLinkEle = $("#profile-link") ;
+		$profileLinkEle.attr("href","profile.html?aid=" + maker.get("ID"));
 		currentAssign = a ;
 		
 		nth = a.get("nth");  
@@ -231,10 +233,9 @@ function PlayJs_start (){
 		showPlay (url); 
 		$(".maker-name").text(maker.get("name"));
 		$(".maker-photo").append('<img src="'+maker.get("photo")+'" height="50" width="50">');
-		
 
 		$(".count").text(a.get("count"));
-		var g =  a.get("grade") ? a.get("grade") : "尚未評分";
+		var g = a.get("grade") ? (" 獲得的評等：" + a.get("grade")) : "成績尚未公佈"  ;
 		$(".grade").text(g);
 		if (a.get("isBest")) $(".main-isBest").fadeIn();
 		

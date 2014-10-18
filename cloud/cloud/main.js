@@ -151,13 +151,17 @@ Parse.Cloud.beforeSave ("Bug_Record",function (rq,rp){
 
 	
 	var noteObject ;
-	assign.fetch ().then(function (a){
-		noteObject = {"aid":assign.id, "bid":bugRecord.id,"nth":assign.get("nth") };
+	var A = Parse.Object.extend("Assign");
+	var qA = new Parse.Query (A);
+	qA.include("maker");
+	qA.get(assign.id).then(function (a){
+		noteObject = {"aid":a.id, "bid":bugRecord.id,"nth":a.get("nth"),"makerName":a.get("maker").get("name")};
 		bugNoti().then(function(s){
 			rp.success()	;
 		},function (e){
 			rp.error(e.message);
-		})
+		});
+		
 		
 	},function (e){rp.error(e.message)
 	});
@@ -254,7 +258,9 @@ Parse.Cloud.beforeSave ("Bug_Record",function (rq,rp){
 								sendEvent(reporter,99,noteObj);
 								sendEvent(bugger,89,noteObj);
 								
-								bugRecord.unset("isSolved");
+								bugRecord.unset("isSolved");   
+								bugRecord.unset("isUpdated") ;
+								
 								bugRecord.unset("taSolved");
 								addLog(bugRecord,"助教評訂未通過");
 								
@@ -1032,7 +1038,7 @@ Parse.Cloud.job("Grading",function(rq,rp){
 	function sendGradEvent(a){
 		var m = a.get('maker') ;
 		var g = a.get("grade");
-		var noteObj = { "aid":m.id , "grade":g} ;
+		var noteObj = { "aid":a.id , "grade":g} ;
 		var note = JSON.stringify(noteObj);
 		var eid = 0 ;
 		switch(g){
@@ -1051,6 +1057,7 @@ Parse.Cloud.job("Grading",function(rq,rp){
 			undoneReviewUserArr.push(reviewer);
 		}
 	}
+
 	
 	function sendBugNotifi(nth){
 		var BugRecord = Parse.Object.extend("Bug_Record");
@@ -1060,9 +1067,13 @@ Parse.Cloud.job("Grading",function(rq,rp){
 		qBug.notEqualTo("isDoneNoti",true);
 		return qBug.find().then(function(bugRecords){
 			each(bugRecords,function(bugRecord){
-				console.log (bugRecord.get("assign").get("nth"));
+				var a = bugRecord.get("assign") ;	
+				var noteObject = {"aid":a.id, "bid":bugRecord.id,"nth":a.get("nth"),"makerName":a.get("maker").get("name")};
+				var noteObj = JSON.stringify(noteObject);
+				//console.log (a.get("nth"));
 				if (bugRecord.get("assign").get("nth") == nth ){
 					bugRecord.set("isDoneNoti",false);
+					bugRecord.set("note",noteObj);
 					saveBugArr.push(bugRecord);
 				}
 			});
@@ -1073,7 +1084,7 @@ Parse.Cloud.job("Grading",function(rq,rp){
 	function Log (e){console.log(e);}
 	
 });
-//
+//---------
 Parse.Cloud.job("sendBugNotifi",function(rq,rp){
 	var nth = rq.params.nth ;
 	sendBugNotifi (nth)
@@ -1228,7 +1239,7 @@ function getObjectByAttrVal (Arr, attr , val){
 	return Arr[Arr.getIndexByAttr(attr,val)];
 }
 function addLog(Obj , newLog){
-	var l = Obj.get("log");
+	var l = paraCheck(Obj.get("log")) ? Obj.get("log") : "";
 	Obj.set("log", l + ", " + newLog);
 	return Obj ;
 }

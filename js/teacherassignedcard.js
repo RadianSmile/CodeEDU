@@ -1,5 +1,4 @@
 $(document).ready(function(){
-	Parse.initialize("9eo5r1mHWoIPSTCzmrpdKa3lcHPjySx4y5D6q8Nq", "R8SWwYxpJcy73ogQKuSD43y7FigrlDGjBLcy1lzC");
 	//jquery-ui autocomplete!
 	var card_name=[{label:"加生命值卡"},
                              {label:"再抽一張卡"},
