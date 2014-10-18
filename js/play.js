@@ -140,7 +140,7 @@ function showFB (href){
 	FB.XFBML.parse(likeEle);
 }
 function FBinitDone(){
-	console.log ("document.fbinitDine!!!!!!!!!!!");
+	console.log ("document.fbinitDine!");
 	showFB (document.location);
 }
 
@@ -175,6 +175,7 @@ function genStars(s){
 
 
 function PlayJs_start (){
+	console.log ("PlayJs_start");
 	var AsnArr ;
 	var srh = getQueryString () ,
 			asnId =   srh.aid,//typeof (srh.asn) === 'undefined' ? "LbQeJFDvRT" : srh.asn ,
@@ -245,8 +246,9 @@ function PlayJs_start (){
 			console.log(asnId);
 			qurBugs(asnId).then(function(bs){
 				console.log ("bug pull done " +bs.length);
-				if (currentAssign.get("maker").id === currentUser.id){
-					$("#add-bug-container").remove();
+				if (currentUser && (currentAssign.get("maker").id === currentUser.id)){
+					$('div').remove("#add-bug-container");
+					
 				}
 				if (bs.length === 0){			
 					$(".bug-pane").prepend('<div class="no-bug-info">太強了！沒有任何霸個！</div>');
