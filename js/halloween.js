@@ -9,13 +9,8 @@ function halloween(){
     success:function(alluser){
       for(var i = 0; i<alluser.length; i++){
         var count = 0;
-        var user = Parse.Object.extend('User');
-        var query = new Parse.Query(user);
-        query.equalTo('objectId', alluser[i].id);
-        query.first({
-          success:function(selectuser){
-            console.log(selectuser);
-            var userrole = selectuser.get('role');
+            var userrole = alluser.get('User').get('role');
+            console.log(alluser.get('User'));
             if(userrole == "student"){
               count++;
               if(count <= 30){
@@ -61,8 +56,6 @@ function halloween(){
                 })
               }
             }
-          }
-        })
       }
     }
   })
