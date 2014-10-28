@@ -11,9 +11,9 @@ function halloween(){
         var user = Parse.Object.extend('User');
         var query = new Parse.Query(user);
         query.equalTo('objectId', alluser[i].id);
-        console.log(alluser[i].id);
         query.first({
           success:function(selectuser){
+            console.log(selectuser);
             var userrole = selectuser.get('role');
             if(userrole == "student"){
               count++;
