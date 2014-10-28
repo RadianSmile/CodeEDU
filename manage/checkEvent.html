@@ -9,11 +9,11 @@
 <!----><script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
 <!----><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 <!----><script type="text/javascript" src="//www.parsecdn.com/js/parse-1.2.19.min.js"></script>
-<!-- key--><script type="text/javascript" src="js/key.js"></script>
-<!----><link href="css/all.css" rel="stylesheet" />
+<!-- key--><script type="text/javascript" src="../js/key.js"></script>
+<!----><link href="../css/all.css" rel="stylesheet" />
 				<script src="https://code.jquery.com/ui/1.11.2/jquery-ui.min.js"></script>
 				<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
-<!----><script src="js/all.js"></script>
+<!----><script src="../js/all.js"></script>
 <!---------------------->
 <style>
 </style>
@@ -22,5 +22,45 @@
 <title>Codedu</title>
 </head>
 <body>
+
+
+<script>
+  $(function() {
+    $( "#datepicker" ).datepicker({ altFormat: "yyyy-mm-dd" });
+  });
+</script>
+
+
+
+<p>Date: <input type="text" id="datepicker"></p>
+ 
+ 
+<div id="output">
+
+</div>
+ 
+ <script>
+ 
+ $("#datepicker").on('change',function (){
+	 var currentDate = $( "#datepicker" ).datepicker( "getDate");
+	 console.log (currentDate);
+ });
+ 
+ 
+ 
+ 
+var EC = {  // EventCheck  controller 
+	update : function (date){
+		var end = date.addDays (1);
+	},
+	makQuery : function (){
+		
+	}
+	
+
+	 
+} ;
+ </script>
+ 
 </body>
 </html>

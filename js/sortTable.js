@@ -4,6 +4,7 @@ var idArr = [] ;
 var u = Parse.Object.extend("User_status");
 var q =  new Parse.Query (u);
 q.include("User");
+q.notEqualTo("role","student_deleted");
 q.find().then(function(s){
 	var arr = [] ;
 	for (var i = 0 ; i < s.length ; i++){

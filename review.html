@@ -519,7 +519,6 @@ $(document).on('click' ,".submit-bug",function (e){
 				bugRecord.set("assign",assign);
 				bugRecord.set("bugger",bugger);
 				bugRecord.set("img",img);
-				bugRecord.set("isDoneNoti",true); // 這樣Cloud Code 就不會寄送任何通知
 				bugRecord.set("des",des);
 				return bugRecord.save();
 			}).then (function(bugRecord){

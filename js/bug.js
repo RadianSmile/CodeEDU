@@ -368,7 +368,6 @@ function updateBugStatus (e){
 	}
 	
 	bug.set(e.data.attr , e.data.val );
-	bug.set("isDoneNoti",false);
 
 	bug.save().then(function(b){
 		return getBug(b.id);
@@ -526,7 +525,6 @@ function Validate(oForm) { // http://stackoverflow.com/questions/4234589/validat
 
 
 function highLightBug (){
-	alert("sdafasfas");
 	var srh = getQueryString ();
 	if (paraCheck(srh.bid)){
 		$("#"+srh.bid).addClass("highLight");

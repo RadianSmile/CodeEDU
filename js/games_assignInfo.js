@@ -6,7 +6,7 @@ function qurAssignInfo (){
 
 
 function showAsnInfoOnGames (asnInfos ,nth ){
-	var currentAsnInfo = getObjectByAttrVal (asnInfos, "nth" , nth);
+	var currentAsnInfo = asnInfos//getObjectByAttrVal (asnInfos, "nth" , nth);
 	var imgUrl = "img/games/light-0"+nth+".png" ;
 	var intro = currentAsnInfo.get("intro");
 	var req = currentAsnInfo.get("req");

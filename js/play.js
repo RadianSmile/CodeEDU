@@ -146,12 +146,12 @@ function FBinitDone(){
 
 // 精選作品
 function showElect (other){
-	//console.log (other);
+	
 	var n = other.get("maker").get("name"),
 			p = other.get("maker").get("photo"),
 			g = other.get("grade") ? other.get("grade") : "成績尚未公佈",
 			s = other.get("star") ? genStars(other.get("star")) : "";
-			t = other.get("isBest") ? '<span class="glyphicon glyphicon-bookmark"></span>'  : "";
+			//t = other.get("isBest") ? '<span class="glyphicon glyphicon-bookmark"></span>'  : "";
 			h = other.get("url"),
 			
 			$p = $(".others  .inner").first();
@@ -160,8 +160,8 @@ function showElect (other){
 				<span class="other-head"><img src="'+p+'"></span>\
 				<span class="other-name">'+n+'</span>\
 				<span class="other-grade">'+g+'</span>\
-				<span class="other-best">'+t+'</span>\
-				<span class="other-star">'+s+'</span>\
+				<!--span class="other-best"></span-->\
+				<!--span class="other-star">'+s+'</span-->\
 			</a>';
 	$p.append(html);
 }
@@ -197,7 +197,7 @@ function PlayJs_start (){
 		var url = a.get("url") ;
 		var maker = a.get("maker");
 		var $profileLinkEle = $("#profile-link") ;
-		$profileLinkEle.attr("href","profile.html?aid=" + maker.get("ID"));
+		$profileLinkEle.attr("href","profile.html?uid=" + maker.get("ID"));
 		currentAssign = a ;
 		
 		nth = a.get("nth");  
@@ -266,7 +266,10 @@ function PlayJs_start (){
 		
 		
 		qurElectAssigns(nth).then(function (assigns){
-		each(assigns,showElect);
+			if (paraCheck(assigns)){
+				$(".others").find(".blank-intro").hide();
+				each(assigns,showElect);
+			}
 	});
 		
 	},function (e){console.log(e);})

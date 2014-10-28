@@ -56,10 +56,6 @@ tr:hover , tr:hover td {
 </style>
 <script>
 
-var srh = getQueryString();
-if (!paraCheck(srh.nth,"系統偵測不到你要看的遊戲，\n請返回首頁重新選取")) document.location = "index.html";
-	 
-
 
 
 </script>
@@ -95,6 +91,13 @@ if (!paraCheck(srh.nth,"系統偵測不到你要看的遊戲，\n請返回首頁
 </div>
 
 <script>
+function 	getAsnInfo (nth){
+	var Assign = Parse.Object.extend("Assign_Info");
+	var q = new Parse.Query(Assign);
+	q.equalTo("nth",nth);
+	return q.find();
+}
+
 function qurAssigns ( nth ,descendBy) {
 	var Assign = Parse.Object.extend("Assign");
 	var q = new Parse.Query(Assign);
@@ -133,22 +136,46 @@ function showAssign (a){
 }
 
 
-(function start (){
+function games_start (){
 	var srh = getQueryString ();
 	var nth = srh.nth ;
 	//srh.nth = paraCheck(srh.nth) ? srh.nth : "1" ;
 	//srh.nth = "1";
-	qurAssigns(srh.nth).then(function(assigns){
-		each(assigns,showAssign);	
-	});
-	
-	
-	qurAssignInfo().then(function(asnInfos){
-		showAsnInfoOnGames(asnInfos,nth)
+	getAsnInfo(nth).then(function (s){
 		
-	},Log);
+		s = getObjectByAttrVal (s, "nth" , nth);
+		if (!paraCheck(s)){
+			alert("沒有這份遊戲，\n系統將跳返回首頁");
+			reloadToIndex();
+			return false ;
+			
+		}
+		showAsnInfoOnGames(s,nth) ;
+		var openDate = s.get("reviewDue");
+		var now = new Date () ;
+		if ( now > openDate) {
+			qurAssigns(srh.nth).then(function(assigns){
+				each(assigns,showAssign);	
+			});
+		}else{
+			alert("遊戲 " +s.get("name") +" 尚未開放，\n系統將跳返回首頁");
+			reloadToIndex();
+		}
+		
+	})
 	
-})();
+};
+
+var srh = getQueryString();
+if (!paraCheck(srh.nth,"系統偵測不到你要看的遊戲，\n請返回首頁重新選取")) {
+	document.location = "index.html";
+}else{
+	games_start () ;
+}
+
+
+
+
 
 
 $(document).on('click',".assigns tr",function(e){

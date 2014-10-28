@@ -168,7 +168,7 @@ Parse.Cloud.beforeSave ("Bug_Record",function (rq,rp){
 		var p = new Parse.Promise ();
 		var noteObj = JSON.stringify(noteObject);
 
-		if (isDoneNoti === true){ // 不做任何事情
+		if (isDoneNoti === true || typeof(isDoneNoti) === 'undefined'){ // 不做任何事情
 			p.resolve(true);
 			return p ;							
 		}else{ 
@@ -889,8 +889,8 @@ Parse.Cloud.job("Grading",function(rq,rp){
 	
 	var AssignArr = [] ;
 	
-	sendBugNotifi(nth)
-		.then(getAssign)
+	//sendBugNotifi(nth)
+	getAssign()
 		.then(doGrading,function (e){rp.error(e.message)});
 	
 	var gradeToStrRef = [];
@@ -907,7 +907,7 @@ Parse.Cloud.job("Grading",function(rq,rp){
 	
 	function successPlus(a){
 		successCount++;
-		rp.message("success " + successCount +" "+a.id);
+		rp.message("suc " + successCount);
 		if (successCount === assignNum ){
 			each(undoneReviewUserArr,function(u){
 				sendEvent(u,42);
@@ -921,13 +921,18 @@ Parse.Cloud.job("Grading",function(rq,rp){
 		console.log ("assignNum " + assignNum.toString());
 		for (var i = 0 ; i < AssignArr.length ; i++){
 			
-			if (AssignArr[i].get("maker").get("role") !== 'student'){ continue ;}
+			if (AssignArr[i].get("maker").get("role") !== 'student'){ 
+				successPlus();
+				continue ;
+			}
 
 			getRecordByAssign(AssignArr[i])
 			.then(singleGrading)
 			.then(function(a){
 				console.log(a.id+" grade "+a.get("grade") );		
 				
+				successPlus(a);
+				/*
 				console.log (a.get("note"));
 				// 判斷這是不是沒有繳交的作業; 
 				if ( a.get("note")==="uncomplete" || a.get("note")==="overtime" ){ // 如果是沒有繳交的作業，就不用再重複事件了
@@ -943,6 +948,7 @@ Parse.Cloud.job("Grading",function(rq,rp){
 						rp.error('fail to save a assign');	
 					});
 				}
+				*/
 			},function(e){
 				rp.error('fail to save a assign');	
 			});
@@ -953,24 +959,30 @@ Parse.Cloud.job("Grading",function(rq,rp){
 		console.log("Record Length "+r.length.toString());
 		var p = new Parse.Promise();
 		var star = 0 ;
-		var total = 0 ;
-		var count = 0 ;
+		//var total = 0 ;
+		var countArr = new Object ();
+		countArr["A"] = 0;
+		countArr["B"] = 0;
+		countArr["C"] = 0;
+		countArr["X"] = 0;
 		for (var i = 0 ; i < r.length ; i++){
 			var g = r[i].get("grade") ;
-			if (typeof (g) !== 'undefined'){ 
-				total += gradeToNumRef[g];
-				count++;
+			if (typeof (g) !== 'undefined'){ 		
+				// 多數決
+				countArr[g] += 1 ;	
 			}else {
 				undoneReview(r[i]);
 			}
 			//console.log (r[i].get("star"));
 			r[i].get("star") ? star++ : star ;
 		}
-		var avg = Math.round(total/ count) ;
+		//var avg = Math.round(total/ count) ;
+		var final = gradeToNumRef[getMaxGrade(countArr)];
+		
 		
 		for (i = 0 ; i < r.length ; i++){
 			var g = r[i].get("grade") ;
-			var d = gradeToNumRef[g] - avg ;
+			var d = gradeToNumRef[g] - final ;
 			var note = "" ;
 			if (typeof g !== 'undefined'){
 				switch (d){
@@ -985,7 +997,7 @@ Parse.Cloud.job("Grading",function(rq,rp){
 			}else{
 				note = "uncomplete"; // 沒有評分
 			}
-			r[i].set("final", gradeToStrRef[avg]);
+			r[i].set("final", gradeToStrRef[final]);
 			r[i].set("variaty", d );
 			r[i].set("note", note );
 		}
@@ -999,7 +1011,8 @@ Parse.Cloud.job("Grading",function(rq,rp){
 		
 		console.log ("review Record : " + r[0].id);
 		var assign = r[0].get("assign");
-		assign.set("grade",gradeToStrRef[avg]);
+		assign.set("grade_rev_sys",gradeToStrRef[final]);
+		assign.set("grade",gradeToStrRef[final]);
 		assign.set("star",star);
 		return assign.save();
 	}
@@ -1032,7 +1045,16 @@ Parse.Cloud.job("Grading",function(rq,rp){
 		q.limit(1000);
 		return q.find();
 	}
-	
+	function getMaxGrade (gc){
+		var M = "C" ;
+		M = bigger(gc,"C","B");
+		M = bigger(gc,M,"A");	
+		M = bigger(gc,M,"X");	
+		return M ;
+		function bigger(arr,a,b){
+    	return (arr[a] >= arr [b])  ? a : b ; 
+		}
+	}
 	function sendGradEvent(a){
 		var m = a.get('maker') ;
 		var g = a.get("grade");
@@ -1044,7 +1066,7 @@ Parse.Cloud.job("Grading",function(rq,rp){
 			case "B": eid = 33; break; 
 			case "C": eid = 32; break; 
 			case "X": eid = 31; break; 
-			default : console.log ("No Grade : "+a.id ) ;
+			default : eid = 30; console.log ("No Grade : "+a.id ) ;
 			//rp.error("aoid "+a.id+" "+g+" wrong grade! why ?");
 		}
 		return sendEvent(m,eid,note);
@@ -1062,7 +1084,8 @@ Parse.Cloud.job("Grading",function(rq,rp){
 		var saveBugArr = [] ;
 		qBug = new Parse.Query (BugRecord);
 		qBug.include("assign");
-		qBug.notEqualTo("isDoneNoti",true);
+		qBug.limit(10000);
+		qBug.doesNotExist("isDoneNoti");
 		return qBug.find().then(function(bugRecords){
 			each(bugRecords,function(bugRecord){
 				var a = bugRecord.get("assign") ;	
@@ -1082,6 +1105,81 @@ Parse.Cloud.job("Grading",function(rq,rp){
 	function Log (e){console.log(e);}
 	
 });
+
+
+
+Parse.Cloud.job("sendGradeEvent",function (rq,rp){
+	var params = rq.params ; 
+	var nth = params.nth ;
+	getAssign().then(function (Asns){
+		var l = Asns.length ;
+		console.log ("Sending Grade Event :  nth = " + nth + " , Asn length = " + l );
+		var i = 0 ;
+		each (Asns,function(a){
+			sendGradEvent(a).then(function(e){
+				console.log (e.get("eid").toString());
+				if (++i === l ){
+					console.log ("Send Done") ;
+					rp.success();
+				}
+			},function(e){
+				rp.error(e.message);
+			});
+		});	
+	},function(e){
+		rp.error(e.message);
+	});
+
+
+	function sendGradEvent(a){
+		var m = a.get('maker') ;
+		var g = a.get("grade");
+		var noteObj = { "aid":a.id , "grade":g} ;
+		var note = JSON.stringify(noteObj);
+		var eid = 0 ;
+		switch(g){
+			case "A": eid = 34; break; 
+			case "B": eid = 33; break; 
+			case "C": eid = 32; break; 
+			case "X": eid = 31; break; 
+			default : console.log ("No Grade : "+a.id ) ;
+			//rp.error("aoid "+a.id+" "+g+" wrong grade! why ?");
+		}
+		return sendEvent(m,eid,note);
+	}
+	function getAssign(){
+		var Assign = Parse.Object.extend("Assign");
+		var q = new Parse.Query (Assign);
+		q.include("maker");
+		q.equalTo('nth',nth);
+		q.limit(1000);
+		return q.find();
+	}
+});
+
+
+/*
+console.log (a.get("note"));
+// 判斷這是不是沒有繳交的作業; 
+if ( a.get("note")==="uncomplete" || a.get("note")==="overtime" ){ // 如果是沒有繳交的作業，就不用再重複事件了
+	console.log ("uncomplete");
+	successPlus (a);
+}else{
+	sendGradEvent(a).then(function(e){  
+		console.log ("userEventSend");
+		successPlus (a);
+	},function (e){
+		successCount++;
+		console.log ("event send fail, error : "+e.message);
+		rp.error('fail to save a assign');	
+	});
+}
+*/
+
+
+
+
+
 //---------
 Parse.Cloud.job("sendBugNotifi",function(rq,rp){
 	var nth = rq.params.nth ;
@@ -1090,7 +1188,7 @@ Parse.Cloud.job("sendBugNotifi",function(rq,rp){
 			var BugRecord = Parse.Object.extend("Bug_Record");
 			var saveBugArr = [] ;
 			qBug = new Parse.Query (BugRecord);
-			qBug.limit(20000);
+			qBug.limit(10000);
 			qBug.include("assign");
 			//qBug.notEqualTo("isDoneNoti",true);
 			return qBug.find().then(function(bugRecords){

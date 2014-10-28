@@ -1,5 +1,6 @@
 $(document).ready(function(){
-    if(current_user){
+    current_user = Parse.User.current();
+		if(current_user){
     	var user = Parse.Object.extend('User');
     	var query = new Parse.Query(user);
     	query.find({

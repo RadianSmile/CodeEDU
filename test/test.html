@@ -10,20 +10,32 @@
 <!----><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 <!----><script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.19.min.js"></script>
 <!----><link href="../css/all.css" rel="stylesheet" />
+<script type="text/jscript" src="../js/key.js"></script>
 <!----><script type="text/javascript" src="../js/all.js?1111"></script>
 <!---------------------->
 </head>
 <body>
 
+<div class="container">
+	<button class="btn btn-primary" onClick="testSearch();">ＦＢ測試</button>
+</div>
 <script>
-Parse.initialize("9eo5r1mHWoIPSTCzmrpdKa3lcHPjySx4y5D6q8Nq", "R8SWwYxpJcy73ogQKuSD43y7FigrlDGjBLcy1lzC");
-
-Parse.Cloud.run("getRole").then(function (r){
-	r.getUsers().add()
-	
-},Log);
 
 
+
+function testSearch(){
+	console.log ("aa");
+	FB.api(
+			"/hashtag_counts?hashtags[]=tbt&since=0",
+			function (response) {
+				console.log (response);
+				if (response && !response.error) {
+					/* handle the result */
+					console.log (response);
+				}
+			}
+	);
+}
 /*
 (function (){
 	var q = new Parse.Query(Parse.Role);

@@ -49,9 +49,9 @@ function addDashboardGameSHref(){
 		}else{ // 已經有發佈的遊戲
 			$e.css("display","block");
 			var asnInfo = AssignInfoArr[AIj];
-			if (j === -1){ // 代表沒有這份作業
-				if ( now > asnInfo.get("submitDate") ){
-					$e.attr('title',"上傳作業，繳交截止日期：" + asnInfo.get("reviewDate").toLocaleDateString() + asnInfo.get("reviewDue").toLocaleTimeString());
+			if (j === -1){ // 代表沒有交這份作業
+				if ( now > asnInfo.get("submitDate") && now < asnInfo.get("reviewDate")){
+					$e.attr('title',"上傳作業，繳交截止日期：" + asnInfo.get("reviewDate").toLocaleDateString() + asnInfo.get("reviewDate").toLocaleTimeString());
 					$e.data("toggle",'tooltip');
 				}else if (now > asnInfo.get("reviewDate")){ // 
 					$e.attr('title','遊戲未交');
@@ -169,7 +169,7 @@ $D.on('click',".submit-asnUrl",function(e){
 			var savingasn = new Asn();
 			savingasn.set("nth",nth);
 			savingasn.set("maker",currentUser);
-			savingasn.set("uid",currentUserObj.get('uid'))
+			savingasn.set("uid",currentUserObj.get('ID'))
 		}else {
 			savingasn = asn ;
 		}

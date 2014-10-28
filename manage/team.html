@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Untitled Document</title>
+<!-- Common links -->
+<!----><link rel="icon" type="image/png" href="/include/icon.png" />
+<!----><link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<!----><script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<!----><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<!----><script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.19.min.js"></script>
+<!----><link href="../css/all.css" rel="stylesheet" />
+<script type="text/jscript" src="../js/key.js"></script>
+<!----><script type="text/javascript" src="../js/all.js?1111"></script>
+<!---------------------->
+</head>
+<body>
+<select>
+	<option>以 組別人數 分組</option>
+	<option>以 組別數目 分組</option>
+</select>
+<script>
+
+
+function qurStd (){
+	var UserStatus = Parse.Object.extend("User_status");
+	var qUS = new Parse.Query(UserStatus);
+	qUS.include("User");
+	qUS.descending("XP");
+	return qUS.find();
+}
+
+var Group = [] ;
+var StdArr = [] ;
+var STD_NUM ;
+const PERSONS_IN_GROUP_NUM = 3 ;
+var SEPERATE_GROUP_NUM ;
+
+qurStd().then(function(US){
+	var i = 0 ; 
+
+	each(US,function(us){
+		
+		if (us.get("User").get("role") === "student"){
+			StdArr.push(us);
+		}
+	});
+	STD_NUM = StdArr.length ;
+	
+	
+	SEPERATE_GROUP_NUM = Math.ceil(STD_NUM / PERSONS_IN_GROUP_NUM); // 這裡一定要ceil
+	
+	
+	each(StdArr,function(us){
+		if (us.get("User").get("role") === "student"){
+			i++;
+			var group = Math.floor((i -1) / SEPERATE_GROUP_NUM ) ;
+			var IDingroup = i % SEPERATE_GROUP_NUM ;
+			if (!paraCheck(Group[group])) Group[group] = [] ;
+			Group[group].push(us);
+			document.write(i + "\t" +us.get("User").get("name") + "\t" + us.get("XP") + "<br>");
+		}
+		if ((i) % SEPERATE_GROUP_NUM === 0 ){
+			document.write("<br>"); 
+		}
+	}); // each 
+	console.log (Group);
+	
+	
+	
+	
+	var Team = [] ;
+	for (var j = 0 ; j < STD_NUM / PERSONS_IN_GROUP_NUM ; j++){
+		Team[j] = [] ;
+		for (var i = 0 ; i < PERSONS_IN_GROUP_NUM; i++){
+			var obj = Group[i].randomPop() ;
+			console.log (obj);
+			Team[j].push (obj);
+		}
+	}
+	console.log (Team);
+	
+	
+	// Print the Team Array ;
+	each (Team,function(team,i){
+		document.write("Team " + (i + 1) + "<br>");
+		Team[i]["ID"] = i + 1 ;
+		each(team,function(us,i){
+			console.log (us);
+			if (us){
+				var u = us.get("User");
+				var xp = us.get("XP");
+				document.write(u.get("ID") + "\t" + u.get("name") + "\t" + xp + "<br>" );
+				team[i] = new Object() ;
+				team[i]["name"] = u.get("name") ;
+				team[i]["ID"] = u.get("ID");
+				team[i]["XP"] = xp ;
+			}
+		});get
+		document.write("<br>");
+	});
+	
+	console.log (Team);	
+	Team["time"] = getPureDate();
+	var json = JSON.stringify(Team);
+	//console.log (json);
+	
+	var TeamOBJ = Parse.Object.extend("Team");
+	var teamOBJ = new TeamOBJ ();
+	teamOBJ.set("json",json);
+	teamOBJ.save().then(Log,Log);
+});
+
+
+
+
+
+
+</script>
+
+</body>
+</html>

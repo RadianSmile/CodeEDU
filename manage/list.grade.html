@@ -15,22 +15,91 @@
 <!----><script src="../js/all.js"></script>
 <!---------------------->
 <style>
-
+.changed {
+	background:rgba(189,236,232,1.00);
+}
+.mod {
+	background:rgba(223,223,223,1.00);
+	
+}
+.asn-row{
+	display:block;
+	line-height:150%;
+	font-size:20px;
+	
+}
 </style>
 <script>
 </script>
 <title>Codedu</title>
 </head>
 <body>
+<div id="apd" class="container">
+</div>
 
 
 <script>
 
-start();
+var Controller = {
+	saveArr : [] ,
+	
+	J : function (ID){
+		return $("#" + ID );
+	},
+
+	hightlight : function (ID){
+		this.J(ID).addClass("changed") ;
+	},
+	
+	pushID : function (ID){
+		if (this.saveArr.getIndexByOfValue(ID) === -1 ){
+			this.hightlight (ID);
+			this.saveArr.push(ID);
+		}
+	},
+
+
+
+	save : function (){
+		if (this.saveArr.length === 0) {
+			alert ("沒有東西要改變");
+			return false;
+		}
+		if (!confirm("確定送出?")){ return false;}
+		var saveAllArr = [] ;
+		each(this.saveArr,function(id){
+			var obj = pointer(id,"Assign");
+			var $t = $("#"+id) ;
+			var g = $t.find(".ta-grade").eq(0).val() ;
+			var s = $t.find(".isBestToggle").eq(0).hasClass("glyphicon-star") ;
+			obj.set("grade",g);
+			obj.set("isBest",s);
+			saveAllArr.push (obj)
+			//alert(id+" "+g+" "+s);
+		});
+		Parse.Object.saveAll (saveAllArr).then(function (s){
+			alert("成功！ Length: "+s.length)
+			Log (s);
+		},Log);
+	},
+	
+	
+}
+
+
+getViewerRole().then(function(r){
+	if (r === "TA" || r === "teacher"){
+		start();
+	}else{
+		alert("你沒有權限");
+		document.location = "../index.html";
+	}
+})
+
 
 function start(){
 	//var needArray = ["reviewer_name","reviewee_name","grade","final"];
-	var aNth  = "1";
+	var aNth  = "2";
 	
 	var RRArr = [];
 	var AsnArr = [] ;
@@ -39,11 +108,21 @@ function start(){
 		RRArr = records ;
 		qurAssigns(aNth).then(function(asns){
 			AsnArr = asns ; 
+			AsnArr.sort(function(a, b) {
+				return parseInt(a.get("maker").get("ID")) - parseInt(b.get("maker").get("ID"));
+			});
 			
 			each (AsnArr,function(asn){
 				
 				var ID = asn.get("maker").get("ID");
 				var name = asn.get("maker").get("name");
+				var star = asn.get("star") ;
+				var isBest = asn.get("isBest") ? true : false ;
+				var final = replaceUndefined(asn.get("grade_rev_sys"),"grade","缺");
+				var man_review = asn.get("grade") ;
+				
+				var mod = (final === man_review)  ? "" : "mod";
+				
 				if (asn.get("maker").get("role") !== 'student'){
 					return true ;
 				}
@@ -59,10 +138,48 @@ function start(){
 				
 				var btns = getAssignLinkBtn (asn);
 				
-				row +=asnGradeStr +  btns ;
-				document.write('<div class="row" style="line-height:150%;">' +row + "</div>" );
+				var optionHtml = '<select class="ta-grade" data-aid="'+aid+'" data-grade="'+man_review+'" >\
+						<option >A</option>\
+						<option>B</option>\
+						<option>C</option>\
+						<option>X</option></select>';
+						
+				$(optionHtml).find('select').val(man_review);
+						
+				var isBestClass = isBest ? "glyphicon-star" : "glyphicon-star-empty" ;
+				var isBestEle = '<span class="isBestToggle glyphicon ' + isBestClass +' "></span>' ; 
+				
+				row +=asnGradeStr + " 結果：" + star + "，" +final+" " +optionHtml+  btns + isBestEle ;
+				$("#apd").append('<div id="'+aid+'" class="'+mod+' asn-row" >' +row + "</div>" );
+			});
+			$("#apd").append('<button class="saveReReveiw btn btn-primary">儲存結果</button>');
+			$(".asn-row").each(function(i, e) {
+				var $s = $(e).find("select").first();
+				var g = $s.data("grade");
+				$s.find('option:contains("'+g+'")').attr("selected",true);
 			});
 			
+			$(document).on('click','.isBestToggle',function(){
+				var $t = $(this) ;
+				if ($t.hasClass("glyphicon-star")){
+					$(this).addClass("glyphicon-star-empty");
+					$(this).removeClass("glyphicon-star");
+				}else{
+					$(this).addClass("glyphicon-star");
+					$(this).removeClass("glyphicon-star-empty");
+				}
+				Controller.pushID( $t.closest(".asn-row").attr("id"));
+			});
+		
+			$(document).on('change','.ta-grade',function(){
+				var $t = $(this);
+				var $p = $t.closest(".asn-row");
+				Controller.pushID($p.attr("id"));
+				
+			});
+			$(document).on('click','.saveReReveiw',function (){
+				Controller.save();
+			});
 		});
 		
 		
@@ -71,6 +188,7 @@ function start(){
 	
 	
 }
+
 
 function getAssignLinkBtn(asn){
 	var btns =''; 
@@ -122,6 +240,8 @@ function ClassToDom (Objects,needAttrArr){
 function strToDom(str){
 	return str + "\t" 
 }
+
+
 
 
 </script>

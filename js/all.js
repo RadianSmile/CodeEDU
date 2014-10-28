@@ -146,13 +146,15 @@ function fb_login () {
 		});
 	});
 	
-	function reloadToDashBoard(){
-		document.location ="dashboard.html";	
-
-	}
 }
 
 
+function reloadToDashBoard(){
+	document.location ="dashboard.html";	
+}
+function reloadToIndex(){
+	document.location ="index.html";	
+}
 
 
 
@@ -170,7 +172,7 @@ $(document).on("click",".toTop",function(e){
 
 function scrollToEle(selector){
 	var pos = $(selector).offset().top - 70  ;
-	alert("scrollToEle");
+	//alert("scrollToEle");
    $('html, body').animate({scrollTop:(pos)}, '1000');
 }
 
@@ -204,7 +206,7 @@ function getViewerRole(){
 	}else {
 		p.resolve("guest");
 	}
-	return p ;
+	return p ;  // student || role || guest 
 }
 
 
@@ -214,6 +216,7 @@ function each (arr,func ){
 		func(arr[i] , i);
 	}
 }
+
 
 
 function qurClass (name) {
@@ -322,6 +325,12 @@ function renameClass (oldClass , newClass) {
 	},Log);
 }
 
+Array.prototype.randomPop = function (){
+	var l = this.length ; 
+	if ( l === 0 ){ return false ;}
+	var r = randBtw( 0, l -1);
+  return this.splice(r, 1)[0];
+}
 
 Array.prototype.getIndexByOfValue = function (value) {
     for (var i = 0; i < this.length; i++) {
@@ -491,4 +500,20 @@ function getFileName() {
 	url = url.substring(0, (url.indexOf("?") == -1) ? url.length : url.indexOf("?"));
 	url = url.substring(url.lastIndexOf("/") + 1, url.length);
 	return url;
+}
+
+function getPureDate(date){
+	var time = paraCheck(date) ? date : new Date ();
+	var y = time.getFullYear();
+	var m = time.getMonth();
+	var d = time.getDate();
+	time = new Date(y,m,d);
+	return time;
+}
+
+Date.prototype.addDays = function(days)
+{
+    var dat = new Date(this.valueOf());
+    dat.setDate(dat.getDate() + days);
+    return dat;
 }

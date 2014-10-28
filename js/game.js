@@ -135,7 +135,7 @@ function generateAssignInfo (nth) {
 		makeAsnInfoBtns();
 		return prepareModal ();
 	
-
+ 
 	function makeAsnInfoBtns (){
 		var submitDate = asnInfo.get("submitDate");
 		var reviewDate = asnInfo.get("reviewDate");
@@ -144,8 +144,8 @@ function generateAssignInfo (nth) {
 		console.log ("reviewDate: " +reviewDate.toLocaleString());
 		console.log ("reviewDue : " +reviewDue.toLocaleString());
 
-		var viewAllBtnDisable =	'<a class="btn btn-default assignInfo-link view-other" href="#" onclick="return false"  style="background:rgba(250,250,250,1) !important; ">檢視全體的遊戲 ( 開放時間：'+openDate+' ) </a>';
-		var viewAllBtn =	'<a class="btn assignInfo-main-btn btn-default assignInfo-link view-other" href="games.html?nth='+nth+'">檢視全體的遊戲</a>';
+		var viewAllBtnDisable =	'<a class="btn btn-default assignInfo-link view-other disabled" disabled="true" href="#" onclick="return false"  style="background:rgba(250,250,250,1) !important; ">檢視全體的遊戲 ( 開放時間：'+openDate+' ) </a>';
+		var viewAllBtn =	'<a class="btn btn-default assignInfo-main-btn  assignInfo-link view-other" href="games.html?nth='+nth+'">檢視全體的遊戲</a>';
 
 		var l ="";
 		if (submitDate > now) { 

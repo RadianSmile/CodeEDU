@@ -20,6 +20,8 @@ document.write('<nav class="navbar navbar-default navbar-fixed-top headroom " ro
 		<li data-toggle="tooltip" title="" class="nav-grading-btn hidden"><a href="review.html">Grading</a></li>\
 		<li class="nav-students-btn"><a data-toggle="modal" href="students.html" data-target="#students">Student List</a></li>\
 		<li class="nav-schedule-btn"><a data-toggle="modal" href="schedule.html" data-target="#schedule">Schedule</a></li>\
+		<li class="ta" style="display:none;"><a href="manage/list.grade.html">評訂成績</a></li>\
+\
 				</ul>\
 \
 				<ul class="nav navbar-nav navbar-right">\
@@ -113,4 +115,12 @@ function checkGradingTime (){
 	});
 }
 checkGradingTime();
+
+
+getViewerRole().then(function (s){
+	if (s === 'TA' || s === 'teacher'  ){
+		$('.ta').show();
+	}
+});
+
 

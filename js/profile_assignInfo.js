@@ -66,7 +66,7 @@ var UserAsns = [];
 		var p = new Parse.Promise();
 		var AI = Parse.Object.extend("Assign_Info");
 		var qAI =new Parse.Query(AI);
-		qAI.ascending("nth");
+		qAI.descending("nth");
 		//qAI.lessThan("submitDate",now); //這樣會造成 腳交作業之前的 會被排除
 		qAI.greaterThan("reviewDue",now);
 		qAI.first().then(function(s){
