@@ -8,11 +8,9 @@ function halloween(){
   query.find({
     success:function(alluser){
       for(var i = 0; i<alluser.length; i++){
-        var count = 0;
             var userrole = alluser[i].get('User').get('role');
-            console.log(alluser[i].get('User').get('role'));
             if(userrole == "student"){
-              count++;
+              var count = 0;
               if(count <= 30){
                 var cardinfo = Parse.Object.extend('Card_info');
                 var query = new Parse.Query(cardinfo);
@@ -26,6 +24,7 @@ function halloween(){
                     owncard.save(null, {
                       success:function(){
                         console.log("發放偷竊卡片卡成功!");
+                        count++;
                       },
                       error:function(error){
                         console.log(error);
