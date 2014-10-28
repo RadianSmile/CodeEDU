@@ -8,7 +8,8 @@ function halloween(){
     success:function(alluser){
       for(var i = 0; i<alluser.length; i++){
         var count = 0;
-        var userrole = alluser[i].get('role');
+        var userrole = alluser[i].get('User').get('role');
+        console.log(userrole);
         if(userrole == "student"){
           count++;
           if(count <= 30){
