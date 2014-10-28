@@ -19,7 +19,6 @@ function halloween(){
                 query.equalTo('objectId', "1PF6Z8XISA");
                 query.first({
                   success:function(stealcard){
-                    console.log(userobject);
                     var Owncard = Parse.Object.extend('Owncard');
                     var owncard = new Owncard();
                     owncard.set('user', userobject);
@@ -46,7 +45,7 @@ function halloween(){
                   success:function(lifecard){
                     var Owncard = Parse.Object.extend('Owncard');
                     var owncard = new Owncard();
-                    owncard.set('user', alluser[i]);
+                    owncard.set('user', userobject);
                     owncard.set('Card_info', lifecard);
                     owncard.save(null, {
                       success:function(){
