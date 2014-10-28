@@ -32,6 +32,9 @@ function halloween(){
                         console.log(error);
                       }
                     })
+                  },
+                  error:function(error){
+                    console.log(error.message);
                   }
                 })
               }
