@@ -7,9 +7,8 @@ function halloween(){
   query.include('User');
   query.find({
     success:function(alluser){
-      console.log(alluser.length);
-      var count = 0;
       for(var i = 0; i<alluser.length; i++){
+            var count = 0;
             var userrole = alluser[i].get('User').get('role');
             if(userrole == "student"){
               if(count <= 30){
@@ -18,6 +17,7 @@ function halloween(){
                 query.equalTo('objectId', "1PF6Z8XISA");
                 query.first({
                   success:function(stealcard){
+                    console.log(alluser[i]);
                     var Owncard = Parse.Object.extend('Owncard');
                     var owncard = new Owncard();
                     owncard.set('user', alluser[i]);
