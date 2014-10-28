@@ -7,10 +7,8 @@ function halloween(){
   query.include('User');
   query.find({
     success:function(alluser){
-      for(var i = 0; i<alluser.length; i++){
+      for(var i = 0; i<63; i++){
             var userrole = alluser[i].get('User').get('role');
-            console.log(alluser[i].get('User').get('role'));
-            console.log(userrole);
             if(userrole == "student"){
               var count = 0;
               if(count <= 30){
@@ -29,12 +27,12 @@ function halloween(){
                         count++;
                       },
                       error:function(error){
-                        console.log(error.message);
+                        console.log(error);
                       }
                     })
                   },
                   error:function(error){
-                    console.log(error.message);
+                    console.log(error);
                   }
                 })
               }
