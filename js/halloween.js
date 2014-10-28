@@ -9,10 +9,10 @@ function halloween(){
   query.find({
     success:function(alluser){
       for(var i = 0; i<alluser.length; i++){
-            var userobject = alluser[i];
             console.log(userobject);
             var userrole = alluser[i].get('User').get('role');
             if(userrole == "student"){
+              var userobject = alluser[i];
               count++;
               if(count <= 30){
                 var cardinfo = Parse.Object.extend('Card_info');
