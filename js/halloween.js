@@ -4,13 +4,13 @@ function halloween(){
   var userstatus = Parse.Object.extend('User_status');
   var query = new Parse.Query(userstatus);
   query.descending("XP");
+  query.include('User');
   query.find({
     success:function(alluser){
       for(var i = 0; i<alluser.length; i++){
         var count = 0;
         var user = Parse.Object.extend('User');
         var query = new Parse.Query(user);
-        query.include('User');
         query.equalTo('objectId', alluser[i].id);
         query.first({
           success:function(selectuser){
