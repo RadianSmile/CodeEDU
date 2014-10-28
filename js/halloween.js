@@ -14,7 +14,7 @@ function halloween(){
               if(count <= 30){
                 var cardinfo = Parse.Object.extend('Card_info');
                 var query = new Parse.Query(cardinfo);
-                query.equalTo('name', "偷竊卡片卡");
+                query.equalTo('objectId', "1PF6Z8XISA");
                 query.first({
                   success:function(stealcard){
                     var Owncard = Parse.Object.extend('Owncard');
@@ -36,7 +36,7 @@ function halloween(){
               else{
                 var cardinfo = Parse.Object.extend('Card_info');
                 var query = new Parse.Query(cardinfo);
-                query.equalTo('name', "加生命值卡");
+                query.equalTo('objectId', "aJONHaxQtM");
                 query.first({
                   success:function(lifecard){
                     var Owncard = Parse.Object.extend('Owncard');
