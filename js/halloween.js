@@ -38,6 +38,19 @@ function halloween(){
                                         console.log(error);
                                     }
                                 })
+
+                                var Cardrecord = Parse.Object.extend('Card_record');
+                                var cardrecord = new Cardrecord();
+                                cardrecord.set('user', user);
+                                cardrecord.set('Card_info', stealcard);
+                                cardrecord.set('User', user);
+                                cardrecord.set('type', "get");
+                                cardrecord.save(null,{
+                                  success:function(){
+                                    console.log("獲得偷竊卡紀錄成功!");
+                                  }
+                                })
+
                             },
                             error:function(error){
                                 console.log(error);
@@ -70,6 +83,19 @@ function halloween(){
                                         console.log(error);
                                     }
                                 })
+
+                                var Cardrecord = Parse.Object.extend('Card_record');
+                                var cardrecord = new Cardrecord();
+                                cardrecord.set('user', user);
+                                cardrecord.set('Card_info', lifecard);
+                                cardrecord.set('User', user);
+                                cardrecord.set('type', "get");
+                                cardrecord.save(null,{
+                                  success:function(){
+                                    console.log("獲得加生命值卡紀錄成功!");
+                                  }
+                                })
+
                             }
                         })
                     }
