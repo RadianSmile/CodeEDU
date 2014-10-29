@@ -11,16 +11,16 @@ function halloween(){
   query.find({
     success:function(alluser){
       for(var i = 0; i<alluser.length; i++){
-            var userobject = alluser[i];
             var userrole = alluser[i].get('User').get('role');
-            //if(userrole == "student"){
-              if(count <= 30 && userrole == "student"){
-                count++;
+            var userobject = alluser[i];
+            if(userrole == "student"){
+              count++;
+              if(count <= 30){
                 var cardinfo = Parse.Object.extend('Card_info');
                 var query = new Parse.Query(cardinfo);
                 query.get("1PF6Z8XISA",{
                   success:function(stealcard){
-                    console.log(userobject);
+                    console.log(alluser);
                     var Owncard = Parse.Object.extend('Owncard');
                     var owncard = new Owncard();
                     owncard.set('user', userobject);
@@ -39,12 +39,11 @@ function halloween(){
                   }
                 })
               }
-              else if(count > 30 && userrole == "student"){
+              else{
                 var cardinfo = Parse.Object.extend('Card_info');
                 var query = new Parse.Query(cardinfo);
                 query.get("aJONHaxQtM",{
                   success:function(lifecard){
-                    console.log(userobject);
                     var Owncard = Parse.Object.extend('Owncard');
                     var owncard = new Owncard();
                     owncard.set('user', userobject);
@@ -60,7 +59,7 @@ function halloween(){
                   }
                 })
               }
-            //}
+            }
       }
     }
   })
