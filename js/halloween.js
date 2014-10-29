@@ -21,6 +21,7 @@ function halloween(){
                 query.get("1PF6Z8XISA",{
                   success:function(stealcard){
                     console.log(alluser);
+                    console.log(alluser[i]);
                     var Owncard = Parse.Object.extend('Owncard');
                     var owncard = new Owncard();
                     owncard.set('user', userobject);
