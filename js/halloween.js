@@ -1,3 +1,5 @@
+//第二個query之後就抓不到alluser[i]了
+
 Parse.initialize("9eo5r1mHWoIPSTCzmrpdKa3lcHPjySx4y5D6q8Nq", "R8SWwYxpJcy73ogQKuSD43y7FigrlDGjBLcy1lzC");
 
 function halloween(){
@@ -9,11 +11,11 @@ function halloween(){
   query.find({
     success:function(alluser){
       for(var i = 0; i<alluser.length; i++){
+            var userobject = alluser[i];
             var userrole = alluser[i].get('User').get('role');
-            if(userrole == "student"){
-              count++;
-              if(count <= 30){
-                var userobject = alluser[i];
+            //if(userrole == "student"){
+              if(count <= 30 && userrole == "student"){
+                count++;
                 var cardinfo = Parse.Object.extend('Card_info');
                 var query = new Parse.Query(cardinfo);
                 query.get("1PF6Z8XISA",{
@@ -37,8 +39,7 @@ function halloween(){
                   }
                 })
               }
-              else{
-                var userobject = alluser[i];
+              else if(count > 30 && userrole == "student"){
                 var cardinfo = Parse.Object.extend('Card_info');
                 var query = new Parse.Query(cardinfo);
                 query.get("aJONHaxQtM",{
@@ -59,7 +60,7 @@ function halloween(){
                   }
                 })
               }
-            }
+            //}
       }
     }
   })
