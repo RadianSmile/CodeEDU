@@ -11,66 +11,61 @@ function halloween(){
       for(var i = 0; i<alluser.length; i++){
             var userrole = alluser[i].get('User').get('role');
             if(userrole == "student"){
-              var userobject = alluser[i];
-              localStorage.setItem('userobject', userobject);
-              count++;
-              if(count <= 27){
-                console.log(i);
-                var cardinfo = Parse.Object.extend('Card_info');
-                var query = new Parse.Query(cardinfo);
-                query.get("1PF6Z8XISA",{
-                  success:function(stealcard){
+                var userobject = alluser[i];
+                localStorage.setItem('userobject', userobject);
+                count++;
+                if(count <= 27){
                     console.log(i);
-                    var Owncard = Parse.Object.extend('Owncard');
-                    var owncard = new Owncard();
-                    var retrievedObject = localStorage.getItem('userobject');
-                    owncard.set('user', retrievedObject);
-                    owncard.set('Card_info', stealcard);
-                    owncard.save(null, {
-                      success:function(){
-                        console.log("發放偷竊卡片卡成功!");
-                        localStorage.removeItem('userobject');
-                      },
-                      error:function(error){
-                        console.log(error);
-                      }
+                    var cardinfo = Parse.Object.extend('Card_info');
+                    var query = new Parse.Query(cardinfo);
+                    query.get("1PF6Z8XISA",{
+                        success:function(stealcard){
+                            console.log(i);
+                            var Owncard = Parse.Object.extend('Owncard');
+                            var owncard = new Owncard();
+                            var retrievedObject = localStorage.getItem('userobject');
+                            owncard.set('user', retrievedObject);
+                            owncard.set('Card_info', stealcard);
+                            owncard.save(null, {
+                                success:function(){
+                                    console.log("發放偷竊卡片卡成功!");
+                                    localStorage.removeItem('userobject');
+                                },
+                                error:function(error){
+                                    console.log(error);
+                                }
+                            })
+                        },
+                        error:function(error){
+                            console.log(error);
+                        }
                     })
-                  },
-                  error:function(error){
-                    console.log(error);
-                  }
-                })
-              }
-              else{
-                var cardinfo = Parse.Object.extend('Card_info');
-                var query = new Parse.Query(cardinfo);
-                query.get("aJONHaxQtM",{
-                  success:function(lifecard){
-                    console.log(i);
-                    var Owncard = Parse.Object.extend('Owncard');
-                    var owncard = new Owncard();
-                    var retrievedObject = localStorage.getItem('userobject');
-                    owncard.set('user', retrievedObject);
-                    owncard.set('Card_info', lifecard);
-                    owncard.save(null, {
-                      success:function(){
-                        console.log("發放加生命值卡成功!");
-                        localStorage.removeItem('userobject');
-                      },
-                      error:function(error){
-                        console.log(error);
-                      }
+                }
+                else{
+                    var cardinfo = Parse.Object.extend('Card_info');
+                    var query = new Parse.Query(cardinfo);
+                    query.get("aJONHaxQtM",{
+                        success:function(lifecard){
+                            console.log(i);
+                            var Owncard = Parse.Object.extend('Owncard');
+                            var owncard = new Owncard();
+                            var retrievedObject = localStorage.getItem('userobject');
+                            owncard.set('user', retrievedObject);
+                            owncard.set('Card_info', lifecard);
+                            owncard.save(null, {
+                                success:function(){
+                                    console.log("發放加生命值卡成功!");
+                                    localStorage.removeItem('userobject');
+                                },
+                                error:function(error){
+                                    console.log(error);
+                                }
+                            })
+                        }
                     })
-                  }
-                })
-              }
-            }
-            else{
-              console.log("not a student!");
-            }
-            
+                }
+            } 
       }
     }
   })
 }
-
