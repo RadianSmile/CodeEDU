@@ -26,7 +26,9 @@
 
 <script>
   $(function() {
-    $( "#datepicker" ).datepicker({ altFormat: "yyyy-mm-dd" });
+    $( "#datepicker" ).datepicker({ dateFormat: "yy/mm/dd"});
+		$("#datepicker").datepicker("setDate", new Date());
+		
   });
 </script>
 
@@ -49,13 +51,15 @@
  
  
  
-var EC = {  // EventCheck  controller 
+var EC =  {  // EventCheck  controller 
 	update : function (date){
 		var end = date.addDays (1);
 	},
-	makQuery : function (){
+	qurEventsByDate : function (){
 		
 	}
+	
+	
 	
 
 	 
