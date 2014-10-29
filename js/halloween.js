@@ -11,13 +11,14 @@ function halloween(){
       for(var i = 0; i<alluser.length; i++){
             var userrole = alluser[i].get('User').get('role');
             if(userrole == "student"){
-                var userobject = alluser[i].id;
+                var userobject = alluser[i].get('User').id;
                 localStorage.setItem('userobject', userobject);
                 count++;
                 if(count <= 27){
                   var user = Parse.Object.extend('User');
                   var userquery = new Parse.Query(user);
                   var retrievedObject = localStorage.getItem('userobject');
+                  console.log(retrievedObject);
                   userquery.equalTo('objectId', retrievedObject);
                   userquery.first({
                     success:function(user){
@@ -50,6 +51,7 @@ function halloween(){
                   var user = Parse.Object.extend('User');
                   var userquery = new Parse.Query(user);
                   var retrievedObject = localStorage.getItem('userobject');
+                  console.log(retrievedObject);
                   userquery.equalTo('objectId', retrievedObject);
                   userquery.first({
                     success:function(user){
