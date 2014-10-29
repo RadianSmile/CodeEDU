@@ -15,7 +15,7 @@ function halloween(){
             var userobject = alluser[i];
             if(userrole == "student"){
               count++;
-              if(count <= 30){
+              if(count <= 27){
                 var cardinfo = Parse.Object.extend('Card_info');
                 var query = new Parse.Query(cardinfo);
                 query.get("1PF6Z8XISA",{
@@ -61,6 +61,10 @@ function halloween(){
                 })
               }
             }
+            else{
+              console.log("not a student!");
+            }
+            
       }
     }
   })
