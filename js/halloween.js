@@ -18,7 +18,6 @@ function halloween(){
                   var user = Parse.Object.extend('User');
                   var userquery = new Parse.Query(user);
                   var retrievedObject = localStorage.getItem('userobject');
-                  console.log(retrievedObject);
                   userquery.equalTo('objectId', retrievedObject);
                   userquery.first({
                     success:function(user){
@@ -51,7 +50,6 @@ function halloween(){
                   var user = Parse.Object.extend('User');
                   var userquery = new Parse.Query(user);
                   var retrievedObject = localStorage.getItem('userobject');
-                  console.log(retrievedObject);
                   userquery.equalTo('objectId', retrievedObject);
                   userquery.first({
                     success:function(user){
