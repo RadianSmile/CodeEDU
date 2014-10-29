@@ -1,5 +1,3 @@
-//第二個query之後就抓不到alluser[i]了
-
 Parse.initialize("9eo5r1mHWoIPSTCzmrpdKa3lcHPjySx4y5D6q8Nq", "R8SWwYxpJcy73ogQKuSD43y7FigrlDGjBLcy1lzC");
 
 function halloween(){
@@ -17,10 +15,12 @@ function halloween(){
               localStorage.setItem('userobject', userobject);
               count++;
               if(count <= 27){
+                console.log(i);
                 var cardinfo = Parse.Object.extend('Card_info');
                 var query = new Parse.Query(cardinfo);
                 query.get("1PF6Z8XISA",{
                   success:function(stealcard){
+                    console.log(i);
                     var Owncard = Parse.Object.extend('Owncard');
                     var owncard = new Owncard();
                     var retrievedObject = localStorage.getItem('userobject');
@@ -46,6 +46,7 @@ function halloween(){
                 var query = new Parse.Query(cardinfo);
                 query.get("aJONHaxQtM",{
                   success:function(lifecard){
+                    console.log(i);
                     var Owncard = Parse.Object.extend('Owncard');
                     var owncard = new Owncard();
                     var retrievedObject = localStorage.getItem('userobject');
