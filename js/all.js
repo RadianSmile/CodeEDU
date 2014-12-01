@@ -9,7 +9,7 @@ var currentUser = Parse.User.current();
 //console.log (currentUser);
 
 
-$("title").append(" | 程式設計基礎遊戲學習平台");
+$(function(){$("title").append(" | 程式設計基礎遊戲學習平台")});
   window.fbAsyncInit = function() {
 		Parse.FacebookUtils.init({
 			appId      : '1452756891666119',
@@ -341,6 +341,8 @@ Array.prototype.getIndexByOfValue = function (value) {
 		return -1
 }
 
+
+
 Array.prototype.getIndexByAttr = function (attr, value) {
     for (var i = 0; i < this.length; i++) {
         if (this[i]['attributes'][attr] == value) {
@@ -381,17 +383,26 @@ function getObjectByAttrVal (Arr, attr , val){
 }
 
 
-$.fn.toggleDisabled = function () {
+$.fn.toggleDisabled = function (changeToAble) {
+	
+	var $this = $(this);
+
+	if (!paraCheck(changeToAble) ){
+		if ($this.prop('disabled')) {
+			changeToAble = true ;
+		}else{
+			changeToAble = false ;
+		}
+	}
 
 	return this.each(function () {
-		var $this = $(this);
-		if ($this.prop('disabled')) { // 這時候代表 要變成 able
+		if (changeToAble) { // 這時候代表 要變成 able
 			$this.removeClass("disabled");
-			console.log ("toggled to false");
+			console.log ("toggled to able");
 			$this.prop('disabled', false);
 		} else { // 這時候代表 要變成 disable
 			$this.addClass("disabled");
-			console.log ("toggled to true");		
+			console.log ("toggled to disalbe");		
 			$this.prop('disabled', true);
 		}
 	});
@@ -474,13 +485,21 @@ function randBtw (Min,Max){
 }
 
 function replaceUndefined (param,paramName,replaceVal){
-	console.log ("Typeof " + paramName + " is " + typeof (param) );
+	if ( paraCheck(paramName)) console.log ("Typeof " + paramName + " is " + typeof (param) );
 	if (typeof(param) === 'undefined'){
-		console.log ("Check Done , the value is replaced with " + replaceVal);
+		if ( paraCheck(paramName)) console.log ("Check Done , the value is replaced with " + replaceVal);
 		return replaceVal ;
 	}else{
-		console.log ("Check Done , the value is " + param)
+		if ( paraCheck(paramName)) console.log ("Check Done , the value is " + param)
 		return param ;
+	}
+}
+
+function switchUndef ( para) {
+	if ( !paraCheck(para)) {
+		return "" ;
+	}else {
+		return para ;
 	}
 }
 
@@ -516,4 +535,51 @@ Date.prototype.addDays = function(days)
     var dat = new Date(this.valueOf());
     dat.setDate(dat.getDate() + days);
     return dat;
+}
+
+
+function switchUser(uid,func){
+	var p = new Parse.Promise ();
+	func = paraCheck(func) ? func : function (){} ;
+	if (currentUser){
+		var nowRole = currentUser.get("role") ;
+		if (nowRole === "TA" || nowRole === "teacher"){
+			(function (){
+				if ( paraCheck(uid)){
+					var qU = new Parse.Query(Parse.User);
+					qU.equalTo("ID",uid);
+					qU.first().then(function(s){
+						if (paraCheck(s)){
+							alert("你的play.js和Bug.js的視角為:"+s.get("name"));
+							currentUser = s ;
+							console.log ("Switch User Result : " + uid);
+						}else{
+							currentUser = s ;
+							console.log ("Switch User Result : Wrong Uid");
+						}
+						p.resolve(currentUser);
+						func();	
+					},Log);
+				}else{
+					console.log ("Switch User Result : Uid no set");
+					p.resolve(currentUser);
+					func();
+				}
+			})();
+		}	else{
+			console.log ("Switch User Result : Not Teacher");
+			p.resolve(currentUser);
+			func();
+		}
+	}else {
+		console.log ("Switch User Result : no currentUSer");
+		p.resolve(currentUser);
+		func();
+	}
+	return p ;
+}
+
+// Rn.
+function getStrActualLen(sChars){
+	return sChars.replace(/[^\x00-\xff]/g,"xx").length;
 }

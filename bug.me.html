@@ -1,0 +1,413 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<!-- Common links -->
+<!----><link rel="icon" type="image/png" href="/include/icon.png" />
+
+<!----><!--link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet"-->
+<!----><script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+<!----><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<!----><script type="text/javascript" src="//www.parsecdn.com/js/parse-1.2.19.min.js"></script>
+<!-- key--><script type="text/javascript" src="js/key.js"></script>
+<!---->			<!--script src="js/checkUser.js"></script-->
+
+
+        <link href="bootstrap/css/bootstrap.css" rel="stylesheet" />
+        <link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
+<!----> <link href="css/all.css" rel="stylesheet" />
+
+				<script src="https://code.jquery.com/ui/1.11.2/jquery-ui.min.js"></script>
+				<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
+<!----><script src="js/all.js"></script>
+
+<!---------------------->
+<style>
+.bugRow{
+	cursor:pointer;
+	
+	overflow:hidden;
+	margin-bottom:10px;
+	background:rgba(255,255,255,1.00);
+	border-radius:3px;
+}
+.bugRow:hover{
+	background:rgba(212,244,255,1.00);
+}
+
+.block-title{
+	color:rgba(255,255,255,1.00);
+	padding:15px;
+	margin-bottom:10px;
+	text-align:center;
+	font-size:1.3em;
+}
+
+	.bugRow .man {
+		min-width:70px;
+		
+	}
+	.bugRow .bInner{
+		display:inline-block;
+		padding:10px 8px 10px 8px;
+		line-height:180%;
+
+	}
+	.bugRow .id{
+		padding-right:10px !important;
+		min-width: 60px;
+		text-align:center;
+		background:rgba(194,230,255,1.00);
+	}
+	.bugRow .status {
+		float:right;
+		min-width:100px;
+		color:rgba(206,206,206,1.00);
+	}
+	
+
+
+#me	.rm {}
+#me	.admit {}
+#me	.check {}
+#me	.update {}
+#me	.review {}
+#me	.done {}
+#me	.recheck {}
+
+#cat	.rm {}
+#cat	.admit {}
+#cat	.check {}
+#cat	.update {}
+#cat	.review {}
+#cat	.done {}
+#cat	.recheck {}
+
+/*同學要做的*/
+#me	.admit .id , #me	.update .id , #cat	.review .id {
+	background:rgba(255,0,4,1.00);
+	color:white;
+}#me	.admit , #me	.update  , #cat	.review  {
+	background:rgba(255,226,227,1.00);
+}
+#me	.admit:hover , #me	.update:hover  , #cat	.review:hover  {
+	background:rgba(255,209,210,1.00);
+}
+
+/*助教正在*/
+#ta .recheck .id , #ta .check .id {
+	background:rgba(255,0,4,1.00);
+	color:white;
+}#ta .recheck .id , #ta .check .id {
+	background:rgba(255,226,227,1.00);
+}#ta .recheck:hover , #ta .check:hover {
+	background:rgba(255,209,210,1.00);
+}
+
+
+/*移除,完成*/
+.done .id { background-color:rgba(190,255,186,1.00);}
+.rm .id { background:rgba(189,189,189,1.00);}
+</style>
+<script>
+
+// 你抓的 他抓的 待解決的
+</script>
+
+</head>
+<body class="colorBody" >
+<script src="js/include/nav.js"></script>
+<script type="text/javascript" src="js/include/students.js"></script>
+<script type="text/javascript" src="js/include/schedule.js"></script>
+<title>BUG列表</title>
+
+<div class="container">
+	<div class="topMargin">
+	</div>
+	<div class="row" style=" margin:20px;">
+		<div class="col-lg-12" id="ta" style="display:none;">
+		
+		</div>
+		
+		<div class="col-lg-6" id="me">
+			<div class="block-title">你被抓的BUG</div>
+		</div>
+		<div class="col-lg-6" id="cat">
+			<div class="block-title">你抓過的BUG</div>
+		</div>
+	</div>
+</div>
+
+
+<script>
+var DC = (function(){
+	var DC = this ;
+	
+	this.me = $("#me") ;
+	this.cat = $("#cat") ;	
+	this.ta = $("#ta");
+	
+	this.BugsArr = [] ;
+	
+	
+	
+	this.bugStr = (function(){
+		var bugStr = [] ;
+		bugStr[-1] = ["移除","rm"]   ; // gray , 
+		bugStr[0] = ["助教初檢","check"]  ;  // 
+		bugStr[1] = ["作者承認中","admit"]  ;  //  1red
+		bugStr[2] = ["作者更新中","update"]  ;  // 1red 
+		bugStr[3] = ["舉報者審核","review"]  ;  // 2red
+		bugStr[4] = ["完成","done"]  ; // green
+		bugStr[5] = ["助教複檢","recheck"]  ; 
+		return bugStr ;
+	})();
+
+	this.bugV = function (b){
+		var step = 	judgeStep(b);
+		var a = b.get("assign");
+		var bgr = b.get("bugger");
+		var rpt = b.get("reporter");
+		var des = b.get("des");
+		if (des.replace(/[^\x00-\xff]/g,"xx").length > 18) des =des.substring(0,12) + "..." ;
+				
+		var html = '<div id="'+b.id+'" data-aid="'+a.id+'" class="bugRow '+DC.bugStr[step][1]+'">\
+			<div class="bInner id">'+b.id.substring(0,3).toUpperCase()+'</div>\
+<div class="bInner nth">'+a.get("nth")+'</div>\
+<div class="bInner man">'+bgr.get("name")+'</div>\
+<div class="bInner status">'+DC.bugStr[step][0]+'</div>\
+<div class="bInner des">'+des+'</div>\
+</div>';
+		return html ;
+	}
+	
+	
+	$(document).on('click',".bugRow",function(){
+		var $t = $(this)	;
+		var id = $t.attr("id");
+		var aid = $t.data("aid");
+		document.location = 'play.html?aid='+aid+'&bid='+id ;
+	});
+	
+	return DC ;
+}());
+
+
+
+
+
+var BugNotifer = (function aaa(){
+	var currentU ;
+	console.log (this)
+	var Parse_BR = function(){
+		var B = Parse.Object.extend("Bug_Record");
+		var q = new Parse.Query(B);
+		q.limit(1000);
+		q.descending("createdAt");
+		q.include("bugger");
+		q.include("repoter");
+		q.include("assign");
+		return 	q ;
+	}
+
+	var qurAllBug = function(){
+		var qB = new Parse_BR();
+		return qB.find();
+	}	
+	
+	var qurMyBug = function(){
+		console.log(currentU);
+		var qB = new Parse_BR();
+		qB.equalTo("bugger",currentU);
+		return qB.find();
+	}
+
+	var qurMyCat = function(){
+		console.log(currentU);
+		var qB = new Parse_BR();
+		qB.equalTo("reporter",currentU);
+		return qB.find();
+	}
+
+	
+	var init = function (u){
+		currentU = u ;	
+		console.log(u);
+		return (currentU);
+	}
+	
+	return {
+		init : init ,
+		qurMyCat : qurMyCat,
+		qurMyBug : qurMyBug,
+		qurAllBug : qurAllBug,
+	};
+}())
+
+
+var Count = function Count (){
+	var _this = this ; 
+	var $c = $("#count");
+	_this.obj = [] ;
+	_this.init = function (){
+		_this.obj= [];
+	}
+	_this.add = function (grade){
+		if ( typeof(_this.obj[grade]) !== "undefined"  ) {
+			console.log (_this.obj[grade]);
+			_this.obj[grade] += 1 ;
+			console.log (_this.obj[grade]);
+		}else {
+			console.log (_this.obj[grade]);
+			_this.obj[grade] = 1 ;
+		}
+	}
+	
+	_this.addTo = function (type1 , type2 ){
+		if ( typeof(_this.obj[type1]) === "undefined"  ) {
+			_this.obj[type1] = [] ;
+		}
+		if (typeof (_this.obj[type1][type2]) !== "undefined"){
+			_this.obj[type1][type2] += 1 ;
+		}else{
+			//_this.obj[type1][type2] = [] ;
+			_this.obj[type1][type2] = 1 ;
+		}
+
+	}		
+	
+	_this.show = function (){
+		console.log ("counting", _this.obj);
+		$c.append("<br>");
+		var sum = 0 ;
+		for (var k  in _this.obj ){
+			if (_this.obj.hasOwnProperty(k)){
+				console.log (_this.obj[k]);
+				if (k === "A" || k === "B" || k === "C" || k === "X") sum += _this.obj[k] ;
+				$("#count").append( "<div>" + k + " " + _this.obj[k]+"</div>");
+			}
+		}
+		$c.append("Total : ",sum);
+		$c.append("<br>");
+	}
+	return this;  
+}();
+
+
+
+switchUser(getQueryString().ta_test_uid).then(function(s){
+	if (s) currentUser = s ;
+	
+	if (currentUser.get("role")==="TA" || currentUser.get("role") === "teacher"){
+		ta_start();
+	}else{
+		start();
+	}
+});
+
+function ta_start(){
+	BugNotifer.qurAllBug().then(function(s){
+		each(s,function(ss){
+			var step = judgeStep(ss) ;
+			var n = ss.get("assign").get("nth");
+			var str = DC.bugStr[step][0];
+			//Count.addTo(n , str)	;
+			
+			
+			if (step === 0 || step === 5){
+				var html = DC.bugV(ss);
+				DC.ta.show().append(html);
+			}
+			
+			
+		});
+		console.log (Count.obj);
+	});
+}
+//start
+function start(){
+	console.log ("Start");
+		console.log (currentUser);
+var uu = currentUser;
+	console.log ("!!!",BugNotifer);
+	console.log ("!!!",Count);
+
+	console.log (BugNotifer.init(currentUser));
+		(currentUser);
+	BugNotifer.qurMyBug().then(function(s){
+		console.log ("Start2");
+		each(s,function(ss){
+			var html = DC.bugV(ss);
+			DC.me.append(html);
+		});
+	});
+
+	BugNotifer.qurMyCat().then(function(s){
+	console.log ("Start3");
+		each(s,function(ss){
+			var html = DC.bugV(ss);
+			DC.cat.append(html);
+		});
+	});
+	
+
+}
+
+
+
+
+
+	function judgeStep(bugRecord){
+		
+		var a = bugRecord.get("isAccepted") ; 
+			var taA = bugRecord.get("taAccepted");
+		var b = bugRecord.get("isUpdated") ;
+		var c = bugRecord.get("isSolved");
+			var taC = bugRecord.get("taSolved");
+	
+		var s ; 
+		if (typeof a === 'undefined'){
+			s = 1 ;
+			return s ; 
+		}
+		if (a === false ){
+			if (taA === true){
+				a = true ;
+				// 假性呈現，作者承認了這筆BUG，繼續接下來的判斷
+			}else if ( taA === false ){
+				s = -1 ;
+				// 連助教都否認了，這筆BUG就直接進入移除的狀態
+				return s ;		
+			}else{
+			// 這裡代表助教還沒有評訂，進入等待狀態
+				s = 0 ; 
+				return s ;
+			}
+		}
+		if ( c === false ){
+			if (taC === true){ // 認為通過
+				//假性呈現，呈報者已經認為通過了
+				s = 4 ; 
+				return s ;
+			}else if ( taC === false ){ 
+				// 認為不通過
+				// 理論上，taC === false 時，cloud code 就會進行改寫了
+			}else{		
+				// 這裡代表助教還沒有評訂，進入等待狀態
+				s = 5 ; 
+				console.log ("step 5");
+				return s;
+			}
+		}
+		
+		s = a ? b ? c ? 4 : 3 : 2 : 1 ; console.log ("step :"+s);
+		return  s ;
+	}
+</script>
+
+
+
+
+</body>
+</html>

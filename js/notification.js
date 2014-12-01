@@ -126,7 +126,6 @@ function initNotification(nu){
             success:function(data){
                 var saveArr = [];
                 for(var i = 0; i<data.length; i++){
-            					
 											var newClass = (data[i].get('isNotif') !== true)? 'noti-new' : ''
                     var strings ;
                     if(data[i].get('type') == "use"){
@@ -187,6 +186,9 @@ function useRecord(data){
     var targetName = data.get('targetuser').get('name');
     var targetId = data.get('targetuser').id;
     var cardName = data.get('Card_info').get('name');
+
+		var isPublic = data.get('Card_info').get("isPublic");
+		
     var userId = data.get('user').id;
     var userName = data.get('user').get('name');
     var createTime = moment(data.createdAt).fromNow();  // Rn
@@ -204,7 +206,9 @@ function useRecord(data){
             }
         }
         else if(targetId == notification_user.id){
-            s = userName+"對你使用了" + cardName + "。";
+            
+						userName = isPublic ? userName : "有人" ;
+						s = userName+"對你使用了" + cardName + "。";
             container = "<div class = 'time-gray-color'>"+createTime+"</div><span class = 'glyphicon glyphicon-exclamation-sign' style = 'white-space: nowrap;'></span>"+ s +"</div>";
         }
     return container;
@@ -213,6 +217,7 @@ function useRecord(data){
 function getRecord(data){
     var userId = data.get('user').id;
     var cardName = data.get('Card_info').get('name');
+
     var createTime = moment(data.createdAt).fromNow(); //
     
     var container = "";

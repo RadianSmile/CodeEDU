@@ -12,19 +12,28 @@ nav div.tooltip-inner {\
 
 document.write('<nav class="navbar navbar-default navbar-fixed-top headroom " role="navigation">\
 		<div class="container-fluid">\
-				<a class="navbar-brand" href="index.html">PROGRAMING 101</a>\
-\
-				<ul id="main-navigation" class="nav navbar-nav">\
+				<div class="navbar-header">\
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-nav">\
+						<span class="sr-only">Toggle navigation</span>\
+						<span class="icon-bar"></span>\
+						<span class="icon-bar"></span>\
+						<span class="icon-bar"></span>\
+					</button>						 \
+					<a class="navbar-brand" href="index.html">PROGRAMING 101</a>\
+				</div>\
+				<ul id="main-navigation" class="nav navbar-nav collapse navbar-collapse">\
 						<li id="nav-user-block"><a href="dashboard.html"><span class="glyphicon glyphicon-user"></span></a></li>   <!--RN-->\
 						<li><a href="notification.html" id="bell"><span class="glyphicon glyphicon-bell"></span></a></li>\
 		<li data-toggle="tooltip" title="" class="nav-grading-btn hidden"><a href="review.html">Grading</a></li>\
 		<li class="nav-students-btn"><a data-toggle="modal" href="students.html" data-target="#students">Student List</a></li>\
+		<li class="nav-schedule-btn"><a href="team.html" >Team</a></li>\
+		<li class="nav-schedule-btn"><a href="bug.me.html" >All Bugs</a></li>\
 		<li class="nav-schedule-btn"><a data-toggle="modal" href="schedule.html" data-target="#schedule">Schedule</a></li>\
 		<li class="ta" style="display:none;"><a href="manage/list.grade.html">評訂成績</a></li>\
 \
 				</ul>\
 \
-				<ul class="nav navbar-nav navbar-right">\
+				<ul class="nav navbar-nav navbar-right collapse navbar-collapse">\
 		<!--li><a href="#">Help</a></li-->\
 		<li><a href="#" id="logout" >Logout</a></li>\
 				</ul>\

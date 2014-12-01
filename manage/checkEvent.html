@@ -29,6 +29,7 @@
     $( "#datepicker" ).datepicker({ dateFormat: "yy/mm/dd"});
 		$("#datepicker").datepicker("setDate", new Date());
 		
+		
   });
 </script>
 
@@ -46,23 +47,49 @@
  $("#datepicker").on('change',function (){
 	 var currentDate = $( "#datepicker" ).datepicker( "getDate");
 	 console.log (currentDate);
+	 
+	 EC.update(currentDate);
  });
  
- 
- 
- 
 var EC =  {  // EventCheck  controller 
-	update : function (date){
-		var end = date.addDays (1);
+	EC : this ,
+	ER : Parse.Object.extend("Event_Record"),
+	paper : {
+		$t : $("#output") ,
+		clear: function (){
+			this.$t.html("");
+		},
+		print : function (html){
+			this.$t.append(html);
+		},
+		prepare : function () {
+			this.$t.html("正在準備中...");
+		}
 	},
-	qurEventsByDate : function (){
-		
+	
+	update : function (date){
+		this.paper.prepare();
+		this.qurEventsByDate (date).then(this.printOut);
+	},
+	qurEventsByDate : function (d){
+		var qER = new Parse.Query(this.ER);
+		var end = d.addDays (1);
+		qER.greaterThan("createdAt",d);
+		qER.lessThan("createdAt",end) ;
+		qER.include("Event_Info");
+		qER.limit(10000);
+		return qER.find();
+	},
+	printOut : function (ERs){
+		console.log (EC.paper);
+		EC.paper.clear();
+		each(ERs,function(er){
+			var obj = er['attributes'];
+			var note = obj.note ? JSON.parse(obj.note) : new Object ();
+			EC.paper.print("<div>" + obj.eid + " " + note.bid + "</div>");
+			console.log (obj);
+		});
 	}
-	
-	
-	
-
-	 
 } ;
  </script>
  

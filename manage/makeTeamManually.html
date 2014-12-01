@@ -1,0 +1,287 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>手動創建隊伍</title>
+<!-- Common links -->
+<!----><link rel="icon" type="image/png" href="/include/icon.png" />
+<!----><link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<!----><script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+
+				<script src="https://code.jquery.com/ui/1.11.2/jquery-ui.min.js"></script>
+				<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
+
+<!----><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<!----><script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.19.min.js"></script>
+<!----><link href="../css/all.css" rel="stylesheet" />
+<script type="text/jscript" src="../js/key.js"></script>
+<!----><script type="text/javascript" src="../js/all.js"></script>
+<!---------------------->
+<!----><!--script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script-->
+
+
+</head>
+<body>
+
+<div class="container">
+	<div class="row" class="control-panel">
+		<input id="selectDate" class="datePicker">
+		<button id="saveBtn" onClick="Team.handmaker.save();" class="btn btn-primary">儲存</button>
+	</div>
+	
+	
+	<div id="workArea">
+		<!--div class="handmakeGroup">
+			<div class="control">
+				<h3 class="group-name"></h3>
+				<input class="idInputer">
+			</div>
+			<div class="apd">
+			</div>
+		</div-->
+	</div>
+</div>
+
+<script src="../module/Students.js"></script>
+<script>
+
+Object.filter = function( obj, predicate) {
+    var result = {}, key;
+    // ---------------^---- as noted by @CMS, 
+    //      always declare variables with the "var" keyword
+    for (key in obj) {
+        if (obj.hasOwnProperty(key) && !predicate(obj[key])) {
+            result[key] = obj[key];
+        }
+    }
+    return result;
+};
+
+
+
+var Main = (function (){
+	
+	var 
+		$dater = $("#selectDate") ,
+		$working = $("#workArea") ;
+	// init ;
+	
+	
+	$dater.datepicker({ dateFormat: "yy/mm/dd"});
+	$dater.datepicker("setDate", new Date());
+	
+	
+	function init (){
+		return true ;
+	}
+	
+	
+	return {
+		$dater : $dater ,
+		$working : $working,
+		
+		//method 
+		init : init
+	}
+	
+})();
+
+
+
+
+
+/////////// Team/////////////
+// 1. TA could make group by hand ;
+// 
+/////////////////////////////
+
+var Team = (function(Main){
+	var _this = {} ;
+	
+	
+	_this.handmaker = (function(Main){	
+		var html = '\
+			<div class="handmakeGroup col-md-2">\
+				<div class="control">\
+					<h3 class="team-name"></h3>\
+					<input class="idInputer" placeholder="請輸入學號">\
+				</div>\
+				<div class="apd">\
+				</div>\
+			</div>\
+		';
+		
+		var itagHtml = '<span class="iTag badge" ><span class="stdRemove glyphicon glyphicon-remove"></span></span> ';
+
+		var addITagTo = function (dataobj,$group){
+			$(itagHtml).appendTo($group.find('.apd')).attr('data-uid',dataobj.value).text(dataobj.label);
+			
+		}
+
+		var _autoFillArr ;
+		var save = function (){
+			var d = Main.$dater.val();
+		}
+		
+		var show = function (numbers , autoFillArr ){
+			_autoFillArr = autoFillArr;
+			for (var i = 0 ; i < numbers ; i++){
+				var $e = $(html).appendTo(Main.$working) ;
+				console.log ($e);
+				$e.find(".apd").attr('data-tid',i);
+				$e.find(".team-name").text("Team " + (i + 1));
+			}
+			$(".idInputer").autocomplete({source : autoFillArr , select : update });
+		}
+		
+		function update (e,ui) {
+			var $input = $(e.target) ;
+			var $group = $(this).parents('.handmakeGroup');
+			each(_autoFillArr,function(e,i){
+				console.log (ui);
+				if (ui.item.value === e.value ){
+					_autoFillArr.splice(i,1);
+				}
+			});
+			console.log ($input , $(this));
+			addITagTo(ui.item,$group);
+			//$(".idInputer").autocomplete({source : _autoFillArr });
+			$input.val("");
+			return false ;
+		}
+		
+		var Parse_Team = function () {
+			var p = Parse.Object.extend("Team");
+			var pteam = new p ()
+			return pteam ;
+		}
+		
+		
+		var save = function  () {
+			var date = getPureDate(Main.$dater.datepicker( "getDate"));
+
+			checkTeamByDate(date).then(function(s){
+				if (s){
+					var pass = prompt ("該日期已經有存在的分組記錄了，\n請輸入\"Confirm Delete\"\n以刪除舊有記錄並更新。");
+					if (pass === "Confirm Delete"){
+						deleteTeamByDate (date);
+					}else {
+						return false ;
+					}
+				}
+
+				var saveArr = [] ;
+				$.each($(".handmakeGroup .apd"),function(i,e){
+					$.each($(e).find('.iTag'),function (ii,ee){
+						var $e = $(e);
+						var $ee = $(ee);
+						var u = Students.IDStdObjArr[$ee.data('uid')];
+						var parseTeam = Parse_Team () ;			
+						parseTeam.set("teamID" , $e.data('tid'));
+						parseTeam.set("User", u );
+						parseTeam.set("memID", ii );
+						parseTeam.set("date", date);
+						parseTeam.set("memName",u.get("name"));
+						saveArr.push(parseTeam);
+					});
+				});		
+				Parse.Object.saveAll(saveArr)	.then(function(s){
+					console.log (s);
+				},function(e){
+					alert(e.message);
+				});
+			});
+		}
+		
+		return {
+			show : show  , 
+			save : save
+		}
+	})(Main);
+
+	
+	//private 
+	var Parse_Team = Parse.Object.extend ("Team");
+	
+	
+	
+	
+// common
+	function checkTeamByDate (date) {
+		var p = new Parse.Promise ();
+		var q = new Parse.Query(Parse_Team) ;
+		q.equalTo ("date" , date);
+		q.limit (1000);
+		q.first().then(function (s){
+			if (s){
+				p.resolve (true);
+			}else{
+				p.resolve (false);
+			}
+		},function (e){
+			console.log (e);
+			p.reject(null);
+		});
+		return p ;
+	}
+
+	function qTeamByDate (date){
+		//var date = getPureDate($("#teamDate").val()) ;
+		var q = new Parse.Query (Parse_Team) ;
+		q.equalTo ("date" , date );
+		q.limit (1000);
+		return q.find();
+	};
+	
+	function deleteTeamByDate (date){
+		console.log ("Deleteing Team on " + date.toLocaleDateString());
+		var p = new Parse.Promise ();
+		qTeamByDate (date).then(function (qTeams){
+			return Parse.Object.destroyAll (qTeams);
+		}).then(function(s){
+			p.resolve(true);
+			console.log ("Delete successfully! ");
+		},function (e){
+			alert(e.message);
+			p.reject (false);
+		});
+		return p ;
+	}
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	return _this ;
+})(Main);
+
+
+Students.init().then(function(){
+	console.log (Students.AutoFillArr);
+	var autoFillArr = Students.AutoFillArr.slice(0);
+	Team.handmaker.show(6,autoFillArr);
+	autoFillArr = autoFillArr .slice(1,4) ;;
+});
+
+
+
+
+</script>
+
+</body>
+</html>

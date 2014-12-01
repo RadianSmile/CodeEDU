@@ -30,7 +30,7 @@ $(document).ready(function(){
 						 $("#life-block .life-img").each(function(i, e) {
 							if (i < life){
 								 setTimeout(function(){
-								$(e).delay(i * 1000).addClass('exist');
+										$(e).delay(i * 1000).addClass('exist');
 								 },i*500);
 							}
 						});

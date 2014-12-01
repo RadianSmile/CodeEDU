@@ -1,0 +1,65 @@
+/* CSS Document */
+.mem_con {
+	background:rgba(249,249,249,1.00);
+	margin-bottom:20px;
+	
+	
+}
+
+.mem_head_img{
+	display:inline;
+	
+}
+.mem_info {
+	padding-top:15px;
+	padding-bottom:15px; 
+	_background:rgba(195,136,137,.5);
+	text-align:center;
+	
+	
+	
+}
+
+
+.mem_questions{
+	padding:0;
+	_background:rgba(195,136,137,1.00);
+	min-height:100px;
+}
+
+.mem_question {
+	border-bottom:rgba(120,119,119,1.00) dashed 1px ;
+	_background:rgba(216,210,210,1.00);
+	margin-bottom:10px;
+}
+
+.question_des {
+	width:80%;
+	display:inline-block;
+	float:left;
+	padding:10px;
+	_padding-bottom:10px;
+
+	_background:rgba(225,59,62,1.00);
+}
+
+.question_val{
+	width:20%;
+	float:left;
+	display:inline-block;
+	_background:rgba(106,11,13,1.00);
+	padding:10px;
+	_padding-bottom:10px;
+	
+}
+	.question_val_select{
+		width: 100%;
+		font-size:24px;
+		text-align:center;
+		
+		
+	}
+
+.mem_name {
+	
+}

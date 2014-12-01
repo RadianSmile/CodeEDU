@@ -1,6 +1,15 @@
 Parse.initialize("9eo5r1mHWoIPSTCzmrpdKa3lcHPjySx4y5D6q8Nq", "R8SWwYxpJcy73ogQKuSD43y7FigrlDGjBLcy1lzC");
 
+function sendEvent (user,eidNum){
+	var EventRecord = Parse.Object.extend("Event_Record");
+	var e = new EventRecord ();
+	e.set("target",user); // Target
+	e.set("eid",eidNum);
+	return e.save();
+}
+
 function halloween(){
+	console.log ("running");
   var count = 0;
   var userstatus = Parse.Object.extend('User_status');
   var query = new Parse.Query(userstatus);
@@ -30,9 +39,12 @@ function halloween(){
                                 owncard.set('user', user);
                                 owncard.set('Card_info', stealcard);
                                 owncard.save(null, {
-                                    success:function(){
-                                        console.log("發放偷竊卡片卡成功!");
+                                    success:function(s){
+                                        console.log("發放偷竊卡片卡成功! " + s.get("user").get("name"));
                                         localStorage.removeItem('userobject');
+																						// ** 這裡要發放 事件通知 與 卡片記錄
+																						sendEvent (s.get("user"),63);
+																				
                                     },
                                     error:function(error){
                                         console.log(error);
@@ -75,9 +87,11 @@ function halloween(){
                                 owncard.set('user', user);
                                 owncard.set('Card_info', lifecard);
                                 owncard.save(null, {
-                                    success:function(){
-                                        console.log("發放加生命值卡成功!");
+                                    success:function(s){
+																						
+                                        console.log("發放加生命值卡成功! " +s.get("user").get("name") );
                                         localStorage.removeItem('userobject');
+																						sendEvent (s.get("user"),63);
                                     },
                                     error:function(error){
                                         console.log(error);
@@ -106,73 +120,3 @@ function halloween(){
     }
   })
 }
-
-/*function halloween(){
-  var count = 0;
-  var userstatus = Parse.Object.extend('User_status');
-  var query = new Parse.Query(userstatus);
-  query.descending("XP");
-  query.include('User');
-  query.find({
-    success:function(alluser){
-      for(var i = 0; i<alluser.length; i++){
-            var userrole = alluser[i].get('User').get('role');
-            if(userrole == "student"){
-                var userobject = alluser[i];
-                localStorage.setItem('userobject', userobject);
-                count++;
-                if(count <= 27){
-                    console.log(i);
-                    var cardinfo = Parse.Object.extend('Card_info');
-                    var query = new Parse.Query(cardinfo);
-                    query.get("1PF6Z8XISA",{
-                        success:function(stealcard){
-                            console.log(i);
-                            var Owncard = Parse.Object.extend('Owncard');
-                            var owncard = new Owncard();
-                            var retrievedObject = localStorage.getItem('userobject');
-                            owncard.set('user', retrievedObject);
-                            owncard.set('Card_info', stealcard);
-                            owncard.save(null, {
-                                success:function(){
-                                    console.log("發放偷竊卡片卡成功!");
-                                    localStorage.removeItem('userobject');
-                                },
-                                error:function(error){
-                                    console.log(error);
-                                }
-                            })
-                        },
-                        error:function(error){
-                            console.log(error);
-                        }
-                    })
-                }
-                else{
-                    var cardinfo = Parse.Object.extend('Card_info');
-                    var query = new Parse.Query(cardinfo);
-                    query.get("aJONHaxQtM",{
-                        success:function(lifecard){
-                            console.log(i);
-                            var Owncard = Parse.Object.extend('Owncard');
-                            var owncard = new Owncard();
-                            var retrievedObject = localStorage.getItem('userobject');
-                            owncard.set('user', retrievedObject);
-                            owncard.set('Card_info', lifecard);
-                            owncard.save(null, {
-                                success:function(){
-                                    console.log("發放加生命值卡成功!");
-                                    localStorage.removeItem('userobject');
-                                },
-                                error:function(error){
-                                    console.log(error);
-                                }
-                            })
-                        }
-                    })
-                }
-            } 
-      }
-    }
-  })
-}*/

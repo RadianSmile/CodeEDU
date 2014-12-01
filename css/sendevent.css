@@ -1,0 +1,45 @@
+.act { 
+	width:100%; background:rgba(232,228,228,1.00);
+	border-bottom:1px white solid;
+}
+#act .title {
+	width:100%;
+}
+#act .input-area {
+	font-size:16px;
+	width:100%;
+}
+
+.add-std{
+	margin-bottom:20px;
+	
+}
+.cancel {
+	display:none;
+}
+
+.input-id {
+	display:inline-block;
+	width: 100px; 
+	margin-left: 20px;	
+}
+.iTag{
+	display:inline;
+	margin-right:5px;
+	line-height:200%; 
+	overflow:hidden;
+	transition:all .5s;
+}.iTag .glyphicon {
+	margin:0 10px;
+	
+}
+.glyphicon-remove {
+	cursor:pointer;
+}
+
+.panel-clear {
+	float:right;
+}
+.panel-clear:hover{
+	color:rgba(193,149,150,1.00);
+}

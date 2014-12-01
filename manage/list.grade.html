@@ -34,14 +34,27 @@
 <title>Codedu</title>
 </head>
 <body>
+<select id="assigns">
+	<option>請選擇作業</option>
+	<option>1</option>
+	<option>2</option>
+	<option>3</option>
+	<option>4</option>
+	<option>5</option>
+	<option>6</option>
+</select>
+
+<div id="count" class="container"></div>
 <div id="apd" class="container">
 </div>
-
 
 <script>
 
 var Controller = {
 	saveArr : [] ,
+	
+	
+	
 	
 	J : function (ID){
 		return $("#" + ID );
@@ -82,24 +95,68 @@ var Controller = {
 			Log (s);
 		},Log);
 	},
-	
-	
 }
 
+var CountController = (function (){
+	var _this = this ; 
+	var $c = $("#count");
+	_this.obj = {} ;
+	_this.init = function (){
+		_this.obj= {};
+	}
+	_this.add = function (grade){
+		if ( typeof(_this.obj[grade]) !== "undefined"  ) {
+			console.log (_this.obj[grade]);
+			_this.obj[grade] += 1 ;
+			console.log (_this.obj[grade]);
+		}else {
+			console.log (_this.obj[grade]);
+			_this.obj[grade] = 1 ;
+		}
+	}
+	
+	_this.show = function (){
+		console.log ("counting", _this.obj);
+		$c.append("<br>");
+		var sum = 0 ;
+		for (var k  in _this.obj ){
+			if (_this.obj.hasOwnProperty(k)){
+				console.log (_this.obj[k]);
+				if (k === "A" || k === "B" || k === "C" || k === "X") sum += _this.obj[k] ;
+				$("#count").append( "<div>" + k + " " + _this.obj[k]+"</div>");
+			}
+		}
+		$c.append("Total : ",sum);
+		$c.append("<br>");
+	}
+	return this;  
+})();
 
+
+$(document).on('change',"#assigns",function (e){
+var n = $(this).val();
+$("#apd").html("");
+$("#count").html("");
+CountController.init();
 getViewerRole().then(function(r){
 	if (r === "TA" || r === "teacher"){
-		start();
+		
+		start(n);
 	}else{
 		alert("你沒有權限");
 		document.location = "../index.html";
 	}
 })
 
+	
+	
+});
 
-function start(){
+
+
+function start(aNth){
 	//var needArray = ["reviewer_name","reviewee_name","grade","final"];
-	var aNth  = "2";
+	//var aNth  = "2";
 	
 	var RRArr = [];
 	var AsnArr = [] ;
@@ -120,12 +177,20 @@ function start(){
 				var isBest = asn.get("isBest") ? true : false ;
 				var final = replaceUndefined(asn.get("grade_rev_sys"),"grade","缺");
 				var man_review = asn.get("grade") ;
+				var finalGrade = man_review ? man_review : asn.get("grade_rev_sys") ; 				
+				var note = replaceUndefined (asn.get("note"),asn.get("note"),"");
+				
 				
 				var mod = (final === man_review)  ? "" : "mod";
 				
 				if (asn.get("maker").get("role") !== 'student'){
 					return true ;
 				}
+				
+				
+				// 這邊才是真正的 asn
+				CountController.add(finalGrade);
+				if (note) CountController.add(note);
 				if (name.length < 3){name += "　";}
 				var row = ID + "\t" + name + "\t" ;
 				var aid = asn.id ;
@@ -150,8 +215,10 @@ function start(){
 				var isBestEle = '<span class="isBestToggle glyphicon ' + isBestClass +' "></span>' ; 
 				
 				row +=asnGradeStr + " 結果：" + star + "，" +final+" " +optionHtml+  btns + isBestEle ;
-				$("#apd").append('<div id="'+aid+'" class="'+mod+' asn-row" >' +row + "</div>" );
+				$("#apd").append('<div id="'+aid+'" class="'+mod+' asn-row" >' +row + " " + note + "</div>" );
 			});
+			CountController.show();
+
 			$("#apd").append('<button class="saveReReveiw btn btn-primary">儲存結果</button>');
 			$(".asn-row").each(function(i, e) {
 				var $s = $(e).find("select").first();
@@ -185,6 +252,8 @@ function start(){
 		
 		//ClassToDom (records,needArray);
 	},Log);
+	
+	
 	
 	
 }
@@ -235,6 +304,9 @@ function ClassToDom (Objects,needAttrArr){
 		row += "<br>";
 		document.write (row);
 	});
+	
+	
+	$("#count").html(Objects.length);
 }
 
 function strToDom(str){

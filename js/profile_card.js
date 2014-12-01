@@ -113,8 +113,8 @@ function showPersonAndCard(profileUser){
 }//);
 
 function getElementStringByowncard(imagesrc, id){ // img and id 
-    var s1 = "<img src='../" + imagesrc + "'>";
-    var s = "<a href='#' data-toggle='modal' data-target='#cardModal'><div class='card' id='"+id+"'>" + s1 + "</div></a>";
+    var s1 = "<img id='backcard' src='../img/choosecard/back.png'>";
+    var s = "<a  ><div class='card' id='"+id+"'>" + s1 + "</div></a>";
 
     return s;
 };

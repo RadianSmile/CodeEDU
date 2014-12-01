@@ -1195,8 +1195,10 @@ Parse.Cloud.job("sendBugNotifi",function(rq,rp){
 				each(bugRecords,function(bugRecord){
 					console.log (bugRecord.get("assign").get("nth"));
 					if (bugRecord.get("assign").get("nth") == nth ){
-						bugRecord.set("isDoneNoti",false);
-						saveBugArr.push(bugRecord);
+						if (!paraCheck(bugRecord.get("isAccepted")) ){
+							bugRecord.set("isDoneNoti",false);
+							saveBugArr.push(bugRecord);
+						}
 					}
 				});
 				return Parse.Object.saveAll(saveBugArr).then(function (s){						

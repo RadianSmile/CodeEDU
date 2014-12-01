@@ -49,10 +49,10 @@ function getCode (url,callback){
 function showCode (data, status, xhr) {		
 console.log ("get code!")
 	if (status === 'success') {
-		console.log ($(".editor").get(0));
+		//console.log ($(".editor").get(0));
 		var editor =  $(".editor").get(0);
 		editor = ace.edit( editor );
-		console.log (editor);
+		//console.log (editor);
 		editor.setValue(data);
 	}else {
 		alert("發生了某些狀況，請重新整理!");

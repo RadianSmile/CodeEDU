@@ -368,6 +368,7 @@ function updateBugStatus (e){
 	}
 	
 	bug.set(e.data.attr , e.data.val );
+	bug.set("isDoneNoti",false);
 
 	bug.save().then(function(b){
 		return getBug(b.id);

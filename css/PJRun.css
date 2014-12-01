@@ -1,0 +1,14 @@
+/* CSS Document */
+
+    #sketch {
+      width: 100%;
+      border: 1px solid
+    }
+    #code, #output {
+      width: 90%;
+    }
+
+
+#project-des{
+	font-size:18px;
+}

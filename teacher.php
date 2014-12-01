@@ -8,7 +8,7 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 	
 	//echo $_SERVER['PHP_AUTH_USER'];
   if ( $_SERVER['PHP_AUTH_USER'] === 'programming101'){
-		include ('js/include/._teacher.hide');
+		include ('js/include/._teacher.hide.html');
 	}else {
 		 header('HTTP/1.0 401 Unauthorized');
 

@@ -1,5 +1,14 @@
 /* CSS Document */
 
+.colorBody{
+	 background:rgb(129,170,188);
+}
+.topMargin {
+	height:50px;
+	width:100%;
+	
+}
+
 .toTop {
 	background-image:url(../include/totop.gif);
 	background-size:contain;
@@ -37,4 +46,16 @@ a:focus , h4{
 .hasNoti{
 	background:rgba(241,80,82,1.00);
 	
+}
+
+.disable-cover{
+	display:block !important;
+	width:100vw; 
+	height:100vh; 
+	background:rgba(0,0,0,.7); 
+	text-align:center; 
+	line-height:100vh; 
+	color:white; 
+	position:fixed;
+	z-index:10000;
 }

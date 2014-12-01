@@ -1,0 +1,463 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>團隊事件</title>
+<!-- Common links -->
+<!----><link rel="icon" type="image/png" href="/include/icon.png" />
+<!----><link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<!----><script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<!----><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<!----><script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.19.min.js"></script>
+<!----><link href="../css/all.css" rel="stylesheet" />
+<script type="text/jscript" src="../js/key.js"></script>
+<!----><script type="text/javascript" src="../js/all.js"></script>
+<!---------------------->
+<style>
+.team-block {
+	cursor:pointer;
+	margin-bottom:15px;
+
+	overflow:hidden;
+	
+}
+.teamLabel{
+	color:rgba(46,147,219,1.00);
+	border-bottom:rgba(46,147,219,1.00) solid thin;
+	padding-bottom:2px;
+	margin-bottom:5px;
+	
+}
+.team-block-inner{
+		border-radius:2px;
+	background:rgba(243,252,255,1.00);
+	padding:10px;
+}
+.control-panel{
+	_margin-bottom:20px;
+	
+}
+.event-paint{
+	opacity:.5;
+	margin-bottom:20px;
+	cursor:pointer;
+}
+.event-paint .inner{
+	background:rgba(243,243,243,1.00);
+	padding:12px;
+}
+.event-paint .check {
+	display:none;
+	color:inherit;
+}
+.event-paint.painting{
+	opacity:1;
+	
+}
+.event-paint.painting .check {
+	display:inline-block !important;
+}
+
+.eid101 , .event-paint:nth-child(1) .inner {
+	background-color:purple;
+	color:white;
+}
+.eid102 , .event-paint:nth-child(2) .inner {
+	background-color:blue;
+	color:white
+}
+.eid103 , .event-paint:nth-child(3) .inner {
+	background-color:	green;
+	color:white;
+}
+.eid104 , .event-paint:nth-child(4) .inner {
+	background-color: orange ;
+	color:white;
+}
+
+
+
+</style>
+
+<script>
+getViewerRole().then(function(s){
+	if ( ! (s === 'TA' || s === 'teacher') ){
+	alert("你不是助教!\n頁面將跳轉回index");
+	document.location = "../index.html";
+	}
+});
+</script>
+</head>
+<body class="colorBody ">
+<div id="cover" style="display:none;" onClick="return false ;" >
+		後端運算時間大概 1~2mins 左右，本頁不要關，可以先到其他地方做事
+</div>
+<div class="topMargin"></div>
+	<div class="container control-panel">
+		<div class="step-label">
+			Step 1 : 請先選擇日期
+		</div>
+		<div class="control">
+			<select id="datelistApd">
+				<option>請選擇日期</option>
+			</select>
+		</div>
+		
+		<div class="step-label">
+			Step 2 : 請切換事件，切換後請至 Step 3 
+		</div>
+		<div class="row">
+			<div data-eid="101" class="event-paint col-xs-6 col-md-3"><div class=" inner">事件101 : XP:40<span class="pull-right check glyphicon glyphicon-ok" ></span></div></div>
+			<div data-eid="102" class="event-paint col-xs-6 col-md-3"><div class="inner">事件102 : XP:30<span class="pull-right check glyphicon glyphicon-ok" ></span></div></div>
+			<div data-eid="103" class="event-paint col-xs-6 col-md-3"><div class="inner">事件103 : XP:20<span class="pull-right check glyphicon glyphicon-ok" ></span></div></div>
+			<div data-eid="104" class="event-paint col-xs-6 col-md-3"><div class="inner">事件104 : XP:10<span class="pull-right check glyphicon glyphicon-ok" ></span></div></div>
+		</div>
+	</div>
+	
+
+	<div class="container">
+		<div class="step-label">
+			Step 3 : 請點擊要套用事件的隊伍，選完後可回到步驟二繼續
+		</div>
+
+		<div id="teamApd" class="row">
+			
+		</div>
+	</div>
+	
+	<div class="container">
+		<div class="step-label">
+		
+		</div>
+		<div class="btn btn-primary saveBtn pull-right">
+			送出結果
+		</div>
+	</div>
+</body>
+
+<script>
+
+var Team = (function(){
+	var T = this ;
+	var Parse_Team = Parse.Object.extend("Team");
+	
+	// attribute
+	T.cuttentTeams = [] ;
+	T.DateList = [] ;
+	T.AutoFillArr = [] ;
+	
+	// method ;
+	T.qDateList = function () {
+		var q = new Parse.Query (Parse_Team) ;
+		q.descending("date");
+		q.equalTo("teamID",0);
+		q.equalTo("memID",0);
+		return q.find();
+	}
+	
+	T.qTeamByDate = function (date){
+		//var date = getPureDate($("#teamDate").val()) ;
+		var q = new Parse.Query (Parse_Team) ;
+		q.include("User");
+		q.equalTo ("date" , date );
+		q.limit (1000);
+		return q.find();
+	};
+	
+
+	T.init = function (){	
+		// prepare List
+		var p = new Parse.Promise();
+		T.qDateList().then(function(list){
+			each(list,function(l){
+				var arr = [l.get("date").toLocaleDateString() , l.get("date")];
+				T.DateList.push(arr);
+			});
+			
+			var html = "" ;
+			each(T.DateList,function(dateRow,i){
+				html += "<option value="+i+">" + dateRow[0] + "</option>" ;
+			});
+			$("#datelistApd").html("");
+			$("#datelistApd").append(html);
+			
+			p.resolve(true);
+		});
+		return p ;
+	}
+	
+	T.switchDate = function (date) {
+		var p = new Parse.Promise();
+		var d = date.toLocaleDateString() ;
+		if (T.AutoFillArr[d] ){
+			// 已經有了
+			T.currentTeams = T.AutoFillArr[d] ;
+			p.resolve(T.AutoFillArr[d]);
+		}else{	
+			// 還沒有，從 server 拉
+			T.qTeamByDate (date).then(function (s){
+				T.AutoFillArr[d] = [] ;
+				each(s,function (ss){
+					var u = ss.get("User") ;
+					var tid = ss.get("teamID") ;
+					var uid = u.get("ID");
+					var n = u.get("name");
+					if (!T.AutoFillArr[d][tid]){
+						T.AutoFillArr[d][tid] = [];
+					}
+					T.AutoFillArr[d][tid].push([uid,n,u.id]);
+				});
+				T.currentTeams = T.AutoFillArr[d] ;
+				p.resolve(T.AutoFillArr[d]);
+			});
+		}
+		return p ;
+	}
+	return T ;
+})();
+
+
+var TeamDisplay = (function(){
+	var _this = this ;
+	
+	_this.team = function (datestr,teamID,teamArr){
+		var i = teamID ;
+		var mem = "" ;
+	//	console.log (teamArr);
+		for (var j = 0 ; j < teamArr.length ; j++){
+
+			 mem += _this.mem(teamArr[j][0],teamArr[j][1]) ;
+		}
+		return _this.html(datestr,i,mem);
+	}
+
+	_this.mem = function (id,name){
+		return '<div class="mem">\
+					<span class="ID">'+id+' </span>\
+					<span class="name">'+name+' </span>\
+				</div>'  ;
+	}
+	
+	_this.html = function(datestr,tid,mem){
+	 return '<div class="team-block col-lg-2 col-md-3 col-sm-4" data-datestr="'+ datestr +'" data-tid="'+tid+'">\
+	 	<div class="team-block-inner">\
+			<div class="teamLabel">Team '+ (tid+1)+'</div>\
+				<div class="mem-block">\
+				'+mem+'\
+				</div>\
+			</div>\
+		</div>\
+		</div>' ;
+	}
+	
+	return this; 
+})();
+
+
+var EventPaint = (function (){
+	var EP = this ;
+	
+	EP.current = {} ;
+	
+	EP.$collection = $(".event-paint");
+	
+	
+	EP.clear = function (){
+		EP.$collection.removeClass("painting");
+	}
+	
+	EP.makeCurrent = function ($ep){
+		 EP.current = {
+		  eid : $ep.data("eid") ,
+		  bgColor : $ep.find(".inner").eq(0).css("background-color")
+		 }
+			console.log (EP.current);
+		 $ep.addClass("painting");
+		 
+	}
+
+	return this ;
+})();
+
+
+// start 
+Team.init().then(function(s){
+	if(s){
+		$("#datelistApd").trigger("change");
+	}
+});
+
+
+
+var SaveController = (function(){
+	var _this = this ;
+	
+	
+	_this.savingArr = [];
+	
+	_this.add = function (datestring,tid,eid){
+		var f = function (e){
+			return ( !(e[0] === datestring && e[1] === tid) );
+		}
+		_this.savingArr = _this.savingArr.filter(f);
+		_this.savingArr.push([datestring,tid,eid]);
+		
+	};
+	
+	_this.save = function (){
+		
+	}
+
+
+	function makeSendEvent (user,eidNum,note){
+		if ( typeof user ==="string"){
+			user = pointer (user,"User");
+		}
+		
+		if (typeof eidNum === "string"){
+			eidNum = parseInt (eidNum) ;
+		}
+		
+		if (typeof note !== 'string '){
+			note = JSON.stringify(note);
+		}
+		var EventRecord = Parse.Object.extend("Event_Record");
+		var e = new EventRecord ();
+		e.set("target",user); // Target
+		e.set("eid",eidNum);
+		if (paraCheck(note)){
+			e.set("note",note);
+		}
+		return e ;
+	}
+
+
+
+	$(document).on('click','.saveBtn',function(e){
+		if ( !_this.savingArr.length > 0 ){
+			alert("沒有任何變更");
+			return false ;
+		}
+		if (! confirm("確認送出?")){
+			return false ;
+		}
+		var compare1 = function (a, b) {
+ 		 return a[2] - b[2] ||  a[1] - b [1] ;
+		}
+		_this.savingArr.sort(compare1);
+		var title = ""		
+		var LogStr = '' ;
+		var _btn = $(this);
+		$("#cover").addClass("disable-cover");
+		_btn.toggleDisabled();
+		var saveArr = [];
+		var datestr = '';
+		var currentTeams = [] ;
+		each(_this.savingArr,function(saveRow,i){
+			var eid = saveRow[2] ;
+			if ( i === 0 ){
+				// saveRow
+				// 0 : ex:"2014/11/3"
+				// 1 : tid ex:"0"
+				// 2 L eid ex:101
+				datestr = saveRow[0];
+				LogStr += datestr + "\n";
+				currentTeams = Team.AutoFillArr[datestr] ;
+				
+			}
+			if (title !== eid){
+				title = eid ; 
+				LogStr += "---------- Eid :" + title + " ----------\n" ;
+			}
+			
+			var tid = saveRow[1];
+			
+			LogStr += "Team " + (tid+ 1) + "，事件:" + saveRow[2] + "\n" ;
+			
+			
+			each(currentTeams[tid],function(mem){
+				var u = pointer(mem[2],"User");
+				if (i === 0 ){LogStr += "\t" +mem[1] + " 事件:" + saveRow[2] + "\n";}
+				var er = makeSendEvent (u,eid,{date:datestr});
+				saveArr.push (er);
+			});
+			if (i===0){
+				LogStr += "\t--以下不再顯示成員--\n" ;
+			}
+			
+		});
+		LogStr += "----- 事件發送結束 -----" ;
+		console.log ("Saving..." , saveArr);
+		Parse.Object.saveAll(saveArr).then(function(){
+			alert(LogStr);
+			_this.savingArr = [] ;
+			$("#datelistApd").trigger('change');
+			$("#cover").removeClass("disable-cover");		
+			_btn.toggleDisabled();
+		},function(e){
+			$("#cover").removeClass("disable-cover");		
+			_btn.toggleDisabled();
+			Log(e);
+		});
+	});
+	
+	return this ;
+})();
+
+
+
+$(document).on('change','#datelistApd',function(){
+	
+	if (SaveController.savingArr.length === 0 
+			|| confirm("切換日期後，會清空目前日期下套用的事件。\n確定清空目前日期下的變更?")){
+		SaveController.savingArr	= [] ;	
+	}else{
+		return false ;
+	}
+	
+//	console.log (Team.DateList)
+	$("#teamApd").html("");
+	var dateIndex = $(this).val();
+	//console.log (datestr);
+	var d = Team.DateList[dateIndex];
+	var datestr = d[0]
+	
+//	console.log(d);
+	Team.switchDate(d[1]).then(function(currentTeams){
+		console.log(currentTeams);
+		for (var i = 0 ; i < currentTeams.length ; i++ ){
+			var html = TeamDisplay.team(datestr,i,currentTeams[i]);
+			$("#teamApd").append(html);
+		}
+	},Log);
+});
+
+
+
+$(document).on('click','.event-paint',function(e){
+	var $this = $(this);
+	EventPaint.clear();
+	EventPaint.makeCurrent($this);
+});
+
+$(document).on('click','.team-block',function(e){
+	if (!EventPaint.current.eid){
+		alert("請從步驟二，點選要套用的事件後開始");
+		return false ;
+	}
+	var $this = $(this);
+	var eid = EventPaint.current.eid ;
+	
+	// push save record ;
+	SaveController.add($this.data('datestr') ,$this.data('tid') , eid);
+	console.log (SaveController.savingArr);
+	// chage the look
+	$this.data('eid',eid);
+	$this.find(".iTag").remove();
+	$this.find(".teamLabel").append('<span class="pull-right badge iTag eid'+eid+'">'+eid+'</span>')
+	
+});
+</script>
+
+</body>
+</html>

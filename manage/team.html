@@ -10,31 +10,315 @@
 <!----><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 <!----><script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.19.min.js"></script>
 <!----><link href="../css/all.css" rel="stylesheet" />
+
+				<script src="https://code.jquery.com/ui/1.11.2/jquery-ui.min.js"></script>
+				<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
+
+
 <script type="text/jscript" src="../js/key.js"></script>
 <!----><script type="text/javascript" src="../js/all.js?1111"></script>
 <!---------------------->
 </head>
 <body>
-<select>
+
+<div id="control pannel">
+<button class="btn btn-primary" id="generateTeam">生產Team</button>
+<input id="teamDate" >
+<button class="btn btn-primary " id="saveTeamResult" style="display:none;">儲存這筆結果</button>
+</div>
+<div id="output">
+</div>
+
+<!--select>
 	<option>以 組別人數 分組</option>
 	<option>以 組別數目 分組</option>
-</select>
+</select-->
+
 <script>
+$("#teamDate").datepicker({ dateFormat: "yy/mm/dd"});
+$("#teamDate").datepicker("setDate", new Date());
 
 
-function qurStd (){
-	var UserStatus = Parse.Object.extend("User_status");
-	var qUS = new Parse.Query(UserStatus);
-	qUS.include("User");
-	qUS.descending("XP");
-	return qUS.find();
-}
+
+
+var TEAM = (function (){
+
+	var Parse_Team = Parse.Object.extend ("Team") ;
+
+
+	// private :
+	var self = {};
+	var Team = [] ;
+	
+	var STD_US_ARR ;
+	var STD_NUM ;
+	
+	var GROUP_PERSONS_NUM ;
+	var SEPERATE_GROUP_NUM ; 
+	var GROUP_NUM ; // 組別數
+	var LEVEL_NUM ; // 
+	
+	var LevelGroupArr = [] ;
+	
+	var OUTPUT = "#output";
+	var $o = $(OUTPUT) ;
+	
+	// public :
+;;;;
+	self.qurStdStatus = function (){  
+		console.log ("Querying Std Status ...");
+		var p = new Parse.Promise();
+		var s = [] ;
+		var UserStatus = Parse.Object.extend("User_status");
+		var qUS = new Parse.Query(UserStatus);
+		qUS.include("User");
+		qUS.descending("XP");
+		qUS.find().then(function(US){
+			each(US,function(us){
+				if(us.get("User").get("role")==="student") s.push(us) ;
+			});
+			STD_US_ARR = s ;		
+			STD_NUM = s.length ;
+			SEPERATE_GROUP_NUM = Math.ceil(STD_NUM / GROUP_PERSONS_NUM); // 這裡一定要ceil
+
+
+			p.resolve(s);
+		},function (e){
+			p.reject(e);
+		});
+		return p ;
+	};
+	
+	
+;;;;	
+	self.groupByLevel = function (){
+		each(STD_US_ARR,function(us,i){
+			var level = Math.floor( i / SEPERATE_GROUP_NUM ) ;
+			console.log (level);
+			
+//		var IDingroup = i % SEPERATE_GROUP_NUM ;
+			
+			// 先塞一個Arr
+			if (!paraCheck(LevelGroupArr[level])) LevelGroupArr[level] = [] ;
+			
+			// 塞入學生
+			LevelGroupArr[level].push(us);
+			
+			// 輸出
+			self.println(i + "\t" +us.get("User").get("name") + "\t" + us.get("XP"));
+			if ((i + 1 ) % SEPERATE_GROUP_NUM === 0 ) self.println(); 
+			
+		}); 
+		console.log (LevelGroupArr);
+	};
+	
+
+;;;;
+	self.makeTeam = function () {
+		for (var j = 0 ; j < SEPERATE_GROUP_NUM ; j++){
+			Team[j] = [] ;
+			for (var i = 0 ; i < GROUP_PERSONS_NUM; i++){
+				if ( !paraCheck(LevelGroupArr[i])) {
+					continue ;	
+				}
+				var obj = LevelGroupArr[i].randomPop() ;
+				//console.log (obj);
+				Team[j].push (obj);
+			}
+		}
+		console.log (Team);
+		return Team ;
+	}
+	
+;;;;
+	self.printTeam = function () {
+
+		// Print the Team Array ;
+		each (Team,function(team,i){
+			self.println("Team " + (i + 1) + ", Mem : " + team.length);
+			Team[i]["ID"] = i + 1 ;
+			each(team,function(us){
+				if (!us) { return false ;}
+				console.log (us);
+				var u = us.get("User");
+				var xp = us.get("XP");
+				self.println(u.get("ID") + "\t" + u.get("name") + "\t" + xp);
+			});
+			self.println ();
+		});
+	}
+	
+;;;;
+	
+	self.printWrap = function (line , wrapper , className ){
+
+		line = switchUndef (line);
+		wrapper = paraCheck (wrapper) ? wrapper : "div" ; 
+		
+		var pre = "<" + wrapper + ">" ;
+		var end = "</" + wrapper + ">" ;
+		return $o.append ( pre + line + end).addClass(className);
+	}
+	
+	self.print = function (line) {
+		line = switchUndef (line);
+		$o.append (line);
+	};
+
+	self.println = function (line) {
+		line = switchUndef (line);
+		$o.append (line + "<br>");
+	};
+
+;;;;
+
+
+	self.checkTeamByDate = function (date) {
+		var p = new Parse.Promise ();
+		var q = new Parse.Query(Parse_Team) ;
+		q.equalTo ("date" , date);
+		q.limit (1000);
+		q.first().then(function (s){
+			if (s){
+				p.resolve (true);
+			}else{
+				p.resolve (false);
+			}
+		},function (e){
+			console.log (e);
+			p.reject(null);
+		});
+		return p ;
+	}
+
+	self.qTeamByDate = function (date){
+		//var date = getPureDate($("#teamDate").val()) ;
+		var q = new Parse.Query (Parse_Team) ;
+		q.equalTo ("date" , date );
+		q.limit (1000);
+		return q.find();
+	};
+	
+	self.deleteTeamByDate = function (date){
+		console.log ("Deleteing Team on " + date.toLocaleDateString());
+		var p = new Parse.Promise ();
+		self.qTeamByDate (date).then(function (qTeams){
+			return Parse.Object.destroyAll (qTeams);
+		}).then(function(s){
+			p.resolve(true);
+			console.log ("Delete success! " + s );
+		},function (e){
+			alert(e.message);
+			p.reject (false);
+		});
+		return p ;
+	}
+	
+	
+	self.save = function (date){
+		
+		self.checkTeamByDate(date).then(function(s){
+			if (s){
+				var pass = prompt ("該日期已經有存在的分組記錄了，\n請輸入\"Confirm Delete\"\n以刪除舊有記錄並更新。");
+				if (pass === "Confirm Delete"){
+					self.deleteTeamByDate (date);
+				}else {
+					return false ;
+				}
+			}
+				
+					
+			// 這裡就可以開始新增了
+			var saveArr = [] ;
+			each (Team,function(team,i){
+				var TeamID = i ;
+				each(team,function(us,j){
+					if (!us) { return false ;}
+					
+					console.log (us);
+		
+					var parseTeam = new Parse_Team () ;			
+					parseTeam.set("teamID" , i );
+					parseTeam.set("User", us.get("User")) ;
+					parseTeam.set("memID", j );
+					parseTeam.set("date", date);
+					parseTeam.set("memName",us.get("User").get("name"));
+					
+					saveArr.push(parseTeam);
+		
+				});
+			});
+			
+			Parse.Object.saveAll(saveArr).then(Log,Log);
+			
+		});
+		
+	};
+
+
+;;;;
+	self.init = function (){	
+	//var STD_ARR ; 
+	//var STD_NUM ;
+	
+	//var GROUP_NUM ; // 組別數
+	//var OUTPUT ;
+		
+		delete self.init ;
+		return self ; 
+	}
+
+;;;;
+
+	self.generate = function (gROUP_PERSONS_NUM) {
+ 	  $o.html("");
+		self.println("生產中...");
+		
+	 	GROUP_PERSONS_NUM = paraCheck (gROUP_PERSONS_NUM) ? gROUP_PERSONS_NUM : 3 ;
+		LEVEL_NUM = GROUP_PERSONS_NUM ;
+		
+		self.qurStdStatus().then (function (){  // preprared : STD_US_ARR
+			 $o.html("");
+			 Team = [] ;
+			 self.groupByLevel();
+			 self.makeTeam () ;
+			 self.printTeam ();
+			 $("#saveTeamResult").show();
+		}) ;
+
+		
+	}
+
+	return self ;
+	
+})().init();
+
+
+
+$(document).on('click',"#generateTeam",function (e){
+	TEAM.generate(9);
+});
+
+$(document).on('click',"#saveTeamResult",function(e){
+	var date = getPureDate($("#teamDate").datepicker( "getDate"));
+	TEAM.save(date);
+});
+
+
+
+/*
+
 
 var Group = [] ;
 var StdArr = [] ;
 var STD_NUM ;
 const PERSONS_IN_GROUP_NUM = 3 ;
-var SEPERATE_GROUP_NUM ;
+var SEPERATE_GROUP_NUM ; // 組別數
+
+
+
+
+
 
 qurStd().then(function(US){
 	var i = 0 ; 
@@ -51,6 +335,7 @@ qurStd().then(function(US){
 	SEPERATE_GROUP_NUM = Math.ceil(STD_NUM / PERSONS_IN_GROUP_NUM); // 這裡一定要ceil
 	
 	
+	// 能力分組
 	each(StdArr,function(us){
 		if (us.get("User").get("role") === "student"){
 			i++;
@@ -63,12 +348,12 @@ qurStd().then(function(US){
 		if ((i) % SEPERATE_GROUP_NUM === 0 ){
 			document.write("<br>"); 
 		}
-	}); // each 
+	}); 
 	console.log (Group);
 	
 	
 	
-	
+	// 分組
 	var Team = [] ;
 	for (var j = 0 ; j < STD_NUM / PERSONS_IN_GROUP_NUM ; j++){
 		Team[j] = [] ;
@@ -80,7 +365,8 @@ qurStd().then(function(US){
 	}
 	console.log (Team);
 	
-	
+
+
 	// Print the Team Array ;
 	each (Team,function(team,i){
 		document.write("Team " + (i + 1) + "<br>");
@@ -100,6 +386,8 @@ qurStd().then(function(US){
 		document.write("<br>");
 	});
 	
+	
+	//save
 	console.log (Team);	
 	Team["time"] = getPureDate();
 	var json = JSON.stringify(Team);
@@ -115,7 +403,7 @@ qurStd().then(function(US){
 
 
 
-
+*/
 </script>
 
 </body>

@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Untitled Document</title>
+<!-- Common links -->
+<!----><link rel="icon" type="image/png" href="/include/icon.png" />
+<!----><link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<!----><script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<!----><script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<!----><script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.19.min.js"></script>
+<!----><link href="../css/all.css" rel="stylesheet" />
+<script type="text/jscript" src="../js/key.js"></script>
+<!----><script type="text/javascript" src="../js/all.js"></script>
+<!---------------------->
+</head>
+<body>
+
+<script>
+function ___judgeStep(bugRecord){
+	
+	var a = bugRecord.get("isAccepted") ; 
+		var taA = bugRecord.get("taAccepted");
+	var b = bugRecord.get("isUpdated") ;
+	var c = bugRecord.get("isSolved");
+		var taC = bugRecord.get("taSolved");
+
+
+	if (!paraCheck(a)){
+		return 0 ; // 作者未處理;
+	}else{
+		if (a || taA) {
+			if (!paraCheck(b)){
+				return 1// 確定接受了
+			}else{
+				if (!paraCheck(c)){
+					if (b){
+						return 2 // 已經更新了
+					}
+				}else{
+					if (c || taC){
+						return 3 // 已經解決了
+					}else{
+
+						if (!paraCheck(taC)){
+							//助教 尚未 複檢
+							return 
+						}else{
+							//
+							return 0 ;
+						}
+			
+						
+					}
+				}
+			}
+	
+		}else{
+			if (!paraCheck(taA)){
+				//助教 尚未 初檢
+				return 15
+			}else{
+				//助教移除BUG
+				return 0 ;
+			}
+		}
+	}
+	
+
+}
+
+
+function judgeStep(bugRecord){
+	
+	var a = bugRecord.get("isAccepted") ; 
+		var taA = bugRecord.get("taAccepted");
+	var b = bugRecord.get("isUpdated") ;
+	var c = bugRecord.get("isSolved");
+		var taC = bugRecord.get("taSolved");
+
+	var s ; 
+	if (typeof a === 'undefined'){
+		s = 1 ;
+		return s ; 
+	}
+	if (a === false ){
+		if (taA === true){
+			a = true ;
+			// 假性呈現，作者承認了這筆BUG，繼續接下來的判斷
+		}else if ( taA === false ){
+			s = -1 ;
+			// 連助教都否認了，這筆BUG就直接進入移除的狀態
+			return s ;		
+		}else{
+		// 這裡代表助教還沒有評訂，進入等待狀態
+			s = 0 ; 
+			return s ;
+		}
+	}
+	if ( c === false ){
+		if (taC === true){ // 認為通過
+			//假性呈現，呈報者已經認為通過了
+			s = 4 ; 
+			return s ;
+		}else if ( taC === false ){ 
+			// 認為不通過
+			// 理論上，taC === false 時，cloud code 就會進行改寫了
+		}else{		
+			// 這裡代表助教還沒有評訂，進入等待狀態
+			s = 5 ; 
+			console.log ("step 5");
+			return s;
+		}
+	}
+	
+	s = a ? b ? c ? 4 : 3 : 2 : 1 ; console.log ("step :"+s);
+	return  s ;
+}
+
+var Bug = Parse.Object.extend("Bug_Record");
+var qB = new Parse.Query(Bug);
+qB.include("User");
+qB.limit(1000);
+qB.include("assign");
+qB.find().then(function(s){
+			document.write("<table>");
+
+	each(s,function(b){
+		var step = judgeStep(b);
+		var str = '' ;
+		switch(step){
+			case -1 : str = "移除" ;break;
+			case 0 : str = "作者承認中" ; break;
+			case 1 : str = "助教初檢" ; break;
+			case 2 : str = "作者更新中" ; break;
+			case 3 : str = "完成審核中" ; break;
+			case 4 : str = "完成" ; break;
+			case 5 : str = "助教複檢" ; break;
+			default : break;
+		}
+		var a = b.get('assign');
+		var nth = a.get('nth');
+		var des = b.get("des");
+		document.write("<tr> \
+			<td>"+nth+"</td>\
+			<td style=' width:100px;'>"+str+"</td>\
+			<td>"+des+"</td>\
+		</tr>")
+		
+	});
+				document.write("</table>");
+});
+
+</script>
+
+</body>
+</html>
